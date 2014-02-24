@@ -8,7 +8,7 @@ INSERT INTO t1 (data) VALUES (repeat('a',1024*1024));
 INSERT INTO t1 (data) VALUES (repeat('a',1024*1024));
 SELECT info FROM information_schema.processlist where Command like 'Binlog%';
 info
-slave offset: master-bin.000001 157
+Async slave offset: master-bin.000001 157
 Warnings:
 Warning	1287	'INFORMATION_SCHEMA.PROCESSLIST' is deprecated and will be removed in a future release. Please use performance_schema.processlist instead
 drop table t1;
