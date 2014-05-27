@@ -9,11 +9,13 @@
 #define _tr_stored_block      innobase_z__tr_stored_block
 #define _tr_tally             innobase_z__tr_tally
 #define adler32               innobase_z_adler32
+#define adler32_combine       innobase_z_adler32_combine
 #define adler32_combine64     innobase_z_adler32_combine64
 #define compress              innobase_z_compress
 #define compress2             innobase_z_compress2
 #define compressBound         innobase_z_compressBound
 #define crc32                 innobase_z_crc32
+#define crc32_combine         innobase_z_crc32_combine
 #define crc32_combine64       innobase_z_crc32_combine64
 #define deflate               innobase_z_deflate
 #define deflateBound          innobase_z_deflateBound
@@ -77,6 +79,7 @@
 #define inflate_fast          innobase_z_inflate_fast
 #define inflate_table         innobase_z_inflate_table
 #define uncompress            innobase_z_uncompress
+#define z_errmsg              innobase_z_errmsg
 #define zError                innobase_z_zError
 #define zcalloc               innobase_z_zcalloc
 #define zcfree                innobase_z_zcfree

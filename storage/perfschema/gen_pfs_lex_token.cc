@@ -21,6 +21,7 @@
 
 /* We only need the tokens here */
 #define YYSTYPE_IS_DECLARED
+class THD;
 #include <../sql/sql_yacc.h>
 #include <lex.h>
 

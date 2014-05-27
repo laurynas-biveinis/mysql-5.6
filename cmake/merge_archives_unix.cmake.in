@@ -43,7 +43,7 @@ FOREACH(LIB ${STATIC_LIBS})
   # they occur into an output file.
   EXECUTE_PROCESS(
     COMMAND ${CMAKE_AR} -t ${LIB}
-    COMMAND /bin/sort
+    COMMAND /usr/bin/sort
     COMMAND /usr/bin/uniq -c
     COMMAND /bin/sed -e "s/^ *//g"
     OUTPUT_FILE ${LIB_FILES_FILE}
