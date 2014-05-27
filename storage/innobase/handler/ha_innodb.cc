@@ -11641,6 +11641,10 @@ ha_innobase::info_low(
 			dict_stats_upd_option_t	opt;
 			dberr_t			ret;
 
+			dict_mutex_enter_for_mysql();
+			dict_stats_recalc_pool_del(ib_table);
+			dict_mutex_exit_for_mysql();
+
 			prebuilt->trx->op_info = "updating table statistics";
 
 			if (dict_stats_is_persistent_enabled(ib_table)) {

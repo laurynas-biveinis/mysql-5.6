@@ -8,6 +8,8 @@ SET innodb_fake_changes=0;
 SELECT VARIABLE_VALUE INTO @innodb_rows_inserted_2 FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME = 'Innodb_rows_inserted';
 SELECT VARIABLE_VALUE INTO @innodb_rows_deleted_2 FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME = 'Innodb_rows_deleted';
 SELECT VARIABLE_VALUE INTO @innodb_rows_updated_2 FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME = 'Innodb_rows_updated';
+SELECT VARIABLE_VALUE INTO @innodb_bp_pages_dirty_2 FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME = 'Innodb_buffer_pool_pages_dirty';
+SELECT VARIABLE_VALUE INTO @innodb_bp_writes_2 FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME = 'Innodb_buffer_pool_write_requests';
 
 eval SELECT MODIFIED_COUNTER AS should_be_0 FROM INFORMATION_SCHEMA.INNODB_SYS_TABLESTATS WHERE NAME LIKE 'test/$fake_changes_table';
 
@@ -31,6 +33,8 @@ eval SELECT "$t_checksum_1" LIKE "$t_checksum_2" AS should_be_1;
 SELECT @innodb_rows_inserted_2 - @innodb_rows_inserted_1 AS should_be_0;
 SELECT @innodb_rows_deleted_2 - @innodb_rows_deleted_1 AS should_be_0;
 SELECT @innodb_rows_updated_2 - @innodb_rows_updated_1 AS should_be_0;
+SELECT @innodb_bp_pages_dirty_2 - @innodb_bp_pages_dirty_1 AS should_be_0;
+SELECT @innodb_bp_writes_2 - @innodb_bp_writes_1 AS should_be_0;
 SELECT @table_stat_rows_inserted_2 - @table_stat_rows_inserted_1 AS should_be_0;
 SELECT @table_stat_rows_updated_2 - @table_stat_rows_updated_1 AS should_be_0;
 SELECT @table_stat_rows_deleted_2 - @table_stat_rows_deleted_1 AS should_be_0;
