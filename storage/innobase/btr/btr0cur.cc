@@ -263,6 +263,7 @@ btr_cur_latch_leaves(
 	mtr_t*		mtr)		/*!< in: mtr */
 {
 	ulint		mode;
+	ulint		sibling_mode;
 	ulint		left_page_no;
 	ulint		right_page_no;
 	buf_block_t*	get_block;
@@ -281,25 +282,38 @@ btr_cur_latch_leaves(
 		get_block->check_index_page_at_flush = TRUE;
 		return;
 	case BTR_SEARCH_TREE:
-		ut_ad(mtr->trx->fake_changes);
-		/* fall thru */
 	case BTR_MODIFY_TREE:
-		mode = latch_mode == BTR_SEARCH_TREE ? RW_S_LATCH : RW_X_LATCH;
+		if (UNIV_UNLIKELY(latch_mode == BTR_SEARCH_TREE)) {
+			ut_ad(mtr->trx->fake_changes);
+			mode = RW_S_LATCH;
+			sibling_mode = RW_NO_LATCH;
+		} else {
+			mode = sibling_mode = RW_X_LATCH;
+		}
 
-		/* x-latch also brothers from left to right */
+		/* Fetch and possibly latch also brothers from left to right */
 		left_page_no = btr_page_get_prev(page, mtr);
 
 		if (left_page_no != FIL_NULL) {
 			get_block = btr_block_get(
 				space, zip_size, left_page_no,
-				mode, cursor->index, mtr);
+				sibling_mode, cursor->index, mtr);
 #ifdef UNIV_BTR_DEBUG
 			ut_a(page_is_comp(get_block->frame)
 			     == page_is_comp(page));
 			ut_a(btr_page_get_next(get_block->frame, mtr)
 			     == page_get_page_no(page));
 #endif /* UNIV_BTR_DEBUG */
-			get_block->check_index_page_at_flush = TRUE;
+			if (UNIV_UNLIKELY(sibling_mode == RW_NO_LATCH)) {
+				/* btr_block_get() called with RW_NO_LATCH will
+				fix the read block in the buffer.  This serves
+				no purpose for the fake changes prefetching,
+				thus we unfix the sibling blocks immediately.*/
+				mtr_memo_release(mtr, get_block,
+						 MTR_MEMO_BUF_FIX);
+			} else {
+				get_block->check_index_page_at_flush = TRUE;
+			}
 		}
 
 		get_block = btr_block_get(
@@ -315,14 +329,19 @@ btr_cur_latch_leaves(
 		if (right_page_no != FIL_NULL) {
 			get_block = btr_block_get(
 				space, zip_size, right_page_no,
-				mode , cursor->index, mtr);
+				sibling_mode, cursor->index, mtr);
 #ifdef UNIV_BTR_DEBUG
 			ut_a(page_is_comp(get_block->frame)
 			     == page_is_comp(page));
 			ut_a(btr_page_get_prev(get_block->frame, mtr)
 			     == page_get_page_no(page));
 #endif /* UNIV_BTR_DEBUG */
-			get_block->check_index_page_at_flush = TRUE;
+			if (UNIV_UNLIKELY(sibling_mode == RW_NO_LATCH)) {
+				mtr_memo_release(mtr, get_block,
+						 MTR_MEMO_BUF_FIX);
+			} else {
+				get_block->check_index_page_at_flush = TRUE;
+			}
 		}
 
 		return;
