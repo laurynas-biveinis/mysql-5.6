@@ -2460,8 +2460,7 @@ row_upd_clust_step(
 		}
 	}
 
-	ut_ad(thr_get_trx(thr)->fake_changes ||
-	      lock_trx_has_rec_x_lock(thr_get_trx(thr), index->table,
+	ut_ad(lock_trx_has_rec_x_lock(thr_get_trx(thr), index->table,
 				      btr_pcur_get_block(pcur),
 				      page_rec_get_heap_no(rec)));
 

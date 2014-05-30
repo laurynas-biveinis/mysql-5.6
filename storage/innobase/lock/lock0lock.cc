@@ -7180,12 +7180,28 @@ lock_trx_has_rec_x_lock(
 	const buf_block_t*	block,	/*!< in: buffer block of the record */
 	ulint			heap_no)/*!< in: record heap number */
 {
+	enum lock_mode	intention_lock;
+	enum lock_mode	rec_lock;
+
 	ut_ad(heap_no > PAGE_HEAP_NO_SUPREMUM);
 
+	if (UNIV_UNLIKELY(trx->fake_changes)) {
+
+		intention_lock = LOCK_IS;
+		rec_lock = LOCK_S;
+	} else {
+
+		intention_lock = LOCK_IX;
+		rec_lock = LOCK_X;
+	}
 	lock_mutex_enter();
-	ut_a(lock_table_has(trx, table, LOCK_IX));
-	ut_a(lock_rec_has_expl(LOCK_X | LOCK_REC_NOT_GAP,
-			       block, heap_no, trx));
+	ut_a(lock_table_has(trx, table, intention_lock));
+
+	if (UNIV_LIKELY(!trx->fake_changes) || srv_fake_changes_locks) {
+
+		ut_a(lock_rec_has_expl(rec_lock | LOCK_REC_NOT_GAP,
+				       block, heap_no, trx));
+	}
 	lock_mutex_exit();
 	return(true);
 }
