@@ -2367,14 +2367,15 @@ row_ins_clust_index_entry_low(
 
 	mtr_start_trx(&mtr, thr_get_trx(thr));
 
-	/* Note: built-in online schema changes may not work when
-	fake_changes is TRUE. It should be tested what to do
-	(e.g. acquire lock or not) before using them together*/
-	if (UNIV_UNLIKELY(thr_get_trx(thr)->fake_changes)) {
-		use_mode = (mode & BTR_MODIFY_TREE) ? BTR_SEARCH_TREE : BTR_SEARCH_LEAF;
-	} else if (mode == BTR_MODIFY_LEAF && dict_index_is_online_ddl(index)) {
-		use_mode = mode = BTR_MODIFY_LEAF | BTR_ALREADY_S_LATCHED;
+	if (mode == BTR_MODIFY_LEAF && dict_index_is_online_ddl(index)) {
+		mode = BTR_MODIFY_LEAF | BTR_ALREADY_S_LATCHED;
 		mtr_s_lock(dict_index_get_lock(index), &mtr);
+	}
+
+	if (UNIV_UNLIKELY(thr_get_trx(thr)->fake_changes)) {
+		use_mode = (mode & BTR_MODIFY_LEAF)
+			? ((mode & ~BTR_MODIFY_LEAF) | BTR_SEARCH_LEAF)
+			: ((mode & ~BTR_MODIFY_TREE) | BTR_SEARCH_TREE);
 	} else {
 		use_mode = mode;
 	}
