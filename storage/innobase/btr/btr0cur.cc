@@ -1588,7 +1588,6 @@ btr_cur_pessimistic_insert(
 	dberr_t		err;
 	ibool		dummy_inh;
 	ibool		success;
-	ulint		n_extents	= 0;
 	ulint		n_reserved	= 0;
 
 	ut_ad(dtuple_check_typed(entry));
@@ -1616,16 +1615,14 @@ btr_cur_pessimistic_insert(
 	}
 
 	if (!(flags & BTR_NO_UNDO_LOG_FLAG)) {
+
+		ut_a(cursor->tree_height != ULINT_UNDEFINED);
+
 		/* First reserve enough free space for the file segments
 		of the index tree, so that the insert will not fail because
 		of lack of space */
 
-		n_extents = cursor->tree_height / 16 + 3;
-
-		if (UNIV_UNLIKELY(cursor->tree_height == ULINT_UNDEFINED)) {
-			ut_a(thr && thr_get_trx(thr)->fake_changes);
-			n_extents = 3;
-		}
+		ulint	n_extents = cursor->tree_height / 16 + 3;
 
 		success = fsp_reserve_free_extents(&n_reserved, index->space,
 						   n_extents, FSP_NORMAL, mtr);
@@ -1664,7 +1661,7 @@ btr_cur_pessimistic_insert(
 
 	if (thr && UNIV_UNLIKELY(thr_get_trx(thr)->fake_changes)) {
 		/* skip CHANGE, LOG */
-		if (n_extents > 0) {
+		if (n_reserved > 0) {
 			fil_space_release_free_extents(index->space,
 					n_reserved);
 		}
