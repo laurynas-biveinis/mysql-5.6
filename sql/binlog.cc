@@ -8349,8 +8349,24 @@ int MYSQL_BIN_LOG::open_binlog(const char *opt_name) {
     Later we will take this value and truncate the log if need be.
   */
   if (!read_binlog_in_use_flag(binlog_file_reader)) {
-    /* should execute ha_recover */
-    error = ha_recover();
+    /*
+     * If we are here, it implies either mysqld was shutdown cleanly or
+     * it was killed during binlog rotation where old binlog file was
+     * closed cleanly but new binlog file was not created. In the later case,
+     * the storage engine recovery must be triggered so that engine's binlog
+     * coordinates (engine_binlog_file and engine_binlog_pos) are updated
+     * properly.
+     *
+     * Note we don't need binlog recovery here since it was closed cleanly.
+     * Since recovery in fb-mysql works assuming storage engine as source
+     * of truth, it doesn't need the list of xids to recover.
+     * We will update binlog state (GTID_SET) based on the storage engine
+     * coordinates in init_slave().
+     */
+    int memory_page_size = my_getpagesize();
+    MEM_ROOT mem_root(key_memory_binlog_recover_exec, memory_page_size);
+    xid_to_gtid_container xids(&mem_root);
+    error = ha_recover(&xids, nullptr, &engine_binlog_max_gtid);
     if (error) LogErr(ERROR_LEVEL, ER_BINLOG_CRASH_RECOVERY_ERROR_RETURNED_SE);
     return error;
   }

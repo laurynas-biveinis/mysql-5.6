@@ -6,6 +6,7 @@ Note	####	Storing MySQL user name or password information in the connection meta
 [connection slave]
 [connection master]
 call mtr.add_suppression("Unsafe statement written to the binary log using statement format since BINLOG_FORMAT = STATEMENT");
+call mtr.add_suppression("Recovery from source pos [0-9]+ and file [a-zA-Z-]*\.*[0-9]* for channel ''*");
 include/sync_slave_sql_with_master.inc
 include/stop_slave.inc
 CHANGE REPLICATION SOURCE TO SOURCE_AUTO_POSITION = 1;

@@ -6,6 +6,7 @@
 --source include/rpl_connection_master.inc
 
 call mtr.add_suppression("Unsafe statement written to the binary log using statement format since BINLOG_FORMAT = STATEMENT");
+call mtr.add_suppression("Recovery from source pos [0-9]+ and file [a-zA-Z-]*\.*[0-9]* for channel ''*");
 
 --source include/sync_slave_sql_with_master.inc
 --source include/stop_slave.inc
