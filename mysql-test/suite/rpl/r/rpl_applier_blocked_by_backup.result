@@ -18,10 +18,14 @@ FLUSH BINARY LOGS;
 # Check that relay logs have not been purged on replica
 #
 include/sync_slave_sql_with_master.inc
-./slave-relay-bin.000001
-./slave-relay-bin.000002
-./slave-relay-bin.000003
-./slave-relay-bin.000004
+./slave-relay-bin.000001 8
+########
+./slave-relay-bin.000002 8
+########
+./slave-relay-bin.000003 8
+########
+./slave-relay-bin.000004 8
+########
 include/assert_error_log.inc [server: 2, pattern: Could not purge binary logs since another session is executing LOCK INSTANCE FOR BACKUP. Wait for that session to release the lock.
 Could not purge binary logs since another session is executing LOCK INSTANCE FOR BACKUP. Wait for that session to release the lock.]
 #
@@ -38,8 +42,10 @@ FLUSH BINARY LOGS;
 # Check relay logs have been purged on replica
 #
 include/sync_slave_sql_with_master.inc
-./slave-relay-bin.000005
-./slave-relay-bin.000006
+./slave-relay-bin.000005 8
+########
+./slave-relay-bin.000006 8
+########
 include/assert_error_log.inc [server: 2, pattern: NONE]
 call mtr.add_suppression("Could not purge binary logs since another session is executing LOCK INSTANCE FOR BACKUP. Wait for that session to release the lock.");
 #

@@ -42,7 +42,7 @@ FLUSH BINARY LOGS;
 
 --source include/sync_slave_sql_with_master.inc
 
---replace_regex /[\\]/\//
+--replace_regex /[\\]/\// /\x00/#/
 --cat_file $MYSQLD_SLAVE_DATADIR/slave-relay-bin.index
 
 let $error_pattern =
@@ -70,7 +70,7 @@ FLUSH BINARY LOGS;
 
 --source include/sync_slave_sql_with_master.inc
 
---replace_regex /[\\]/\//
+--replace_regex /[\\]/\// /\x00/#/
 --cat_file $MYSQLD_SLAVE_DATADIR/slave-relay-bin.index
 
 --let $error_pattern = NONE

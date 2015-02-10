@@ -35,6 +35,8 @@
 --source include/have_debug.inc
 --source include/have_binlog_format_mixed.inc
 
+call mtr.add_suppression("Error reading GTIDs from binary log");
+
 RESET MASTER;
 
 --let $MYSQLD_DATADIR = `SELECT @@DATADIR`
@@ -148,7 +150,6 @@ RESET MASTER;
 # Search for error message : 'binlog truncated in the middle of event; consider out of disk space'
 #
 let $error_pattern = Error in Log_event::read_log_event().*
-  Error reading GTIDs from binary log.*
 ;
 --source include/assert_error_log.inc
 

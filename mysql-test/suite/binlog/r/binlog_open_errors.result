@@ -1,3 +1,4 @@
+call mtr.add_suppression("Error reading GTIDs from binary log");
 RESET MASTER;
 include/save_error_log_position.inc
 Prepare binary log with header only
@@ -16,7 +17,6 @@ include/assert_error_log.inc [server: 1, pattern: Error in Log_event::read_log_e
 # restart
 RESET MASTER;
 include/assert_error_log.inc [server: 1, pattern: Error in Log_event::read_log_event().*
-Error reading GTIDs from binary log.*
 ]
 
 # 3. Test Found invalid event sequence while recovering from binary log file #
