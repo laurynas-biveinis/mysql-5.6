@@ -1,8 +1,9 @@
 # Checks if the slave stops executing transactions when master's binlog format
 # is STATEMENT but rpl_skip_tx_api is enabled
+-- source include/have_rocksdb.inc
 -- source include/master-slave.inc
 
-call mtr.add_suppression("Master's binlog format is not ROW but rpl_skip_tx_api is enabled on the slave");
+call mtr.add_suppression("Source's binlog format is not ROW but rpl_skip_tx_api is enabled on the slave");
 
 connection slave;
 let $old_rpl_skip_tx_api= `SELECT @@global.rpl_skip_tx_api`;
@@ -17,7 +18,7 @@ insert into t1 values(1);
 
 # Wait till we hit the binlog format mismatch error
 connection slave;
-let $slave_sql_errno= convert_error(ER_MTS_INCONSISTENT_DATA); # 1756
+let $slave_sql_errno= convert_error(ER_MTA_INCONSISTENT_DATA); # 1756
 let $show_slave_sql_error= 1;
 source include/wait_for_slave_sql_error.inc;
 
