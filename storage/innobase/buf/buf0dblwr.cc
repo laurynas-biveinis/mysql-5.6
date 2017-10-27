@@ -1684,7 +1684,7 @@ dberr_t Double_write::sync_page_flush(buf_page_t *bpage,
   auto err = write_to_datafile(bpage, true, e_block);
 
   if (err == DB_SUCCESS) {
-    fil_flush(bpage->id.space());
+    fil_flush(bpage->id.space(), FLUSH_FROM_DOUBLEWRITE);
   } else {
     /* This block is not freed if the write_to_datafile doesn't succeed. */
     if (e_block != nullptr) {
@@ -2523,7 +2523,7 @@ dberr_t dblwr::write(buf_flush_t flush_type, buf_page_t *bpage,
       ut_ad(flush_type == BUF_FLUSH_LRU || flush_type == BUF_FLUSH_SINGLE_PAGE);
 
       if (err == DB_SUCCESS) {
-        fil_flush(space_id);
+        fil_flush(space_id, FLUSH_FROM_DOUBLEWRITE);
       }
       /* true means we want to evict this page from the LRU list as well. */
       buf_page_io_complete(bpage, true);
@@ -2602,7 +2602,7 @@ void Double_write::write_complete(buf_page_t *bpage,
                            : Double_write::s_flush_list_batch_segments;
           }
 
-          fil_flush_file_spaces();
+          fil_flush_file_spaces(FLUSH_FROM_DOUBLEWRITE);
 
           while (!segments->enqueue(batch_segment)) {
             std::this_thread::yield();
@@ -3197,7 +3197,7 @@ void recv::Pages::recover(fil_space_t *space) noexcept {
   }
 
   reduced_recover(space);
-  fil_flush_file_spaces();
+  fil_flush_file_spaces(FLUSH_FROM_DOUBLEWRITE);
 #endif /* !UNIV_HOTBACKUP */
 }
 
