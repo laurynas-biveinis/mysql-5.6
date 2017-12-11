@@ -244,6 +244,9 @@ static char *opt_authentication_oci_client_config_profile = nullptr;
 #include "multi_factor_passwordopt-vars.h"
 #include "sslopt-vars.h"
 
+/* The SSL context that will be reused across invocations. */
+static void *ssl_context = nullptr;
+
 const char *default_dbug_option = "d:t:o,/tmp/mysql.trace";
 static void *ssl_session_data = nullptr;
 
@@ -1516,6 +1519,9 @@ void mysql_end(int sig) {
     delete global_attrs;
     global_attrs = nullptr;
   }
+#if defined(HAVE_OPENSSL)
+  SSL_CTX_free((SSL_CTX *)ssl_context);
+#endif
   exit(status.exit_status);
 }
 
@@ -4646,6 +4652,8 @@ static int sql_real_connect(char *host, char *database, char *user, char *,
   } else {
     DBUG_PRINT("error", ("unable to save SSL session"));
   }
+  ssl_context = mysql_take_ssl_context_ownership(&mysql);
+
 #ifdef _WIN32
   /* Convert --execute buffer from UTF8MB4 to connection character set */
   if (!execute_buffer_conversion_done && status.line_buff &&
@@ -4717,6 +4725,10 @@ static bool init_connection_options(MYSQL *mysql) {
 
   if (ssl_session_data)
     mysql_options(mysql, MYSQL_OPT_SSL_SESSION_DATA, ssl_session_data);
+
+  if (ssl_context) {
+    mysql_options(mysql, MYSQL_OPT_SSL_CONTEXT, ssl_context);
+  }
 
   if (opt_protocol)
     mysql_options(mysql, MYSQL_OPT_PROTOCOL, (char *)&opt_protocol);
