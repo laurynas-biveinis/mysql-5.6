@@ -155,6 +155,8 @@ SET(CLIENT_API_FUNCTIONS
   mysql_binlog_fetch
   mysql_binlog_open
   mysql_take_ssl_context_ownership
+  cli_safe_read
+  cli_safe_read_nonblocking
 
   CACHE INTERNAL "Functions exported by client API"
 )
