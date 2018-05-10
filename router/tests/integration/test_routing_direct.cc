@@ -93,7 +93,7 @@ static constexpr const auto kIdleServerConnectionsSleepTime{10ms};
 static constexpr const std::string_view kDisabled{"DISABLED"};
 static constexpr const std::string_view kRequired{"REQUIRED"};
 static constexpr const std::string_view kPreferred{"PREFERRED"};
-static constexpr const std::string_view kPassthrough{"PASSTHROUGH"};
+//static constexpr const std::string_view kPassthrough{"PASSTHROUGH"};
 static constexpr const std::string_view kAsClient{"AS_CLIENT"};
 
 std::ostream &operator<<(std::ostream &os, MysqlError e) {
@@ -288,12 +288,12 @@ const ConnectionParam connection_params[] = {
         kPreferred,
     },
 
-    // PASSTHROUGH
-    {
-        "PASSTHROUGH__AS_CLIENT",
-        kPassthrough,
-        kAsClient,
-    },
+    /*    // PASSTHROUGH
+        {
+            "PASSTHROUGH__AS_CLIENT",
+            kPassthrough,
+            kAsClient,
+        },*/
 
     // PREFERRED
     {
