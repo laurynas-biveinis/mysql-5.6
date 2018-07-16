@@ -3567,10 +3567,10 @@ ER_SEMISYNC_FAILED_REGISTER_REPLICA_TO_RECEIVER
   eng "Failed to register replica to semi-sync ACK receiver thread."
 
 ER_SEMISYNC_START_BINLOG_DUMP_TO_REPLICA
-  eng "Start %s binlog_dump to replica (server_id: %d), pos(%s, %lu)."
+  eng "Start %s binlog_dump to replica (server_id: %d), pos(%s, %lu), host(%s)."
 
 ER_SEMISYNC_STOP_BINLOG_DUMP_TO_REPLICA
-  eng "Stop %s binlog_dump to replica (server_id: %d)."
+  eng "Stop %s binlog_dump to replica (server_id: %d), host(%s)."
 
 ER_SEMISYNC_UNREGISTER_TRX_OBSERVER_FAILED
   eng "unregister_trans_observer failed."
