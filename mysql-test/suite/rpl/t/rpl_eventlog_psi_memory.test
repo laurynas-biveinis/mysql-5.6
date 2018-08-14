@@ -39,6 +39,7 @@
 --echo # 1. Initial setup
 --source include/master-slave.inc
 
+SET GLOBAL binlog_row_metadata = MINIMAL;
 
 --echo
 --echo # 2. Verify that current_number_of_bytes_used for 'memory/sql/Log_event'
@@ -90,3 +91,5 @@ DELETE FROM t1;
 --source include/rpl_connection_master.inc
 DROP TABLE t1;
 --source include/rpl_end.inc
+
+SET GLOBAL binlog_row_metadata = default;

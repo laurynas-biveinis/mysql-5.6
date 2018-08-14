@@ -5,6 +5,7 @@ Warnings:
 Note	####	Sending passwords in plain text without SSL/TLS is extremely insecure.
 Note	####	Storing MySQL user name or password information in the connection metadata repository is not secure and is therefore not recommended. Please consider using the USER and PASSWORD connection options for START REPLICA; see the 'START REPLICA Syntax' in the MySQL Manual for more information.
 [connection master]
+SET GLOBAL binlog_row_metadata = MINIMAL;
 
 # 2. Verify that current_number_of_bytes_used for 'memory/sql/Log_event'
 #    is same at global and thread level
@@ -31,3 +32,4 @@ include/assert.inc [Thread Memory count matches]
 [connection master]
 DROP TABLE t1;
 include/rpl_end.inc
+SET GLOBAL binlog_row_metadata = default;
