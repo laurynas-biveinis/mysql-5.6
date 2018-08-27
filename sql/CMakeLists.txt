@@ -481,6 +481,7 @@ SET(SQL_SHARED_SOURCES
   psi_memory_key.cc
   psi_memory_resource.cc
   query_result.cc
+  query_tag_perf_counter.cc
   raii/targeted_stringstream.cc
   range_optimizer/geometry_index_range_scan.cc
   range_optimizer/group_index_skip_scan.cc
