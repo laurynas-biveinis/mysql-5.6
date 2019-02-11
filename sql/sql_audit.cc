@@ -381,9 +381,14 @@ int mysql_audit_notify(THD *thd, mysql_event_general_subclass_t subclass,
   event.general_user.str = sctx->user().str;
   event.general_user.length = sctx->user().str ? sctx->user().length : 0;
   event.general_ip = sctx->ip();
+  event.database.str = thd->db().str;
+  event.database.length = thd->db().length;
+  event.query_id = thd->query_id;
   event.general_host = sctx->host();
   event.general_external_user = sctx->external_user();
   event.general_rows = thd->get_stmt_da()->current_row_for_condition();
+  event.affected_rows = thd->get_row_count_func();
+  event.port = mysqld_port;
 
   if (msg != nullptr && thd->lex->sql_command == SQLCOM_END &&
       thd->get_command() != COM_QUERY) {
@@ -460,6 +465,9 @@ int mysql_audit_notify(THD *thd, mysql_event_connection_subclass_t subclass,
   event.database.str = thd->db().str;
   event.database.length = thd->db().length;
   event.connection_type = thd->get_vio_type();
+  event.connection_certificate.str = thd->connection_certificate().c_str();
+  event.connection_certificate.length = thd->connection_certificate().size();
+  event.port = mysqld_port;
 
   if (subclass == MYSQL_AUDIT_CONNECTION_DISCONNECT) {
     Ignore_event_error_handler handler(thd, subclass_name);
