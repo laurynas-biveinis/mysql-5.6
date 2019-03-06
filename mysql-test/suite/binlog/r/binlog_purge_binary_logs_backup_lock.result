@@ -19,7 +19,7 @@ PURGE BINARY LOGS TO 'binlog.000001';
 #
 SET SESSION lock_wait_timeout = 1;
 LOCK INSTANCE FOR BACKUP;
-ERROR HY000: Lock wait timeout exceeded; try restarting transaction
+ERROR HY000: Lock wait timeout exceeded; try restarting transaction: Timeout on backup
 #
 # Continue PURGE BINARY LOGS operation
 #

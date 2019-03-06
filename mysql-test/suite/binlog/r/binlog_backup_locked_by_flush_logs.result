@@ -18,7 +18,7 @@ binlog.000002	SIZE	No
 #
 SET SESSION lock_wait_timeout = 1;
 LOCK INSTANCE FOR BACKUP;
-ERROR HY000: Lock wait timeout exceeded; try restarting transaction
+ERROR HY000: Lock wait timeout exceeded; try restarting transaction: Timeout on backup
 #
 # Continue FLUSH BINARY LOGS operation
 #
