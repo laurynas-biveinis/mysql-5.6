@@ -85,6 +85,8 @@ class Resource {
   Resource &operator=(Resource const &other) = delete;
   Resource &operator=(Resource &&other) = delete;
 
+  void reset() { m_user_count = 0; }
+
  private:
   /// Try to block the resource from being used, for the given reason.
   [[nodiscard]] int try_block(const std::string &reason) {

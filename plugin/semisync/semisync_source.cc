@@ -41,6 +41,7 @@
 #define TIME_BILLION 1000000000
 
 /* This indicates whether semi-synchronous replication is enabled. */
+bool rpl_semi_sync_source_crash_if_active_trxs;
 bool rpl_semi_sync_source_enabled;
 unsigned long rpl_semi_sync_source_timeout;
 unsigned long rpl_semi_sync_source_trace_level;
@@ -61,6 +62,8 @@ unsigned long long rpl_semi_sync_source_net_wait_time = 0;
 unsigned long long rpl_semi_sync_source_trx_wait_time = 0;
 bool rpl_semi_sync_source_wait_no_replica = true;
 unsigned int rpl_semi_sync_source_wait_for_replica_count = 1;
+
+resource_blocker::Resource &get_dump_thread_resource();
 
 static int getWaitTime(const struct timespec &start_ts);
 
@@ -863,6 +866,15 @@ void ReplSemiSyncMaster::force_switch_on() { state_ = true; }
  */
 int ReplSemiSyncMaster::switch_off() {
   const char *kWho = "ReplSemiSyncMaster::switch_off";
+
+  if (rpl_semi_sync_source_crash_if_active_trxs &&
+      !active_tranxs_->is_empty()) {
+    LogErr(ERROR_LEVEL, ER_SEMISYNC_FORCE_SHUTDOWN);
+    delete_pid_file(MYF(MY_WME));
+    resource_blocker::Resource &blocker(get_dump_thread_resource());
+    blocker.reset();
+    exit(0);
+  }
 
   function_enter(kWho);
   state_ = false;
