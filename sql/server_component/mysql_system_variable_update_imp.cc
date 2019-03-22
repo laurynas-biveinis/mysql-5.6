@@ -98,7 +98,7 @@ static bool prepare_thread_and_validate(Set_variables_helper &hlp,
       locks during the update. Should that happen, we don't want to be holding
       LOCK_system_variables_hash.
     */
-    hlp.get_thd()->variables.lock_wait_timeout = 5;
+    hlp.get_thd()->variables.lock_wait_timeout_nsec = 5 * 1000000000ULL;
   }
   // success
   return false;

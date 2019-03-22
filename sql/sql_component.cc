@@ -59,7 +59,8 @@ bool Sql_cmd_install_component::execute(THD *thd) {
     return true;
   }
 
-  if (acquire_shared_backup_lock(thd, thd->variables.lock_wait_timeout))
+  if (acquire_shared_backup_lock_nsec(thd,
+                                      thd->variables.lock_wait_timeout_nsec))
     return true;
 
   Disable_autocommit_guard autocommit_guard(thd);
@@ -159,8 +160,10 @@ bool Sql_cmd_install_component::execute(THD *thd) {
     }
   }
   if (set_var_failed) {
-    if (acquire_shared_backup_lock(thd, thd->variables.lock_wait_timeout) ||
-        acquire_shared_global_read_lock(thd, thd->variables.lock_wait_timeout))
+    if (acquire_shared_backup_lock_nsec(
+            thd, thd->variables.lock_wait_timeout_nsec) ||
+        acquire_shared_global_read_lock_nsec(
+            thd, thd->variables.lock_wait_timeout_nsec))
       return true;
     if (dynamic_loader_srv->unload(urns.data(), m_urns.size()) ||
         mysql_persistent_dynamic_loader_imp::remove_from_cache(
@@ -183,7 +186,8 @@ bool Sql_cmd_uninstall_component::execute(THD *thd) {
     return true;
   }
 
-  if (acquire_shared_backup_lock(thd, thd->variables.lock_wait_timeout))
+  if (acquire_shared_backup_lock_nsec(thd,
+                                      thd->variables.lock_wait_timeout_nsec))
     return true;
 
   Disable_autocommit_guard autocommit_guard(thd);

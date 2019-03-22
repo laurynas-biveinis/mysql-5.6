@@ -630,7 +630,8 @@ Table_access_impl::~Table_access_impl() {
       After initialization of the server, InnoDB's data dictionary cache is
       reset. It requires all tables, including the cached ones, to be released.
     */
-    close_cached_tables(m_child_thd, m_table_array, false, LONG_TIMEOUT);
+    close_cached_tables_nsec(m_child_thd, m_table_array, false,
+                             LONG_TIMEOUT_NSEC);
   }
 
   m_child_thd->release_resources();

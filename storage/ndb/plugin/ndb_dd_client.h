@@ -110,8 +110,8 @@ class Ndb_dd_client {
 
      @return true if acquired successfully, false if not
    */
-  bool mdl_locks_acquire(MDL_request_list mdl_requests,
-                         ulong lock_wait_timeout);
+  bool mdl_locks_acquire_nsec(MDL_request_list mdl_requests,
+                              ulonglong lock_wait_timeout_nsec);
   /**
      @brief Release EXPLICIT locks held by the previous registered tickets
    */
