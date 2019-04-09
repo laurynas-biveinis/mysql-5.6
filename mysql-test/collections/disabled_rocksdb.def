@@ -77,5 +77,4 @@ rocksdb.rocksdb_deadlock_detect_rr : BUG#0000 Rebase: not-yet-implemented
 rocksdb.bloomfilter2 : BUG#0000 Rebase: not-yet-implemented
 rocksdb.bloomfilter3 : BUG#0000 Rebase: not-yet-implemented
 rocksdb.track_and_verify_wals_in_manifest : BUG#0000 Rebase: not-yet-implemented
-rocksdb.mysqldump : BUG#0000 Rebase: not-yet-implemented
 rocksdb_rpl.rocksdb_slave_check_before_image_consistency : BUG#0000 Rebase: not-yet-implemented
