@@ -2245,6 +2245,7 @@ Execute_sql_statement::Execute_sql_statement(LEX_STRING sql_text)
 bool Execute_sql_statement::execute_server_code(THD *thd) {
   sql_digest_state *parent_digest;
   PSI_statement_locker *parent_locker;
+  ulonglong last_time;
   bool error;
 
   if (alloc_query(thd, m_sql_text.str, m_sql_text.length)) return true;
@@ -2268,6 +2269,7 @@ bool Execute_sql_statement::execute_server_code(THD *thd) {
 
   thd->lex->set_trg_event_type_for_tables();
 
+  last_time = my_timer_now();
   parent_locker = thd->m_statement_psi;
   thd->m_statement_psi = nullptr;
 
@@ -2279,7 +2281,7 @@ bool Execute_sql_statement::execute_server_code(THD *thd) {
   rewrite_query_if_needed(thd);
   log_execute_line(thd);
 
-  error = mysql_execute_command(thd);
+  error = mysql_execute_command(thd, false, &last_time);
   thd->m_statement_psi = parent_locker;
 
 end:
@@ -3640,6 +3642,7 @@ bool Prepared_statement::execute(THD *thd, String *expanded_query,
     with hashes in situ without flagging it, and then we'd make
     a hash of that hash.
   */
+  ulonglong last_time = my_timer_now();
   rewrite_query_if_needed(thd);
   log_execute_line(thd);
 
@@ -3648,7 +3651,7 @@ bool Prepared_statement::execute(THD *thd, String *expanded_query,
   resource_group_switched = mgr_ptr->switch_resource_group_if_needed(
       thd, &src_res_grp, &dest_res_grp, &ticket, &cur_ticket);
 
-  status = mysql_execute_command(thd, true);
+  status = mysql_execute_command(thd, true, &last_time);
   if (status) return true;
 
   if (open_cursor) {
