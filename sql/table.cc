@@ -3257,6 +3257,9 @@ int open_table_from_share(THD *thd, TABLE_SHARE *share, const char *alias,
   /* Increment the opened_tables counter, only when open flags set. */
   if (db_stat) thd->status_var.opened_tables++;
 
+  /* set creation time */
+  outparam->set_last_access_time();
+
   return 0;
 
 err:
@@ -8081,3 +8084,15 @@ void TABLE::set_pos_in_table_list(Table_ref *table_list) noexcept {
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+void TABLE_SHARE::set_last_access_time() noexcept {
+  this->last_accessed = std::chrono::system_clock::now();
+}
+
+void TABLE::set_last_access_time() noexcept {
+  this->last_accessed = std::chrono::system_clock::now();
+}
+
+bool should_be_evicted(time_point last_accessed, time_point cutpoint) noexcept {
+  return last_accessed < cutpoint;
+}
