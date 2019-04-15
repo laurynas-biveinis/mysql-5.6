@@ -33,7 +33,7 @@
   @file storage/perfschema/pfs_variable.cc
   Performance schema system variable and status variable (implementation).
 */
-
+#include "mf_wcomp.h"
 #include "mutex_lock.h"
 #include "my_macros.h"
 #include "my_sys.h"
@@ -150,9 +150,57 @@ bool PFS_system_variable_cache::match_scope(int scope) {
 }
 
 /**
+  Helper class to filter out variables and status that don't match
+  a prefix conditional like `SHOW VARIABLES LIKE 'sql%';` to speed
+  up `SHOW VARIABLES | STATUS` processing.
+*/
+class show_vars_prefix_match {
+ private:
+  const char *m_wild;
+  std::size_t m_before_wild_len;
+
+ public:
+  show_vars_prefix_match(THD *thd) {
+    const LEX *lex = thd->lex;
+    m_wild = (lex && lex->wild) ? lex->wild->ptr() : nullptr;
+    m_before_wild_len = 0;
+
+    // Only perform matching for show variable and status commands
+    if (m_wild == nullptr || (lex->sql_command != SQLCOM_SHOW_VARIABLES &&
+                              lex->sql_command != SQLCOM_SHOW_STATUS)) {
+      return;
+    }
+
+    // Find the length of the user's 'LIKE' parameter until the first wildcard
+    while (m_wild && m_wild[m_before_wild_len] != wild_one &&
+           m_wild[m_before_wild_len] != wild_many &&
+           m_wild[m_before_wild_len] != wild_prefix &&
+           m_wild[m_before_wild_len] != '\0') {
+      ++m_before_wild_len;
+    }
+  }
+
+  bool match(const char *name) const {
+    // Skip prefix matching, which means everything is considered a match
+    if (m_before_wild_len == 0) {
+      return true;
+    }
+
+    const auto len = strlen(name);
+    // Perform prefix match
+    return system_charset_info->coll->strnncoll(
+               system_charset_info, reinterpret_cast<const uchar *>(name), len,
+               reinterpret_cast<const uchar *>(m_wild), m_before_wild_len,
+               true) == 0;
+  }
+};
+
+/**
   Build a GLOBAL system variable cache.
 */
 int PFS_system_variable_cache::do_materialize_global() {
+  show_vars_prefix_match prefix(m_current_thd);
+
   /* Block plugins from unloading. */
   mysql_mutex_lock(&LOCK_plugin_delete);
 
@@ -169,9 +217,10 @@ int PFS_system_variable_cache::do_materialize_global() {
 
   /* Resolve the value for each SHOW_VAR in the array, add to cache. */
   for (const System_variable_tracker &i : m_sys_var_tracker_array) {
-    auto f = [this](const System_variable_tracker &, sys_var *sysvar) -> void {
+    auto f = [this, prefix](const System_variable_tracker &,
+                            sys_var *sysvar) -> void {
       /* Match the system variable scope to the target scope. */
-      if (match_scope(sysvar->scope())) {
+      if (match_scope(sysvar->scope()) && prefix.match(sysvar->name.str)) {
         const SHOW_VAR show_var{sysvar->name.str, pointer_cast<char *>(sysvar),
                                 SHOW_SYS, SHOW_SCOPE_UNDEF};
         /* Resolve value, convert to text, add to cache. */
@@ -216,9 +265,14 @@ int PFS_system_variable_cache::do_materialize_all(THD *unsafe_thd) {
   THD_ptr thd_ptr = get_THD(unsafe_thd);
   m_safe_thd = thd_ptr.get();
   if (m_safe_thd != nullptr) {
+    show_vars_prefix_match prefix(m_current_thd);
     DEBUG_SYNC(m_current_thd, "materialize_session_variable_array_THD_locked");
     for (const System_variable_tracker &i : m_sys_var_tracker_array) {
-      auto f = [this](const System_variable_tracker &, sys_var *sysvar) {
+      auto f = [this, prefix](const System_variable_tracker &,
+                              sys_var *sysvar) {
+        if (!prefix.match(sysvar->name.str)) {
+          return;
+        }
         SHOW_VAR show_var;
         show_var.name = sysvar->name.str;
         show_var.value = (char *)sysvar;
@@ -309,8 +363,10 @@ int PFS_system_variable_cache::do_materialize_session(PFS_thread *pfs_thread) {
   THD_ptr thd_ptr = get_THD(pfs_thread);
   m_safe_thd = thd_ptr.get();
   if (m_safe_thd != nullptr) {
+    show_vars_prefix_match prefix(m_current_thd);
     for (const System_variable_tracker &i : m_sys_var_tracker_array) {
-      auto f = [this](const System_variable_tracker &, sys_var *sysvar) {
+      auto f = [this, prefix](const System_variable_tracker &,
+                              sys_var *sysvar) {
         SHOW_VAR show_var;
         show_var.name = sysvar->name.str;
         show_var.value = (char *)sysvar;
@@ -318,7 +374,7 @@ int PFS_system_variable_cache::do_materialize_session(PFS_thread *pfs_thread) {
         show_var.scope = SHOW_SCOPE_UNDEF; /* not used for sys vars */
 
         /* Match the system variable scope to the target scope. */
-        if (match_scope(sysvar->scope())) {
+        if (match_scope(sysvar->scope()) && prefix.match(show_var.name)) {
           /* Resolve value, convert to text, add to cache. */
           const System_variable system_var(m_safe_thd, &show_var,
                                            m_query_scope);
@@ -364,10 +420,12 @@ int PFS_system_variable_cache::do_materialize_session(PFS_thread *pfs_thread,
   THD_ptr thd_ptr = get_THD(pfs_thread);
   m_safe_thd = thd_ptr.get();
   if (m_safe_thd != nullptr) {
+    show_vars_prefix_match prefix(m_current_thd);
     if (index < m_sys_var_tracker_array.size()) {
-      auto f = [this](const System_variable_tracker &, sys_var *sysvar) {
+      auto f = [this, prefix](const System_variable_tracker &,
+                              sys_var *sysvar) {
         /* Match the system variable scope to the target scope. */
-        if (match_scope(sysvar->scope())) {
+        if (match_scope(sysvar->scope()) && prefix.match(sysvar->name.str)) {
           SHOW_VAR show_var;
           show_var.name = sysvar->name.str;
           show_var.value = (char *)sysvar;
@@ -418,10 +476,12 @@ int PFS_system_variable_cache::do_materialize_session(THD *unsafe_thd) {
   THD_ptr thd_ptr = get_THD(unsafe_thd);
   m_safe_thd = thd_ptr.get();
   if (m_safe_thd != nullptr) {
+    show_vars_prefix_match prefix(m_current_thd);
     for (const System_variable_tracker &i : m_sys_var_tracker_array) {
-      auto f = [this](const System_variable_tracker &, sys_var *sysvar) {
+      auto f = [this, prefix](const System_variable_tracker &,
+                              sys_var *sysvar) {
         /* Match the system variable scope to the target scope. */
-        if (match_scope(sysvar->scope())) {
+        if (match_scope(sysvar->scope()) && prefix.match(sysvar->name.str)) {
           SHOW_VAR show_var;
           show_var.name = sysvar->name.str;
           show_var.value = (char *)sysvar;
@@ -1407,6 +1467,8 @@ void PFS_status_variable_cache::manifest(THD *thd,
                                          System_status_var *status_vars,
                                          const char *prefix, bool nested_array,
                                          bool strict) {
+  show_vars_prefix_match px(thd);
+
   for (const SHOW_VAR *show_var_iter = show_var_array;
        show_var_iter && show_var_iter->name; show_var_iter++) {
     // work buffer, must be aligned to handle long/longlong values
@@ -1420,6 +1482,9 @@ void PFS_status_variable_cache::manifest(THD *thd,
       SHOW_FUNC resolves to another SHOW_FUNC.
     */
     if (show_var_ptr->type == SHOW_FUNC) {
+      if (!px.match(show_var_ptr->name)) {
+        continue;
+      }
       show_var_tmp = *show_var_ptr;
       /*
         Execute the function reference in show_var_tmp->value, which returns
