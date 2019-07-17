@@ -77,6 +77,7 @@ ADD_LIBRARY(gunit_small STATIC
   strnxfrm.cc
   thread_utils.cc
   fake_table.cc
+  fake_mdl.cc
 )
 SET_TARGET_PROPERTIES(gunit_small
   PROPERTIES COMPILE_DEFINITIONS "${DISABLE_PSI_DEFINITIONS}"
@@ -357,6 +358,7 @@ ADD_LIBRARY(sqlgunitlib STATIC ${SQL_GUNIT_LIB_SOURCE})
 ADD_DEPENDENCIES(sqlgunitlib GenError)
 SET_TARGET_PROPERTIES(sqlgunitlib
   PROPERTIES COMPILE_DEFINITIONS "${DISABLE_PSI_DEFINITIONS}"
+  LINK_LIBRARIES extra::rapidjson
 )
 
 MYSQL_ADD_EXECUTABLE(merge_small_tests-t ${ALL_SMALL_TESTS}
