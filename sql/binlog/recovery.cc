@@ -57,6 +57,11 @@ std::string const &binlog::Binlog_recovery::get_failure_message() const {
 binlog::Binlog_recovery &binlog::Binlog_recovery::recover(
     Gtid *binlog_max_gtid, char *engine_binlog_file,
     my_off_t *engine_binlog_pos) {
+  /*
+    Flag to indicate if we have seen a gtid which is pending i.e the trx
+    represented by this gtid has not yet ended
+  */
+  bool pending_gtid = false;
   m_current_gtid.clear();
 
   binlog::Decompressing_event_object_istream istream{this->m_reader};
@@ -82,6 +87,7 @@ binlog::Binlog_recovery &binlog::Binlog_recovery::recover(
       case binary_log::GTID_LOG_EVENT: {
         auto gev = dynamic_cast<Gtid_log_event *>(ev.get());
         if (gev != nullptr) {
+          pending_gtid = true;
           if (gev->get_type() != ANONYMOUS_GTID)
             m_current_gtid.set(gev->get_sidno(true), gev->get_gno());
           else
@@ -95,9 +101,13 @@ binlog::Binlog_recovery &binlog::Binlog_recovery::recover(
 
     // Whenever the current position is at a transaction boundary, save it
     // to m_valid_pos
-    if (!this->m_is_malformed && !this->m_in_transaction &&
-        !is_gtid_event(ev.get()) && !is_session_control_event(ev.get()))
-      this->m_valid_pos = this->m_reader.position();
+    if (!(ev->get_type_code() == binary_log::METADATA_EVENT && pending_gtid)) {
+      if (!this->m_is_malformed && !this->m_in_transaction &&
+          !is_gtid_event(ev.get()) && !is_session_control_event(ev.get())) {
+        this->m_valid_pos = this->m_reader.position();
+        pending_gtid = false;
+      }
+    }
 
     if (this->m_is_malformed) break;
   }
