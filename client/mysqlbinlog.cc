@@ -744,6 +744,7 @@ static bool debug_info_flag, debug_check_flag;
 static bool force_if_open_opt = true, raw_mode = false;
 static bool to_last_remote_log = false, stop_never = false;
 static bool opt_verify_binlog_checksum = true;
+static bool opt_skip_verify_if_open = true;
 static ulonglong offset = 0;
 static int64 stop_never_slave_server_id = -1;
 static int64 connection_server_id = -1;
@@ -2382,6 +2383,11 @@ static struct my_option my_long_options[] = {
      (uchar **)&opt_verify_binlog_checksum,
      (uchar **)&opt_verify_binlog_checksum, nullptr, GET_BOOL, NO_ARG, 0, 0, 0,
      nullptr, 0, nullptr},
+    {"skip-verify-if-open", 'n',
+     "Skip verify checksum binlog events "
+     "if binlog file is open.",
+     (uchar **)&opt_skip_verify_if_open, (uchar **)&opt_skip_verify_if_open, 0,
+     GET_BOOL, NO_ARG, 1, 0, 0, nullptr, 0, nullptr},
     {"binlog-row-event-max-size", OPT_BINLOG_ROWS_EVENT_MAX_SIZE,
      "The maximum size of a row-based binary log event in bytes. Rows will be "
      "grouped into events smaller than this size if possible. "
@@ -3491,6 +3497,7 @@ static Exit_status dump_local_log_entries(PRINT_EVENT_INFO *print_event_info,
         warning("File ends with a truncated event.");
         return OK_CONTINUE;
       }
+      if (opt_skip_verify_if_open && in_use_flag) return OK_CONTINUE;
 
       error(
           "Could not read entry at offset %s: "

@@ -42,7 +42,7 @@ CREATE TABLE t (a INT);
 
 --echo # Verify that mysqlbinlog fails
 --source include/save_binlog_position.inc
---let $assert_command = $MYSQL_BINLOG --force-if-open $binlog_fullpath 2>&1
+--let $assert_command = $MYSQL_BINLOG --force-if-open --skip-verify-if-open=0 $binlog_fullpath 2>&1
 --let $assert_regex = ERROR: Could not read entry at offset .*: Error in log format or read error 1..*ERROR: corrupted data in log event
 --let $assert_status = 1
 --source include/assert_command_output.inc
