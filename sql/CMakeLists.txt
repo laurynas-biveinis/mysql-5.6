@@ -1110,6 +1110,8 @@ SET (RPL_REPLICA_SRCS
   rpl_trx_boundary_parser.cc
   udf_service_impl.cc
   udf_service_util.cc
+  log_event_wrapper.cc
+  dependency_slave_worker.cc
   )
 ADD_LIBRARY(rpl_replica STATIC ${RPL_REPLICA_SRCS})
 ADD_DEPENDENCIES(rpl_replica GenError)

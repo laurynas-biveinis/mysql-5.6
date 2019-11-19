@@ -10,6 +10,7 @@ call mtr.add_suppression("Failed to initialize the connection metadata structure
 call mtr.add_suppression("Replica failed to initialize applier metadata*");
 call mtr.add_suppression("MTA recovery: automatic recovery failed.*");
 call mtr.add_suppression("Recovery from source pos");
+call mtr.add_suppression("Error writing relay log configuration.");
 #### I. Initialize ####
 [connection slave]
 include/stop_slave.inc
