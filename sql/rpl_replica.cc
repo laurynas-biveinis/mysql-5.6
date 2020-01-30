@@ -5370,6 +5370,7 @@ extern "C" void *handle_slave_io(void *arg) {
     struct PSI_thread *psi = PSI_THREAD_CALL(get_thread)();
     thd_set_psi(mi->info_thd, psi);
 #endif
+    mysql_thread_set_psi_id(thd->thread_id());
     mysql_thread_set_psi_THD(thd);
 
     thd->thread_stack = (char *)&thd;  // remember where our stack is
@@ -6002,6 +6003,7 @@ static void *handle_slave_worker(void *arg) {
   psi = PSI_THREAD_CALL(get_thread)();
   thd_set_psi(w->info_thd, psi);
 #endif
+  mysql_thread_set_psi_id(thd->thread_id());
   mysql_thread_set_psi_THD(thd);
 
   if (init_replica_thread(thd, SLAVE_THD_WORKER)) {
@@ -7006,6 +7008,7 @@ extern "C" void *handle_slave_sql(void *arg) {
     struct PSI_thread *psi = PSI_THREAD_CALL(get_thread)();
     thd_set_psi(rli->info_thd, psi);
 #endif
+    mysql_thread_set_psi_id(thd->thread_id());
     mysql_thread_set_psi_THD(thd);
 
     if (rli->channel_mts_submode != MTS_PARALLEL_TYPE_DB_NAME)
