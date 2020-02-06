@@ -642,6 +642,9 @@ ib_mutex_t srv_misc_tmpfile_mutex;
 /** Temporary file for miscellaneous diagnostic output */
 FILE *srv_misc_tmpfile;
 
+/* big_file_slow_removal speed */
+ulong srv_slowrm_speed_mbps = 0;
+
 #ifndef UNIV_HOTBACKUP
 static ulint srv_main_thread_process_no = 0;
 static std::thread::id srv_main_thread_id{};
@@ -1175,6 +1178,8 @@ static void srv_init(void) {
       ut_a(slot->event);
     }
 
+    srv_slowrm_event = os_event_create();
+
     srv_error_event = os_event_create();
 
     srv_monitor_event = os_event_create();
@@ -1229,6 +1234,7 @@ void srv_free(void) {
       os_event_destroy(slot->event);
     }
 
+    os_event_destroy(srv_slowrm_event);
     os_event_destroy(srv_error_event);
     os_event_destroy(srv_monitor_event);
     os_event_destroy(srv_buf_dump_event);

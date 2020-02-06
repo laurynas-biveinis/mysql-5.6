@@ -122,7 +122,7 @@ static void remove_file(const std::string &file) {
       const auto to_remove = std::string{path} + OS_PATH_SEPARATOR + file_name;
       remove_file(to_remove);
     };
-    if (!os_file_scan_directory(file.c_str(), scan_cbk, true)) {
+    if (!os_file_scan_directory(file.c_str(), scan_cbk, false, true)) {
       ib::error(ER_IB_CLONE_STATUS_FILE)
           << "Error removing directory : " << file.c_str();
     }
@@ -133,7 +133,7 @@ static void remove_file(const std::string &file) {
       return;
     }
 
-    auto ret = std::remove(file.c_str());
+    auto ret = slowfileremove(file.c_str());
 
     if (ret != 0) {
       ib::error(ER_IB_CLONE_STATUS_FILE)
