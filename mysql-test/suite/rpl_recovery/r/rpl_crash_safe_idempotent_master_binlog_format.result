@@ -3,12 +3,9 @@ Warnings:
 Note	####	Sending passwords in plain text without SSL/TLS is extremely insecure.
 Note	####	Storing MySQL user name or password information in the connection metadata repository is not secure and is therefore not recommended. Please consider using the USER and PASSWORD connection options for START REPLICA; see the 'START REPLICA Syntax' in the MySQL Manual for more information.
 [connection master]
-call mtr.add_suppression("Source's binlog format is not ROW but rpl_skip_tx_api is enabled on the replica");
+call mtr.add_suppression("Source's binlog format is not ROW but slave_use_idempotent_for_recovery is enabled on the replica");
 [connection slave]
-set @save.rpl_skip_tx_api = @@global.rpl_skip_tx_api;
-set global rpl_skip_tx_api=ON;
 [connection master]
-set local rocksdb_unsafe_for_binlog=1;
 create table t1(a int);
 set session binlog_format=STATEMENT;
 Warnings:
@@ -16,12 +13,13 @@ Warning	1287	'@@binlog_format' is deprecated and will be removed in a future rel
 insert into t1 values(1);
 [connection slave]
 include/wait_for_slave_sql_error.inc [errno=1756]
-Last_SQL_Error = 'Source's binlog format is not ROW but rpl_skip_tx_api is enabled on the replica, this should only be used when source's binlog format is ROW.'
+Last_SQL_Error = 'Source's binlog format is not ROW but slave_use_idempotent_for_recovery is enabled on the replica, this should only be used when source's binlog format is ROW.'
 [connection slave]
 select * from t1;
 ERROR 42S02: Table 'test.t1' doesn't exist
 [connection slave]
-set global rpl_skip_tx_api=OFF;
+set @save.slave_use_idempotent_for_recovery = @@global.slave_use_idempotent_for_recovery;
+set global slave_use_idempotent_for_recovery=no;
 include/start_slave.inc
 [connection master]
 include/sync_slave_sql_with_master.inc
@@ -30,7 +28,7 @@ include/sync_slave_sql_with_master.inc
 select * from t1;
 a
 1
-set @@global.rpl_skip_tx_api = @save.rpl_skip_tx_api;
+set @@global.slave_use_idempotent_for_recovery = @save.slave_use_idempotent_for_recovery;
 [connection master]
 drop table t1;
 include/rpl_end.inc
