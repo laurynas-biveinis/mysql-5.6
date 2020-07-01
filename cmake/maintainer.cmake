@@ -119,6 +119,11 @@ IF(MY_COMPILER_IS_CLANG)
   STRING_APPEND(MY_CXX_WARNING_FLAGS " -Wundefined-reinterpret-cast")
   STRING_APPEND(MY_CXX_WARNING_FLAGS " -Wrange-loop-analysis")
 
+  # Suppress warnings for clang-18 or newer
+  IF(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 18)
+    STRING_APPEND(MY_CXX_WARNING_FLAGS " -Wno-deprecated-declarations")
+  ENDIF()
+
   MY_ADD_CXX_WARNING_FLAG("Winconsistent-missing-destructor-override")
   MY_ADD_CXX_WARNING_FLAG("Winconsistent-missing-override")
   MY_ADD_CXX_WARNING_FLAG("Wshadow-field")
