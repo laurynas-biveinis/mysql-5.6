@@ -2843,6 +2843,7 @@ class THD : public MDL_context_owner,
   sp_cache *sp_func_cache;
 
   /** number of name_const() substitutions, see sp_head.cc:subst_spvars() */
+  bool non_xid_trx = false;
   uint query_name_consts;
 
   /* Used by the sys_var class to store temporary values */
