@@ -285,6 +285,7 @@ Warnings:
 Warning	1287	'@@sync_relay_log_info' is deprecated and will be removed in a future release.
 Warning	1287	'@@sync_relay_log_info' is deprecated and will be removed in a future release.
 SET PERSIST sync_source_info = @@GLOBAL.sync_source_info;
+SET PERSIST update_binlog_pos_threshold = @@GLOBAL.update_binlog_pos_threshold;
 
 include/assert.inc ['Expect $expected persisted variables in persisted_variables table.']
 
@@ -526,6 +527,7 @@ RESET PERSIST IF EXISTS sync_relay_log_info;
 RESET PERSIST IF EXISTS sync_source_info;
 Warnings:
 Warning	3615	Variable sync_source_info does not exist in persisted config file
+RESET PERSIST IF EXISTS update_binlog_pos_threshold;
 
 include/assert.inc [Expect 0 persisted variables.]
 

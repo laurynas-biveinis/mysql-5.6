@@ -309,6 +309,7 @@ Warnings:
 Warning	1287	'@@sync_relay_log_info' is deprecated and will be removed in a future release.
 Warning	1287	'@@sync_relay_log_info' is deprecated and will be removed in a future release.
 SET PERSIST_ONLY sync_source_info = @@GLOBAL.sync_source_info;
+SET PERSIST_ONLY update_binlog_pos_threshold = @@GLOBAL.update_binlog_pos_threshold;
 
 include/assert.inc ['Expect $expected persisted variables in persisted_variables table.']
 
@@ -448,6 +449,7 @@ RESET PERSIST sync_binlog;
 RESET PERSIST sync_relay_log;
 RESET PERSIST sync_relay_log_info;
 RESET PERSIST sync_source_info;
+RESET PERSIST update_binlog_pos_threshold;
 
 include/assert.inc [Expect 0 persisted variables.]
 
