@@ -527,6 +527,9 @@ class MYSQL_BIN_LOG : public TC_LOG {
    */
   bool read_binlog_in_use_flag(Binlog_file_reader &binlog_file_reader);
 
+  // Maximum gtid recovered after recovery from SE and binlog.
+  std::string recovery_binlog_max_gtid;
+
  public:
   /**
   @brief Notifies waiting threads that binary log has been updated
@@ -596,6 +599,14 @@ class MYSQL_BIN_LOG : public TC_LOG {
   Gtid engine_binlog_max_gtid;
   char engine_binlog_file[FN_REFLEN + 1];
   my_off_t engine_binlog_pos;
+
+  void set_recovery_binlog_max_gtid(const std::string &max_binlog_gtid) {
+    recovery_binlog_max_gtid = max_binlog_gtid;
+  }
+
+  const std::string &get_recovery_binlog_max_gtid() {
+    return recovery_binlog_max_gtid;
+  }
 
   // copy of Relay_log_info::last_master_timestamp
   std::atomic<time_t> last_master_timestamp;
