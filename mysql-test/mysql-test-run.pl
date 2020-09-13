@@ -304,6 +304,7 @@ our @DEFAULT_SUITES = qw(
   engines/iuds
   engines/funcs
   funcs_1
+  grant
   jp
   rpl_mts
   rpl_recovery
