@@ -272,10 +272,18 @@
   80036-006
   - add events_statements_summary_by_all table
 
+  80036-007:
+  - add temp table bytes written to statement statistics
+  - add filesort bytes written to statement statistics
+  - add index dive count to statement statistics
+  - add index dive cpu time to statement statistics
+  - add compilation cpu time to statement statistics
+  - add elapsed time to statement statistics
+
   The last three digits reprents Facebook specific MySQL Schema changes.
-  Version published is now 80036-006. i.e. 8.0.36 Facebook schema change no. 6.
+  Version published is now 80036-007. i.e. 8.0.36 Facebook schema change no. 7.
 */
 
-static const uint PFS_DD_VERSION = 80036006;
+static const uint PFS_DD_VERSION = 80036007;
 
 #endif /* PFS_DD_VERSION_H */
