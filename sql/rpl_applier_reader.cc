@@ -405,7 +405,8 @@ bool Rpl_applier_reader::move_to_next_log() {
       assert(!debug_sync_set_action(current_thd, STRING_WITH_LEN(dbug_wait)));
     });
 
-    if (purge_applied_logs()) return true;
+    // When enabled,  Raft plugin controls purged relay logs
+    if (!enable_raft_plugin && purge_applied_logs()) return true;
   } else {
     m_rli->force_flush_postponed_due_to_split_trans = true;
   }
