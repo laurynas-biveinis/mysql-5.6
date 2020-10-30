@@ -280,10 +280,13 @@
   - add compilation cpu time to statement statistics
   - add elapsed time to statement statistics
 
+  80036-008:
+  - add replica_statistics table
+
   The last three digits reprents Facebook specific MySQL Schema changes.
-  Version published is now 80036-007. i.e. 8.0.36 Facebook schema change no. 7.
+  Version published is now 80036-008. i.e. 8.0.36 Facebook schema change no. 8.
 */
 
-static const uint PFS_DD_VERSION = 80036007;
+static const uint PFS_DD_VERSION = 80036008;
 
 #endif /* PFS_DD_VERSION_H */
