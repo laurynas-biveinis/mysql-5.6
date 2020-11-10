@@ -286,10 +286,15 @@
   80036-009:
   - add client attributes
 
+  80036-010:
+  - add write_statistics
+  - add write_throttling_rules
+  - add write_throttling_log
+
   The last three digits reprents Facebook specific MySQL Schema changes.
-  Version published is now 80036-009. i.e. 8.0.36 Facebook schema change no. 9.
+  Version published is now 80036-010. i.e. 8.0.36 Facebook schema change no. 10.
 */
 
-static const uint PFS_DD_VERSION = 80036009;
+static const uint PFS_DD_VERSION = 80036010;
 
 #endif /* PFS_DD_VERSION_H */
