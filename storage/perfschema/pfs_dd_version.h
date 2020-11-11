@@ -283,10 +283,13 @@
   80036-008:
   - add replica_statistics table
 
+  80036-009:
+  - add client attributes
+
   The last three digits reprents Facebook specific MySQL Schema changes.
-  Version published is now 80036-008. i.e. 8.0.36 Facebook schema change no. 8.
+  Version published is now 80036-009. i.e. 8.0.36 Facebook schema change no. 9.
 */
 
-static const uint PFS_DD_VERSION = 80036008;
+static const uint PFS_DD_VERSION = 80036009;
 
 #endif /* PFS_DD_VERSION_H */
