@@ -94,6 +94,8 @@ struct row_threads {
   PFS_session_all_memory_stat_row m_session_all_memory_row;
   /** Column TELEMETRY_ACTIVE (read). */
   bool m_telemetry_active;
+  /** Column THREAD_PRIORITY. */
+  int m_thread_priority;
 };
 
 class PFS_index_threads_by_thread_id : public PFS_index_threads {

@@ -147,6 +147,12 @@ struct PSI_thread_service_v4 {
   set_thread_THD_v1_t set_thread_THD;
   /** @sa set_thread_os_id_v1_t. */
   set_thread_os_id_v1_t set_thread_os_id;
+  /** @sa get_thread_os_id_v1_t. */
+  get_thread_os_id_v1_t get_thread_os_id;
+  /** @sa set_thread_priority_v1_t. */
+  set_thread_priority_v1_t set_thread_priority;
+  /** @sa get_thread_priority_v1_t. */
+  get_thread_priority_v1_t get_thread_priority;
   /** @sa get_thread_v1_t. */
   get_thread_v1_t get_thread;
   /** @sa set_thread_user_v1_t. */
@@ -229,6 +235,12 @@ struct PSI_thread_service_v5 {
   set_thread_THD_v1_t set_thread_THD;
   /** @sa set_thread_os_id_v1_t. */
   set_thread_os_id_v1_t set_thread_os_id;
+  /** @sa get_thread_os_id_v1_t. */
+  get_thread_os_id_v1_t get_thread_os_id;
+  /** @sa set_thread_priority_v1_t. */
+  set_thread_priority_v1_t set_thread_priority;
+  /** @sa get_thread_priority_v1_t. */
+  get_thread_priority_v1_t get_thread_priority;
   /** @sa get_thread_v1_t. */
   get_thread_v1_t get_thread;
   /** @sa set_thread_user_v1_t. */
@@ -310,6 +322,12 @@ struct PSI_thread_service_v6 {
   set_thread_THD_v1_t set_thread_THD;
   /** @sa set_thread_os_id_v1_t. */
   set_thread_os_id_v1_t set_thread_os_id;
+  /** @sa get_thread_os_id_v1_t. */
+  get_thread_os_id_v1_t get_thread_os_id;
+  /** @sa set_thread_priority_v1_t. */
+  set_thread_priority_v1_t set_thread_priority;
+  /** @sa get_thread_priority_v1_t. */
+  get_thread_priority_v1_t get_thread_priority;
   /** @sa get_thread_v1_t. */
   get_thread_v1_t get_thread;
   /** @sa set_thread_user_v1_t. */
@@ -393,6 +411,12 @@ struct PSI_thread_service_v7 {
   set_thread_THD_v1_t set_thread_THD;
   /** @sa set_thread_os_id_v1_t. */
   set_thread_os_id_v1_t set_thread_os_id;
+  /** @sa get_thread_os_id_v1_t. */
+  get_thread_os_id_v1_t get_thread_os_id;
+  /** @sa set_thread_priority_v1_t. */
+  set_thread_priority_v1_t set_thread_priority;
+  /** @sa get_thread_priority_v1_t. */
+  get_thread_priority_v1_t get_thread_priority;
   /** @sa get_thread_v1_t. */
   get_thread_v1_t get_thread;
   /** @sa set_thread_user_v1_t. */
