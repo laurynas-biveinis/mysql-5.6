@@ -6700,6 +6700,7 @@ void pfs_start_statement_vc(PSI_statement_locker *locker, const char *db,
       pfs->m_index_dive_cpu = 0;
       pfs->m_compilation_cpu = 0;
       pfs->m_elapsed_time = 0;
+      pfs->m_skipped_count = 0;
       pfs->m_created_tmp_disk_tables = 0;
       pfs->m_created_tmp_tables = 0;
       pfs->m_select_full_join = 0;
@@ -7119,6 +7120,18 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
             pfs->m_sql_errno = da->mysql_errno();
             memcpy(pfs->m_sqlstate, da->returned_sqlstate(), SQLSTATE_LENGTH);
             pfs->m_error_count++;
+            {
+              /* check 'skipped' error */
+              Diagnostics_area::Sql_condition_iterator it =
+                  da->sql_conditions();
+              const Sql_condition *err;
+              while ((err = it++)) {
+                if (err->mysql_errno() == ER_DUPLICATE_STATEMENT_EXECUTION) {
+                  pfs->m_skipped_count++;
+                  break;
+                }
+              }
+            }
             break;
           case Diagnostics_area::DA_DISABLED:
             break;
@@ -7506,18 +7519,32 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
       }
 #endif /* HAVE_PSI_SERVER_TELEMETRY_TRACES_INTERFACE */
       break;
-    case Diagnostics_area::DA_ERROR:
+    case Diagnostics_area::DA_ERROR: {
+      /* check 'skipped' error */
+      Diagnostics_area::Sql_condition_iterator it = da->sql_conditions();
+      const Sql_condition *err;
+      bool skipped = false;
+      while ((err = it++)) {
+        if (err->mysql_errno() == ER_DUPLICATE_STATEMENT_EXECUTION) {
+          skipped = true;
+          break;
+        }
+      }
       if (stat != nullptr) {
         stat->m_error_count++;
       }
+      if (skipped) stat->m_skipped_count++;
       if (digest_stat != nullptr) {
         digest_stat->m_stat.m_error_count++;
+        if (skipped) digest_stat->m_stat.m_skipped_count++;
       }
       if (sub_stmt_stat != nullptr) {
         sub_stmt_stat->m_error_count++;
+        if (skipped) sub_stmt_stat->m_skipped_count++;
       }
       if (prepared_stmt_stat != nullptr) {
         prepared_stmt_stat->m_error_count++;
+        if (skipped) prepared_stmt_stat->m_skipped_count++;
       }
 #ifdef HAVE_PSI_SERVER_TELEMETRY_TRACES_INTERFACE
       if (with_telemetry) {
@@ -7528,6 +7555,7 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
       }
 #endif /* HAVE_PSI_SERVER_TELEMETRY_TRACES_INTERFACE */
       break;
+    }
     case Diagnostics_area::DA_DISABLED:
       break;
   }
