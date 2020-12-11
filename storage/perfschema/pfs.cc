@@ -6632,6 +6632,8 @@ void pfs_start_statement_vc(PSI_statement_locker *locker, const char *db,
   state->m_sort_scan = 0;
   state->m_no_index_used = 0;
   state->m_no_good_index_used = 0;
+  state->m_filesort_disk_usage_peak = 0;
+  state->m_tmp_table_disk_usage_peak = 0;
 
   state->m_thread = reinterpret_cast<PSI_thread *>(pfs_thread);
 
@@ -6718,6 +6720,8 @@ void pfs_start_statement_vc(PSI_statement_locker *locker, const char *db,
       pfs->m_max_controlled_memory = 0;
       pfs->m_max_total_memory = 0;
       pfs->m_secondary = false;
+      pfs->m_filesort_disk_usage_peak = 0;
+      pfs->m_tmp_table_disk_usage_peak = 0;
       pfs->m_digest_storage.reset();
 
       /* New stages will have this statement as parent */
@@ -6808,43 +6812,41 @@ void pfs_set_statement_text_vc(PSI_statement_locker *locker, const char *text,
   }
 }
 
-/*
-  Not checking for
-    state->m_collect_flags & STATE_FLAG_BASE
-  for efficiency.
-*/
-#define SET_STATEMENT_ATTR_BODY(LOCKER, ATTR, VALUE)                     \
-  auto *state = reinterpret_cast<PSI_statement_locker_state *>(LOCKER);  \
-  if (unlikely(state == nullptr)) {                                      \
-    return;                                                              \
-  }                                                                      \
-  state->ATTR = VALUE;                                                   \
-  if (state->m_pfs_flags & STATE_FLAG_EVENT) {                           \
-    PFS_events_statements *pfs;                                          \
-    pfs = reinterpret_cast<PFS_events_statements *>(state->m_statement); \
-    assert(pfs != nullptr);                                              \
-    pfs->ATTR = VALUE;                                                   \
-  }                                                                      \
-  return;
+#define STATEMENT_ATTR_BODY_PROLOG(LOCKER)                             \
+  auto state = reinterpret_cast<PSI_statement_locker_state *>(LOCKER); \
+  if (unlikely(state == nullptr)) {                                    \
+    return;                                                            \
+  }
 
 /*
   Not checking for
     state->m_collect_flags & STATE_FLAG_BASE
   for efficiency.
 */
-#define INC_STATEMENT_ATTR_BODY(LOCKER, ATTR, VALUE)                     \
-  auto *state = reinterpret_cast<PSI_statement_locker_state *>(LOCKER);  \
-  if (unlikely(state == nullptr)) {                                      \
-    return;                                                              \
-  }                                                                      \
-  state->ATTR += VALUE;                                                  \
+#define STATEMENT_ATTR_BODY_OP(LOCKER, ATTR, VALUE, OP)                  \
+  state->ATTR OP(VALUE);                                                 \
   if (state->m_pfs_flags & STATE_FLAG_EVENT) {                           \
     PFS_events_statements *pfs;                                          \
     pfs = reinterpret_cast<PFS_events_statements *>(state->m_statement); \
     assert(pfs != nullptr);                                              \
-    pfs->ATTR += VALUE;                                                  \
+    pfs->ATTR OP(VALUE);                                                 \
   }                                                                      \
   return;
+
+#define SET_STATEMENT_ATTR_BODY(LOCKER, ATTR, VALUE) \
+  STATEMENT_ATTR_BODY_PROLOG(LOCKER)                 \
+  STATEMENT_ATTR_BODY_OP(LOCKER, ATTR, VALUE, =)
+
+#define INC_STATEMENT_ATTR_BODY(LOCKER, ATTR, VALUE) \
+  STATEMENT_ATTR_BODY_PROLOG(LOCKER)                 \
+  STATEMENT_ATTR_BODY_OP(LOCKER, ATTR, VALUE, +=)
+
+#define SET_MAX_STATEMENT_ATTR_BODY(LOCKER, ATTR, VALUE) \
+  STATEMENT_ATTR_BODY_PROLOG(LOCKER)                     \
+  if (state->ATTR >= (VALUE)) {                          \
+    return;                                              \
+  }                                                      \
+  STATEMENT_ATTR_BODY_OP(LOCKER, ATTR, VALUE, =)
 
 void pfs_set_statement_query_id_vc(PSI_statement_locker *locker,
                                    ulonglong query_id) {
@@ -6974,6 +6976,16 @@ void pfs_set_statement_no_index_used_vc(PSI_statement_locker *locker) {
 
 void pfs_set_statement_no_good_index_used_vc(PSI_statement_locker *locker) {
   SET_STATEMENT_ATTR_BODY(locker, m_no_good_index_used, 1);
+}
+
+void pfs_update_statement_filesort_disk_usage_vc(PSI_statement_locker *locker,
+                                                 ulonglong value) {
+  SET_MAX_STATEMENT_ATTR_BODY(locker, m_filesort_disk_usage_peak, value);
+}
+
+void pfs_update_statement_tmp_table_disk_usage_vc(PSI_statement_locker *locker,
+                                                  ulonglong value) {
+  SET_MAX_STATEMENT_ATTR_BODY(locker, m_tmp_table_disk_usage_peak, value);
 }
 
 void pfs_set_statement_secondary_engine_vc(PSI_statement_locker *locker,
@@ -7219,6 +7231,8 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
     stat->m_sort_scan += state->m_sort_scan;
     stat->m_no_index_used += state->m_no_index_used;
     stat->m_no_good_index_used += state->m_no_good_index_used;
+    stat->m_filesort_disk_usage_peak += state->m_filesort_disk_usage_peak;
+    stat->m_tmp_table_disk_usage_peak += state->m_tmp_table_disk_usage_peak;
     stat->aggregate_memory_size(stmt_controlled_size, stmt_total_size);
 
     if (state->m_secondary) {
@@ -7321,6 +7335,10 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
       if (state->m_secondary) {
         digest_stat->m_stat.m_count_secondary++;
       }
+      digest_stat->m_stat.m_filesort_disk_usage_peak +=
+          state->m_filesort_disk_usage_peak;
+      digest_stat->m_stat.m_tmp_table_disk_usage_peak +=
+          state->m_tmp_table_disk_usage_peak;
     } else {
       if (pfs_flags & STATE_FLAG_TIMED) {
         time_normalizer *normalizer = time_normalizer::get_statement();
@@ -7376,6 +7394,10 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
         if (state->m_secondary) {
           sub_stmt_stat->m_count_secondary++;
         }
+        sub_stmt_stat->m_filesort_disk_usage_peak +=
+            state->m_filesort_disk_usage_peak;
+        sub_stmt_stat->m_tmp_table_disk_usage_peak +=
+            state->m_tmp_table_disk_usage_peak;
       }
     }
 
@@ -7438,6 +7460,10 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
           if (pfs_prepared_stmt->m_secondary) {
             prepared_stmt_stat->m_count_secondary++;
           }
+          prepared_stmt_stat->m_filesort_disk_usage_peak +=
+              state->m_filesort_disk_usage_peak;
+          prepared_stmt_stat->m_tmp_table_disk_usage_peak +=
+              state->m_tmp_table_disk_usage_peak;
         }
       }
     }
@@ -9761,6 +9787,8 @@ PSI_statement_service_v5 pfs_statement_service_v5 = {
     pfs_set_statement_no_index_used_vc,
     pfs_set_statement_no_good_index_used_vc,
     pfs_set_statement_secondary_engine_vc,
+    pfs_update_statement_filesort_disk_usage_vc,
+    pfs_update_statement_tmp_table_disk_usage_vc,
     pfs_end_statement_vc,
     pfs_create_prepared_stmt_vc,
     pfs_destroy_prepared_stmt_vc,
@@ -9812,6 +9840,8 @@ SERVICE_IMPLEMENTATION(performance_schema, psi_statement_v5) = {
     pfs_set_statement_no_index_used_vc,
     pfs_set_statement_no_good_index_used_vc,
     pfs_set_statement_secondary_engine_vc,
+    pfs_update_statement_filesort_disk_usage_vc,
+    pfs_update_statement_tmp_table_disk_usage_vc,
     pfs_end_statement_vc,
     pfs_create_prepared_stmt_vc,
     pfs_destroy_prepared_stmt_vc,

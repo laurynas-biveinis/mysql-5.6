@@ -7336,6 +7336,20 @@ static void lo_set_statement_secondary_engine(PSI_statement_locker *locker,
   }
 }
 
+static void lo_update_statement_filesort_disk_usage(
+    PSI_statement_locker *locker, ulonglong value) {
+  if (g_statement_chain != nullptr) {
+    g_statement_chain->update_statement_filesort_disk_usage(locker, value);
+  }
+}
+
+static void lo_update_statement_tmp_table_disk_usage(
+    PSI_statement_locker *locker, ulonglong value) {
+  if (g_statement_chain != nullptr) {
+    g_statement_chain->update_statement_tmp_table_disk_usage(locker, value);
+  }
+}
+
 static void lo_end_statement(PSI_statement_locker *locker, void *stmt_da) {
   if (g_statement_chain != nullptr) {
     g_statement_chain->end_statement(locker, stmt_da);
@@ -7950,6 +7964,8 @@ PSI_statement_service_v5 LO_statement_v5 = {
     lo_set_statement_no_index_used,
     lo_set_statement_no_good_index_used,
     lo_set_statement_secondary_engine,
+    lo_update_statement_filesort_disk_usage,
+    lo_update_statement_tmp_table_disk_usage,
     lo_end_statement,
     lo_create_prepared_stmt,
     lo_destroy_prepared_stmt,
