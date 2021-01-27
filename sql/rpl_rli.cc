@@ -785,7 +785,6 @@ int Relay_log_info::wait_for_pos(THD *thd, String *log_name, longlong log_pos,
       error = mysql_cond_timedwait(&data_cond, &data_lock, &abstime);
     } else
       mysql_cond_wait(&data_cond, &data_lock);
-    thd_wait_end(thd);
     DBUG_PRINT("info", ("Got signal of source update or timed out"));
     if (is_timeout(error)) {
 #ifndef NDEBUG
@@ -806,6 +805,7 @@ int Relay_log_info::wait_for_pos(THD *thd, String *log_name, longlong log_pos,
 err:
   mysql_mutex_unlock(&data_lock);
   thd->EXIT_COND(&old_stage);
+  thd_wait_end(thd);
   DBUG_PRINT("exit",
              ("killed: %d  abort: %d  replica_running: %d "
               "improper_arguments: %d  timed_out: %d",
@@ -945,7 +945,6 @@ int Relay_log_info::wait_for_gtid_set(THD *thd, const Gtid_set *wait_gtid_set,
       error = mysql_cond_timedwait(&data_cond, &data_lock, &abstime);
     } else
       mysql_cond_wait(&data_cond, &data_lock);
-    thd_wait_end(thd);
     DBUG_PRINT("info", ("Got signal of source update or timed out"));
     if (is_timeout(error)) {
 #ifndef NDEBUG
@@ -966,6 +965,7 @@ int Relay_log_info::wait_for_gtid_set(THD *thd, const Gtid_set *wait_gtid_set,
   mysql_mutex_unlock(&data_lock);
 
   if (update_THD_status) thd->EXIT_COND(&old_stage);
+  thd_wait_end(thd);
   DBUG_PRINT("exit",
              ("killed: %d  abort: %d  replica_running: %d "
               "improper_arguments: %d  timed_out: %d",
