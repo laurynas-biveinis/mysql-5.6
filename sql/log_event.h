@@ -373,6 +373,11 @@ struct hash<Dependency_key> {
 #define LOG_EVENT_MTS_ISOLATE_F 0x200
 
 /**
+ * Intermediate values from 0x400 to 0x4000 are unused and Oracle
+ * can use them.
+ */
+
+/**
  * RAFT: These binlog files have been created by a MySQL Raft based
  * binlog system.
  */
@@ -4141,6 +4146,16 @@ class Metadata_log_event : public binary_log::Metadata_event, public Log_event {
   bool write_raft_prev_opid(Basic_ostream *ostream);
 
   /**
+   * Write rotate event tag to metadata event previous to rotate event
+   * Central to raft correctness
+   *
+   * @param ostream - stream to write into
+   *
+   * @returns - 0 on success, 1 on false
+   */
+  bool write_rotate_tag(Basic_ostream *ostream);
+
+  /**
    * Write type and length to file
    *
    * @param ostream - stream to write to
@@ -4196,6 +4211,16 @@ class Metadata_log_event : public binary_log::Metadata_event, public Log_event {
    * @returns - number of bytes written
    */
   uint32 write_raft_str(uchar *obuffer);
+
+  /**
+   * Write rotate event tag to metadata event previous to rotate event
+   * Central to raft correctness
+   *
+   * @param ostream - stream to write into
+   *
+   * @returns - 0 on success, 1 on false
+   */
+  uint32 write_rotate_tag(uchar *obuffer);
 
   /**
    * Write type and length to memory buffer
