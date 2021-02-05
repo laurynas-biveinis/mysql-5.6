@@ -457,7 +457,8 @@ int my_handle_options2(int *argc, char ***argv,
                 my_getopt_error_reporter(
                     option_is_loose ? WARNING_LEVEL : ERROR_LEVEL,
                     EE_UNKNOWN_VARIABLE, cur_arg);
-              if (!option_is_loose) return EXIT_UNKNOWN_VARIABLE;
+              if (!option_is_loose && !ignore_unknown_option)
+                return EXIT_UNKNOWN_VARIABLE;
             } else {
               if (my_getopt_print_errors)
                 my_getopt_error_reporter(
