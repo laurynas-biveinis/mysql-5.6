@@ -1861,6 +1861,8 @@ void THD::store_globals() {
   set_my_thread_var_id(m_thread_id);
 #endif
   real_id = my_thread_self();
+
+  capture_system_thread_id();
 }
 
 /*
@@ -2645,6 +2647,14 @@ void THD::set_status_no_good_index_used() {
 #ifdef HAVE_PSI_STATEMENT_INTERFACE
   PSI_STATEMENT_CALL(set_statement_no_good_index_used)(m_statement_psi);
 #endif
+}
+
+void THD::capture_system_thread_id() {
+#ifdef _WIN32
+  m_system_thread_id = 0;
+#else
+  m_system_thread_id = syscall(SYS_gettid);
+#endif  // _WIN32
 }
 
 void THD::set_command(enum enum_server_command command) {

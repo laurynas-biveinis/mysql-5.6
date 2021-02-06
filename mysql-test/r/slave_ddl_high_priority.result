@@ -52,16 +52,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 alter table t1 modify i bigint;;
@@ -76,15 +76,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -107,15 +107,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -176,16 +176,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 alter table t1 rename t1_new;;
@@ -200,15 +200,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -231,15 +231,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -305,16 +305,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 rename table t1 to t1_new;;
@@ -329,15 +329,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -360,15 +360,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -429,16 +429,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 drop table t1;;
@@ -460,15 +460,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave1 (for show locks)
 START REPLICA SQL_THREAD;
@@ -526,16 +526,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 drop table t1;;
@@ -550,15 +550,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -575,15 +575,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -638,16 +638,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 create index idx1 on t1 (i);;
@@ -662,15 +662,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -694,15 +694,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -749,16 +749,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 drop index idx1 on t1;;
@@ -773,15 +773,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -804,15 +804,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -867,16 +867,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 truncate t1;
@@ -891,15 +891,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -919,15 +919,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -983,16 +983,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 create trigger ins_sum before insert on t1
@@ -1009,15 +1009,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -1040,15 +1040,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -1095,16 +1095,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 drop trigger ins_sum;
@@ -1119,15 +1119,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -1150,15 +1150,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -1209,16 +1209,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	menagerie	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	menagerie	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 drop database menagerie;;
@@ -1233,15 +1233,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -1264,15 +1264,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -1331,16 +1331,16 @@ should_be_non_zero
 connection: slave1 (for show processlist)
 # both slave2 and slave exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 optimize table t1;
@@ -1360,15 +1360,15 @@ include/sync_slave_sql_with_master.inc
 connection: slave1 ([slave]: show locks)
 connection: slave1 (for show processlist on slave)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 include/assert.inc [high priority DDL should issue one kill]
 include/assert.inc [high priority DDL should be kill at least one connection]
@@ -1391,15 +1391,15 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: slave1 (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	root	#	test	#	#	#	#
-#	system user	#	NULL	#	#	#	#
-#	system user	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
+#	system user	#	NULL	#	#	#	#	#
 Warnings:
 connection: slave
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;

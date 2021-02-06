@@ -49,11 +49,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 alter table t1 modify i bigint;;
@@ -70,10 +70,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -127,11 +127,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 alter table t1 rename t1_new;;
@@ -148,10 +148,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -210,11 +210,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 rename table t1 to t1_new;;
@@ -231,10 +231,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -288,11 +288,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 drop table t1;;
@@ -309,11 +309,11 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -361,11 +361,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 drop table t1;;
@@ -382,10 +382,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -433,12 +433,12 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and con2 exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
-#	test_user2	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
+#	test_user2	#	test	#	#	#	#	#
 Warnings:
 connection: con2
 alter table t1 modify i bigint;
@@ -455,12 +455,12 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
-#	test_user2	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
+#	test_user2	#	test	#	#	#	#	#
 Warnings:
 connection: con2
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -508,11 +508,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 create index idx1 on t1 (i);;
@@ -529,10 +529,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -572,11 +572,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 drop index idx1 on t1;;
@@ -593,10 +593,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -644,11 +644,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 truncate t1;
@@ -665,10 +665,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -717,11 +717,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 create trigger ins_sum before insert on t1
@@ -741,10 +741,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -784,11 +784,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 drop trigger ins_sum;
@@ -805,10 +805,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -855,11 +855,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	menagerie	#	#	#	#
-#	test_user1	#	menagerie	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	menagerie	#	#	#	#	#
+#	test_user1	#	menagerie	#	#	#	#	#
 Warnings:
 connection: default
 drop database menagerie;;
@@ -876,10 +876,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	NULL	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	NULL	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -931,11 +931,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 optimize table t1;
@@ -957,10 +957,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
@@ -1008,11 +1008,11 @@ should_be_non_zero
 connection: default (for show processlist)
 # both con1 and default exist
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
-#	test_user1	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
+#	test_user1	#	test	#	#	#	#	#
 Warnings:
 connection: default
 lock tables t1 write;
@@ -1029,10 +1029,10 @@ SELECT COUNT(*) as should_be_zero FROM performance_schema.metadata_locks
 WHERE object_schema = "test" AND source <> ""
 connection: default (for show processlist)
 show processlist;
-Id	User	Host	db	Command	Time	State	Info
+Id	User	Host	db	Command	Time	State	Info	Tid
 #	1287	#
-#	event_scheduler	#	NULL	#	#	#	#
-#	root	#	test	#	#	#	#
+#	event_scheduler	#	NULL	#	#	#	#	#
+#	root	#	test	#	#	#	#	#
 Warnings:
 connection: default
 set @@high_priority_lock_wait_timeout = @m_high_priority_lock_wait_timout;
