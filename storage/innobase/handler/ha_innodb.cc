@@ -2403,8 +2403,13 @@ void innobase_mysql_print_thd(FILE *f,            /*!< in: output stream */
   constexpr size_t ADDITIONAL_CTX_LEN = 1024;
   ut::vector<char> buffer(ADDITIONAL_CTX_LEN + max_query_len);
 
-  fputs(thd_security_context(thd, buffer.data(), buffer.size(), max_query_len),
-        f);
+  /* This may be called from monitor thread without THD */
+  THD *this_thd = current_thd;
+  bool show_query_digest =
+      this_thd ? this_thd->variables.show_query_digest : false;
+  char *msg = thd_security_context_internal(thd, buffer.data(), buffer.size(),
+                                            max_query_len, show_query_digest);
+  fputs(msg, f);
   putc('\n', f);
 }
 
