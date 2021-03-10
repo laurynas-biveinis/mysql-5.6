@@ -72,6 +72,8 @@
 #include "typelib.h"
 #include "unsafe_string_append.h"
 
+std::atomic<bool> block_dump_threads{false};
+
 #ifndef NDEBUG
 static uint binlog_dump_count = 0;
 #endif
@@ -358,7 +360,10 @@ void Binlog_sender::init() {
   thd->push_diagnostics_area(&m_diag_area);
   init_heartbeat_period();
   m_last_event_sent_ts = now_in_nanosecs();
-
+  if (block_dump_threads) {
+    set_fatal_error("Binlog dump threads are blocked!");
+    return;
+  }
   m_linfo = LOG_INFO(raw_log->is_relay_log, /* is_used_by_dump_thd = */ true);
   m_linfo.thread_id = thd->thread_id();
   mysql_bin_log.register_log_info(&m_linfo);
