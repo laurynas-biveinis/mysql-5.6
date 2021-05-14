@@ -314,10 +314,13 @@
   80036-017:
   - add INDEX_STATISTICS table
 
+  80036-018:
+  - support longer messages by changing SQL_FINDINGS.MESSAGE from 256 to 512
+
   The last three digits reprents Facebook specific MySQL Schema changes.
-  Version published is now 80036-017. i.e. 8.0.36 Facebook schema change no. 17.
+  Version published is now 80036-018. i.e. 8.0.36 Facebook schema change no. 18.
 */
 
-static const uint PFS_DD_VERSION = 80036017;
+static const uint PFS_DD_VERSION = 80036018;
 
 #endif /* PFS_DD_VERSION_H */
