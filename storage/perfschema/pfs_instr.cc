@@ -1654,9 +1654,11 @@ void destroy_socket(PFS_socket *pfs) {
     if (stat.m_count != 0) {
       PFS_single_stat *event_name_array;
       event_name_array = thread->write_instr_class_waits_stats();
-      const uint index = pfs->m_class->m_event_name_index;
+      if (event_name_array) {
+        const uint index = pfs->m_class->m_event_name_index;
 
-      event_name_array[index].aggregate(&stat);
+        event_name_array[index].aggregate(&stat);
+      }
     }
   }
 
@@ -1766,6 +1768,8 @@ void reset_histogram_global() { global_statements_histogram.reset(); }
 
 void aggregate_all_event_names(PFS_single_stat *from_array,
                                PFS_single_stat *to_array) {
+  if (from_array == nullptr) return;
+
   PFS_single_stat *from;
   PFS_single_stat *from_last;
   PFS_single_stat *to;
@@ -1785,6 +1789,8 @@ void aggregate_all_event_names(PFS_single_stat *from_array,
 void aggregate_all_event_names(PFS_single_stat *from_array,
                                PFS_single_stat *to_array_1,
                                PFS_single_stat *to_array_2) {
+  if (from_array == nullptr) return;
+
   PFS_single_stat *from;
   PFS_single_stat *from_last;
   PFS_single_stat *to_1;
