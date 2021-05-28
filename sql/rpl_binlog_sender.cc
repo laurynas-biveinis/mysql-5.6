@@ -361,7 +361,7 @@ void Binlog_sender::init() {
   init_heartbeat_period();
   m_last_event_sent_ts = now_in_nanosecs();
   if (block_dump_threads) {
-    set_fatal_error("Binlog dump threads are blocked!");
+    set_unknown_error("Binlog dump threads are blocked!");
     return;
   }
   m_linfo = LOG_INFO(raw_log->is_relay_log, /* is_used_by_dump_thd = */ true);
