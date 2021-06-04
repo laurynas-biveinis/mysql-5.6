@@ -512,9 +512,10 @@ bool is_semi_sync_slave() {
 void Binlog_sender::run() {
   DBUG_TRACE;
 
-  dump_log.lock();
-  init();
-  dump_log.unlock();
+  {
+    Dump_log::Locker lock(&dump_log);
+    init();
+  }
   m_is_semi_sync_slave = is_semi_sync_slave();
 
   unsigned int max_event_size =
@@ -572,10 +573,10 @@ void Binlog_sender::run() {
     // the raw log and log switching. Log switching will be blocked until
     // we release the binlog end pos lock before waiting for signal in
     // wait_for_update_bin_log().
-    dump_log.lock();
+    const bool is_locked = dump_log.lock();
     MYSQL_BIN_LOG *raw_log = dump_log.get_log(false);
     raw_log->lock_index();
-    dump_log.unlock();
+    dump_log.unlock(is_locked);
     if (!raw_log->is_open()) {
       if (raw_log->open_index_file(raw_log->get_index_fname(), log_file,
                                    false)) {
@@ -975,10 +976,10 @@ int Binlog_sender::wait_new_events(my_off_t log_pos) {
   // the raw log and log switching. Log switching will be blocked until
   // we release the binlog end pos lock before waiting for signal in
   // wait_for_update_bin_log().
-  dump_log.lock();
+  bool is_locked = dump_log.lock();
   MYSQL_BIN_LOG *raw_log = dump_log.get_log(false);
   raw_log->lock_binlog_end_pos();
-  dump_log.unlock();
+  dump_log.unlock(is_locked);
 
   m_thd->ENTER_COND(raw_log->get_log_cond(), raw_log->get_binlog_end_pos_lock(),
                     &stage_source_has_sent_all_binlog_to_replica, &old_stage);
@@ -1017,10 +1018,10 @@ bool Binlog_sender::stop_waiting_for_update(my_off_t log_pos,
 static void swap_and_relock_log(MYSQL_BIN_LOG **raw_log) {
   // Switch log within wait_*_heartbeat, see wait_new_events()
   (*raw_log)->unlock_binlog_end_pos();
-  dump_log.lock();
+  bool is_locked = dump_log.lock();
   *raw_log = dump_log.get_log(false);
   (*raw_log)->lock_binlog_end_pos();
-  dump_log.unlock();
+  dump_log.unlock(is_locked);
 }
 
 inline int Binlog_sender::wait_with_heartbeat(MYSQL_BIN_LOG **raw_log,
