@@ -59,6 +59,7 @@
 #include <new>
 #include <queue>
 #include <sstream>
+#include <vector>
 
 #include "dur_prop.h"
 #include "include/mysqld_errmsg.h"  // ER_OUT_OF_RESOURCES_MSG
@@ -15172,6 +15173,28 @@ int trim_logged_gtid(const std::vector<std::string> &trimmed_gtids) {
   global_sid_lock->unlock();
 
   return error;
+}
+
+int get_committed_gtids(const std::vector<std::string> &gtids,
+                        std::vector<std::string> *committed_gtids) {
+  global_sid_lock->rdlock();
+
+  for (const auto &gtid_s : gtids) {
+    if (gtid_s.empty()) continue;
+
+    Gtid gtid;
+    enum_return_status st = gtid.parse(global_sid_map, gtid_s.c_str());
+    if (st != RETURN_STATUS_OK) {
+      global_sid_lock->unlock();
+      return st;
+    }
+
+    if (gtid_state->get_executed_gtids()->contains_gtid(gtid))
+      committed_gtids->push_back(gtid_s);
+  }
+  global_sid_lock->unlock();
+
+  return 0;
 }
 
 struct st_mysql_storage_engine binlog_storage_engine = {
