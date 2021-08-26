@@ -75,6 +75,7 @@
 #include "libbinlogevents/include/binlog_event.h"  // binary_log::max_log_event_size
 #include "libbinlogevents/include/compression/zstd_comp.h"  // DEFAULT_COMPRESSION_LEVEL
 #include "m_string.h"
+#include "mutex_lock.h"
 #include "my_aes.h"  // my_aes_opmode_names
 #include "my_command.h"
 #include "my_compiler.h"
@@ -3656,6 +3657,39 @@ static Sys_var_ulong Sys_open_files_limit(
     NOT_IN_BINLOG, ON_CHECK(nullptr), ON_UPDATE(nullptr), nullptr,
     /* open_files_limit is used as a sizing hint by the performance schema. */
     sys_var::PARSE_EARLY);
+
+static bool check_optimizer_force_index_rewrite(sys_var *, THD *,
+                                                set_var *var) {
+  if (!var->value) return false;  // DEFAULT is ok
+
+  if (!var->save_result.string_value.str) return false;
+
+  std::vector<std::string> pairs =
+      split_into_vector(var->save_result.string_value.str, ',');
+
+  for (const auto &p : pairs) {
+    std::vector<std::string> v = split_into_vector(p, ':');
+    if (v.size() != 2) return true;
+  }
+
+  return false;
+}
+
+static bool update_check_optimizer_force_index_rewrite(sys_var *, THD *,
+                                                       enum_var_type) {
+  return update_optimizer_force_index_rewrite();
+}
+
+static Sys_var_charptr Sys_optimizer_force_index_rewrite(
+    "optimizer_force_index_rewrite",
+    "Searches and replaces index name used in FORCE INDEX hints. Format is "
+    "comma separated list of pairs with each pair separated by colon. eg. "
+    "search1:replace1,search2:replace2 will replace search1 with replace1 and "
+    "search2 with replace2.",
+    GLOBAL_VAR(optimizer_force_index_rewrite), CMD_LINE(REQUIRED_ARG),
+    IN_FS_CHARSET, DEFAULT(nullptr), NO_MUTEX_GUARD, NOT_IN_BINLOG,
+    ON_CHECK(check_optimizer_force_index_rewrite),
+    ON_UPDATE(update_check_optimizer_force_index_rewrite));
 
 static Sys_var_bool Sys_optimizer_force_index_for_range(
     "optimizer_force_index_for_range",
