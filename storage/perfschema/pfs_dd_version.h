@@ -320,10 +320,13 @@
   80036-019:
   - add SQL_TEXT table
 
+  80036-020:
+  - remove sql storage from PFS_statements_digest_stat
+
   The last three digits reprents Facebook specific MySQL Schema changes.
-  Version published is now 80036-019. i.e. 8.0.36 Facebook schema change no. 19.
+  Version published is now 80036-020. i.e. 8.0.36 Facebook schema change no. 20.
 */
 
-static const uint PFS_DD_VERSION = 80036019;
+static const uint PFS_DD_VERSION = 80036020;
 
 #endif /* PFS_DD_VERSION_H */
