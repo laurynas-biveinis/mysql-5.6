@@ -624,8 +624,11 @@ void PFS_account_row::set_nullable_field(uint index, Field *f) {
   }
 }
 
-int PFS_digest_row::make_row(PFS_statements_digest_stat *pfs) {
-  m_schema_name = pfs->m_digest_key.m_schema_name;
+int PFS_digest_row::make_row(PFS_statements_digest_stat *pfs,
+                             const char *schema_name) {
+  if (schema_name) {
+    m_schema_name.set(schema_name, strlen(schema_name));
+  }
   if (!pfs->m_has_data) {
     m_digest_length = 0;
   } else {
@@ -2002,6 +2005,12 @@ bool PFS_key_user::match(const PFS_setup_actor *pfs) {
                   pfs->m_key.m_user_name.length());
 }
 
+bool PFS_key_user::match(const char *username) {
+  bool record_null = !username;
+  uint m_user_name_length = record_null ? 0 : strlen(username);
+  return do_match(record_null, username, m_user_name_length);
+}
+
 bool PFS_key_host::match(const PFS_thread *pfs) {
   const bool record_null = (pfs->m_host_name.length() == 0);
   return do_match(record_null, pfs->m_host_name.ptr(),
@@ -2037,10 +2046,10 @@ bool PFS_key_role::match(const PFS_setup_actor *pfs) {
                   pfs->m_key.m_role_name.length());
 }
 
-bool PFS_key_schema::match(const PFS_statements_digest_stat *pfs) {
-  const bool record_null = (pfs->m_digest_key.m_schema_name.length() == 0);
-  return do_match(record_null, pfs->m_digest_key.m_schema_name.ptr(),
-                  pfs->m_digest_key.m_schema_name.length());
+bool PFS_key_schema::match(const char *schema_name) {
+  const bool record_null = !schema_name;
+  const uint schema_name_length = record_null ? 0 : strlen(schema_name);
+  return do_match(record_null, schema_name, schema_name_length);
 }
 
 bool PFS_key_digest::match(PFS_statements_digest_stat *pfs) {
@@ -2058,6 +2067,12 @@ bool PFS_key_client_id::match(PFS_client_attrs *pfs) {
   char hash_string[MD5_HASH_SIZE * 2 + 1];
   array_to_hex(hash_string, pfs->m_key.m_hash_key, MD5_HASH_SIZE);
 
+  return do_match(false, hash_string, MD5_HASH_SIZE * 2);
+}
+
+bool PFS_key_client_id::match(PFS_statements_digest_stat *pfs) {
+  char hash_string[MD5_HASH_SIZE * 2 + 1];
+  array_to_hex(hash_string, pfs->m_digest_key.client_id, MD5_HASH_SIZE);
   return do_match(false, hash_string, MD5_HASH_SIZE * 2);
 }
 
