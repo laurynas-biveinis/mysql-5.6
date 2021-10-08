@@ -50,6 +50,8 @@ generated_random_password_length
 generated_random_password_length
 group_replication_consistency
 group_replication_consistency
+histogram_step_size_binlog_commit_time
+histogram_step_size_binlog_commit_time
 hlc_upper_bound_delta
 hlc_upper_bound_delta
 init_replica
