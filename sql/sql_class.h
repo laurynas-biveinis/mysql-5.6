@@ -1656,6 +1656,7 @@ class THD : public MDL_context_owner,
   uint16 peer_port;
   struct timeval start_time;
   struct timeval user_time;
+  ulonglong start_cputime_wallclock;
   /**
     Query start time, expressed in microseconds.
   */

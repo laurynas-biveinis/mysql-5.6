@@ -185,6 +185,7 @@ struct PSI_statement_locker_state_v5 {
   unsigned long long m_timer_start;
   /** THREAD CPU time start. */
   unsigned long long m_cpu_time_start;
+  unsigned long long m_start_cputime_wallclock;
   /** State temporary data for CONTROLLED_MEMORY. */
   size_t m_controlled_local_size_start;
   /** State temporary data for MAX_CONTROLLED_MEMORY. */
