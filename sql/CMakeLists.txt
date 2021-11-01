@@ -481,6 +481,7 @@ SET(SQL_SHARED_SOURCES
   partition_info.cc
   partitioning/partition_handler.cc
   persisted_variable.cc
+  privacy_service.cc
   protocol_classic.cc
   psi_memory_key.cc
   psi_memory_resource.cc
