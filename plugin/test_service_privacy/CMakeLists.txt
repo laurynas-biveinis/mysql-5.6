@@ -29,3 +29,11 @@ MYSQL_ADD_PLUGIN(test_get_column_ref_info
   LINK_LIBRARIES extra::rapidjson
   TEST_ONLY
   )
+
+MYSQL_ADD_PLUGIN(test_build_column_lineage_info
+  test_build_column_lineage_info.cc
+  MODULE_ONLY
+  MODULE_OUTPUT_NAME "libtest_build_column_lineage_info"
+  LINK_LIBRARIES extra::rapidjson
+  TEST_ONLY
+  )
