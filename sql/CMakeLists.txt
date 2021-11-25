@@ -1071,7 +1071,8 @@ ADD_LIBRARY(rpl STATIC ${RPL_SOURCE})
 TARGET_LINK_LIBRARIES(rpl sql_main)
 
 # library for the replication source
-SET (RPL_SOURCE_SRCS rpl_source.cc rpl_binlog_sender.cc binlog_reader.cc)
+SET (RPL_SOURCE_SRCS rpl_source.cc rpl_binlog_sender.cc binlog_reader.cc
+     rpl_shardbeats.cc)
 ADD_DEPENDENCIES(rpl GenError)
 ADD_LIBRARY(rpl_source STATIC ${RPL_SOURCE_SRCS})
 ADD_DEPENDENCIES(rpl_source GenError)
