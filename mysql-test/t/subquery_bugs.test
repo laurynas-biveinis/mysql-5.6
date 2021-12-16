@@ -2,6 +2,7 @@
 # Regression tests for bugs in subquery evaluation that need
 # a specific optimizer strategy selection
 #
+--source include/have_innodb_intrinsic_table.inc
 --source include/elide_costs.inc
 
 --echo # Bug#26436185 Assertion 'buf_is_inside_another(data_in_mysql_buf, ...)

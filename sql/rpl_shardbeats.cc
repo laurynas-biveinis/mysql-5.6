@@ -198,7 +198,7 @@ std::string get_ipv6addr() {
   std::string ret_value;
   for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
     // check it is IPV6
-    if (ifa->ifa_addr->sa_family != AF_INET6) {
+    if (ifa->ifa_addr == nullptr || ifa->ifa_addr->sa_family != AF_INET6) {
       continue;
     }
 
