@@ -30,6 +30,8 @@
 CALL mtr.add_suppression("Recovery from source pos*");
 CALL mtr.add_suppression("Replica SQL.*Duplicate entry.* Error_code: MY-001062");
 CALL mtr.add_suppression("The replica coordinator and worker threads are stopped, possibly leaving data in inconsistent state");
+CALL mtr.add_suppression("Error writing relay log configuration.");
+
 --let $auto_position=0
 --let $loop_count=2
 

@@ -7,6 +7,7 @@ Note	####	Storing MySQL user name or password information in the connection meta
 CALL mtr.add_suppression("Recovery from source pos*");
 CALL mtr.add_suppression("Replica SQL.*Duplicate entry.* Error_code: MY-001062");
 CALL mtr.add_suppression("The replica coordinator and worker threads are stopped, possibly leaving data in inconsistent state");
+CALL mtr.add_suppression("Error writing relay log configuration.");
 include/stop_slave.inc
 CHANGE REPLICATION SOURCE TO SOURCE_AUTO_POSITION=0;
 SET @@global.replica_parallel_workers=4;
