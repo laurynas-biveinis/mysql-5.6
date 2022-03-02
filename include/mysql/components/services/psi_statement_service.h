@@ -136,6 +136,7 @@ set_statement_secondary_engine_v3_t set_statement_secondary_engine;
 update_statement_filesort_disk_usage_t update_statement_filesort_disk_usage;
 /** @sa update_statement_tmp_table_disk_usage. */
 update_statement_tmp_table_disk_usage_t update_statement_tmp_table_disk_usage;
+
 /** @sa end_statement_v1_t. */
 end_statement_v1_t end_statement;
 
@@ -172,6 +173,9 @@ drop_sp_v1_t drop_sp;
 
 notify_statement_query_attributes_v5_t notify_statement_query_attributes;
 statement_abort_telemetry_v5_t statement_abort_telemetry;
+
+/** @sa snapshot_statement_v2_t. */
+snapshot_statement_v2_t snapshot_statement;
 END_SERVICE_DEFINITION(psi_statement_v5)
 
 #endif /* COMPONENTS_SERVICES_PSI_STATEMENT_SERVICE_H */

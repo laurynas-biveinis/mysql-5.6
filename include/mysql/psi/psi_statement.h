@@ -202,6 +202,9 @@ struct PSI_statement_service_v5 {
 
   notify_statement_query_attributes_v5_t notify_statement_query_attributes;
   statement_abort_telemetry_v5_t statement_abort_telemetry;
+
+  /** @sa snapshot_statement_v2_t. */
+  snapshot_statement_v2_t snapshot_statement;
 };
 
 typedef struct PSI_statement_service_v5 PSI_statement_service_t;
