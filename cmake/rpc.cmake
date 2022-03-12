@@ -1,4 +1,4 @@
-# Copyright (c) 2018, 2023, Oracle and/or its affiliates.
+# Copyright (c) 2018, 2022, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -47,6 +47,7 @@ FUNCTION(WARN_MISSING_SYSTEM_TIRPC)
 ENDFUNCTION()
 
 MACRO(MYSQL_CHECK_RPC)
+
   IF(LINUX AND WITH_TIRPC STREQUAL "bundled")
     SET(TIRPC_FOUND TRUE)
 
@@ -55,7 +56,9 @@ MACRO(MYSQL_CHECK_RPC)
     SET(TIRPC_VERSION "1.3.3")
     SET(TIRPC_LIBRARIES "${CMAKE_BINARY_DIR}/tirpc/lib/libtirpc.a")
     INCLUDE_DIRECTORIES(BEFORE SYSTEM "${TIRPC_INCLUDE_DIR}")
-
+  ELSEIF(WITH_TIRPC)
+    ADD_DEFINITIONS(-DHAVE_TIRPC)
+    FIND_PATH(RPC_INCLUDE_DIRS NAMES rpc/rpc.h)
   ELSEIF(LINUX AND NOT LIBTIRPC_VERSION_TOO_OLD)
     MYSQL_CHECK_PKGCONFIG()
     PKG_CHECK_MODULES(TIRPC libtirpc)
