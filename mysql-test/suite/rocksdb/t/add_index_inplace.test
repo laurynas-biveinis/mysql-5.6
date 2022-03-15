@@ -146,8 +146,6 @@ SELECT * FROM t1 FORCE INDEX(kb) WHERE b > 5;
 SELECT * FROM t1 FORCE INDEX(kba) WHERE a > 2;
 DROP TABLE t1;
 
-# Disable until partition support is added
---disable_testcase BUG#888001
 #
 # Create tables with partitions and try to update/select from them.
 #
@@ -171,10 +169,9 @@ SELECT * FROM t1 ORDER BY i LIMIT 10;
 SELECT COUNT(*) FROM t1;
 
 DROP TABLE t1;
---enable_testcase
 
 # test failure in prepare phase (due to collation)
-CREATE TABLE t1 (a INT, b TEXT) CHARSET=utf8mb4;
+CREATE TABLE t1 (a INT, b TEXT) CHARSET=latin1;
 
 --error ER_UNSUPPORTED_COLLATION
 ALTER TABLE t1 ADD KEY kb(b(10));
@@ -411,7 +408,7 @@ SHOW INDEX in t1;
 DROP TABLE t1;
 SET global rocksdb_table_stats_sampling_pct = @prior_rocksdb_table_stats_sampling_pct;
 
-CREATE TABLE t1 (i int primary key, j int, v text) CHARSET=latin1;
+CREATE TABLE t1 (i int primary key, j int, v text) CHARSET=latin1 COLLATE latin1_bin;
 INSERT INTO t1 VALUES (1, 1, "1"), (2, 1, "2");
 ALTER TABLE t1 ADD INDEX idx (v(10));
 --disable_result_log
