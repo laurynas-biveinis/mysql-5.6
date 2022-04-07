@@ -122,10 +122,10 @@ c_id	c_name	c_country
 drop table t1;
 set GLOBAL max_join_size=10;
 set max_join_size=100;
-set max_join_size=1000;
+set max_join_size=2000;
 show variables like 'max_join_size';
 Variable_name	Value
-max_join_size	1000
+max_join_size	2000
 set max_join_size=100;
 SET SQL_BIG_SELECTS=1;
 select * from performance_schema.session_variables where variable_name like 'max_join_size';
@@ -158,10 +158,10 @@ max_join_size	HA_POS_ERROR
 select * from performance_schema.global_variables where variable_name like 'max_join_size';
 VARIABLE_NAME	VARIABLE_VALUE
 max_join_size	HA_POS_ERROR
-set @@max_join_size=1000, @@global.max_join_size=2000;
+set @@max_join_size=1280, @@global.max_join_size=2000;
 select @@local.max_join_size, @@global.max_join_size;
 @@local.max_join_size	@@global.max_join_size
-1000	2000
+1280	2000
 select @@identity,  length(@@version)>0;
 @@identity	length(@@version)>0
 0	1
