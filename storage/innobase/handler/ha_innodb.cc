@@ -2398,10 +2398,12 @@ int convert_error_code_to_mysql(dberr_t error, uint32_t flags, THD *thd) {
 }
 
 /** Prints info of a THD object (== user session thread) to the given file. */
-void innobase_mysql_print_thd(FILE *f,            /*!< in: output stream */
-                              THD *thd,           /*!< in: MySQL THD object */
-                              uint max_query_len) /*!< in: max query length to
-                                                  print, must be positive */
+void innobase_mysql_print_thd(
+    FILE *f,            /*!< in: output stream */
+    THD *thd,           /*!< in: MySQL THD object */
+    uint max_query_len, /*!< in: max query length to
+                        print, must be positive */
+    bool force_digest)  /*!< in: always show query digest */
 {
   // This is meant to be an upper bound for non-SQL part of the context,
   // such as trx's id, state and stats.
@@ -2412,7 +2414,8 @@ void innobase_mysql_print_thd(FILE *f,            /*!< in: output stream */
   /* This may be called from monitor thread without THD */
   THD *this_thd = current_thd;
   bool show_query_digest =
-      this_thd ? this_thd->variables.show_query_digest : false;
+      force_digest ||
+      (this_thd ? this_thd->variables.show_query_digest : false);
   char *msg = thd_security_context_internal(thd, buffer.data(), buffer.size(),
                                             max_query_len, show_query_digest);
   fputs(msg, f);
