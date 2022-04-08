@@ -9,7 +9,6 @@ Warnings:
 Note	####	Sending passwords in plain text without SSL/TLS is extremely insecure.
 Note	####	Storing MySQL user name or password information in the connection metadata repository is not secure and is therefore not recommended. Please consider using the USER and PASSWORD connection options for START REPLICA; see the 'START REPLICA Syntax' in the MySQL Manual for more information.
 [connection server_1]
-CALL mtr.add_suppression("Semi-sync source failed on net_flush().*");
 SELECT info FROM information_schema.processlist where Command like 'Binlog%';
 info
 Async slave offset: master-bin.000001 157
@@ -17,6 +16,9 @@ Async slave offset: master-bin.000001 157
 Async slave offset: master-bin.000001 157
 Warnings:
 Warning	1287	'INFORMATION_SCHEMA.PROCESSLIST' is deprecated and will be removed in a future release. Please use performance_schema.processlist instead
+CALL mtr.add_suppression("Semi-sync master failed on net_flush.. before waiting for replica reply");
+CALL mtr.add_suppression("Run function 'before_send_event' in plugin 'rpl_semi_sync_master' failed");
+CALL mtr.add_suppression("Slave SQL.*Request to stop slave SQL Thread received while applying a group that has non-transactional changes; waiting for completion of the group");
 ####################################################################
 # Test Case: semisync master can be enabled and disabled sucessfully
 # without any live slave connection and also test ON, OFF can be set
