@@ -16,6 +16,8 @@ Warning	1681	Integer display width is deprecated and will be removed in a future
 Warning	1681	Integer display width is deprecated and will be removed in a future release.
 Warning	1681	Integer display width is deprecated and will be removed in a future release.
 Warning	1681	Integer display width is deprecated and will be removed in a future release.
+SELECT @@rocksdb_bypass_rpc_on INTO @save_rocksdb_bypass_rpc_on;
+set global rocksdb_bypass_rpc_on=1;
 INSTALL PLUGIN test_bypass_rpc_plugin_info SONAME 'TEST_BYPASS_RPC_PLUGIN';
 UNINSTALL PLUGIN test_bypass_rpc_plugin_info;
 set DEBUG_SYNC='now WAIT_FOR ready_to_run_processlist';
@@ -42,3 +44,4 @@ rpc_plugin	Connect	SELECT /* bypass rpc */ id1,id2,link_type,visibility,data,TIM
 Warnings:
 Warning	1287	'INFORMATION_SCHEMA.PROCESSLIST' is deprecated and will be removed in a future release. Please use performance_schema.processlist instead
 set DEBUG_SYNC='now SIGNAL continue';
+set global rocksdb_bypass_rpc_on=@save_rocksdb_bypass_rpc_on;
