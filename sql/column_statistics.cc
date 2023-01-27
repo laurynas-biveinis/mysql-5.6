@@ -46,6 +46,14 @@
 // Mapping from SQL_ID to column usage information.
 std::unordered_map<digest_key, std::set<ColumnUsageInfo>> col_statistics_map;
 
+ulonglong column_stats_size = 0;
+ulonglong max_column_statistics_size;
+
+ulonglong string_buffer_overhead(const std::string &str) {
+  static ulonglong empty_capacity = std::string().capacity();
+  return str.capacity() > empty_capacity ? str.capacity() : 0;
+}
+
 // Operator definition for strict weak ordering. Should be a function of all
 // constituents of the struct. The ordering is done for ColumnUsageInfo structs
 // in lexicographic fashion on the following elements.
@@ -87,6 +95,16 @@ bool ColumnUsageInfo::operator<(const ColumnUsageInfo &other) const {
     }
   }
   return false;
+}
+
+ulonglong ColumnUsageInfo::size() const {
+  // This is an upper bound on the allocated storage space for strings.
+  // In case of inlined strings, the allocated memory might be less.
+  return sizeof(*this) + string_buffer_overhead(table_schema) +
+         string_buffer_overhead(table_name) +
+         string_buffer_overhead(table_instance) +
+         string_buffer_overhead(column_name) +
+         string_buffer_overhead(extra_data);
 }
 
 std::string sql_operation_string(const sql_operation &sql_op) {
@@ -544,15 +562,16 @@ int parse_column_usage_info(THD *thd) {
   DBUG_ENTER("parse_column_usage_info");
   assert(thd);
 
+  thd->column_usage_info.clear();
+
   // Return early without doing anything if
   // 1. COLUMN_STATS switch is not ON
   // 2. The SQL_ID was already processed
+  // 3. Memory usage of column statistics exceeds limit
   if (column_stats_control != SQL_INFO_CONTROL_ON ||
-      exists_column_usage_info(thd)) {
+      exists_column_usage_info_and_limit_check(thd)) {
     DBUG_RETURN(0);
   }
-
-  thd->column_usage_info.clear();
 
   LEX *lex = thd->lex;
 
@@ -643,18 +662,31 @@ void populate_column_usage_info(THD *thd) {
     DBUG_VOID_RETURN;
   }
 
+  // Calculate the size of column usage statistics.
+  // Start with overhead of std::set itself plus per item overhead of
+  // std::unordered_map and the size of SQL_ID. See below for details.
+  // https://chromium.googlesource.com/chromium/src/+/HEAD/base/containers/README.md
+  auto column_usage_info_size =
+      sizeof(thd->column_usage_info) + DIGEST_HASH_SIZE + 16;
+  for (const auto &cui : thd->column_usage_info) {
+    // Include per item overhead of std::set.
+    column_usage_info_size += cui.size() + 32;
+  }
+
   mysql_rwlock_wrlock(&LOCK_column_statistics);
   auto iter = col_statistics_map.find(thd->mt_key_value(THD::SQL_ID));
   if (iter == col_statistics_map.end()) {
     col_statistics_map.insert(
         std::make_pair(thd->mt_key_value(THD::SQL_ID), thd->column_usage_info));
+    column_stats_size += column_usage_info_size;
   }
   mysql_rwlock_unlock(&LOCK_column_statistics);
+
   DBUG_VOID_RETURN;
 }
 
-bool exists_column_usage_info(THD *thd) {
-  DBUG_ENTER("exists_column_usage_info");
+bool exists_column_usage_info_and_limit_check(THD *thd) {
+  DBUG_ENTER("exists_column_usage_info_and_limit_check");
   assert(thd);
 
   // return now if the SQL ID was not set
@@ -667,9 +699,10 @@ bool exists_column_usage_info(THD *thd) {
                  col_statistics_map.end())
                     ? false
                     : true;
+  bool mem_limit_exceeded = (column_stats_size >= max_column_statistics_size);
   mysql_rwlock_unlock(&LOCK_column_statistics);
 
-  DBUG_RETURN(exists);
+  DBUG_RETURN(exists || mem_limit_exceeded);
 }
 
 std::vector<column_statistics_row> get_all_column_statistics() {
@@ -703,5 +736,6 @@ std::vector<column_statistics_row> get_all_column_statistics() {
 void free_column_stats() {
   mysql_rwlock_wrlock(&LOCK_column_statistics);
   col_statistics_map.clear();
+  column_stats_size = 0;
   mysql_rwlock_unlock(&LOCK_column_statistics);
 }
