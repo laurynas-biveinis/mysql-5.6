@@ -25,6 +25,9 @@ binlog_gtid.binlog_xa_select_gtid_executed_explicitly_crash : Bug#28588717 Fails
 binlog_nogtid.binlog_gtid_next_xa                 : BUG#33650776 Failure of XA COMMIT of prepared txn, can result in txn rollback
 binlog.binlog_mysqlbinlog_source_gipk_info        : BUG#00000000 Binlog format incompatibility between upstream and Meta
 
+# clone suite tests
+clone.local_xa : BUG#00000000 : cross-engine consistent clone does not block XA commits
+
 # func1 suite tests
 funcs_1.is_basics_mixed @darwin  : BUG#25882809 INCORRECT RESULT WHEN USING SUBQUERY ON TOP OF VIEW.
 funcs_1.is_basics_mixed @windows : BUG#25882809 INCORRECT RESULT WHEN USING SUBQUERY ON TOP OF VIEW.
