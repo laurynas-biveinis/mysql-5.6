@@ -487,6 +487,8 @@ static handler *tina_create_handler(handlerton *hton, TABLE_SHARE *table, bool,
 static bool tina_is_supported_system_table(const char *db,
                                            const char *table_name,
                                            bool is_sql_layer_system_table) {
+  fprintf(stderr, "CSV: db = %s, table_name = %s, sql_layer = %d\n",
+          db, table_name, is_sql_layer_system_table);
   /*
    Currently CSV does not support any other SE specific system tables. If
    in future it does, please see ha_example.cc for reference implementation

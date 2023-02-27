@@ -1509,8 +1509,8 @@ bool plugin_register_early_plugins(int *argc, char **argv, int flags) {
 }
 
 /**
-  Register the builtin plugins. Some of the plugins (MyISAM, CSV and InnoDB)
-  are also initialized.
+  Register the builtin plugins. Some of the plugins (MyISAM, CSV, InnoDB, and
+  MyRocks) are also initialized.
 
   @param argc number of arguments, propagated to the plugin
   @param argv actual arguments, propagated to the plugin
@@ -1577,8 +1577,8 @@ bool plugin_register_builtin_and_init_core_se(int *argc, char **argv) {
       if (register_builtin(plugin, &tmp, &plugin_ptr)) goto err_unlock;
 
       /*
-        Only initialize daemon_keyring_proxy, MyISAM, InnoDB and CSV at this
-        stage. Note that when the --help option is supplied,
+        Only initialize daemon_keyring_proxy, MyISAM, InnoDB, CSV, and MyRocks
+        at this stage. Note that when the --help option is supplied,
         daemon_keyring_proxy and InnoDB are not initialized because the plugin
         table will not be read anyway, as indicated by the flag set when the
         plugin_init() function is called.
@@ -1589,9 +1589,11 @@ bool plugin_register_builtin_and_init_core_se(int *argc, char **argv) {
           !my_strcasecmp(&my_charset_latin1, plugin->name, "MyISAM");
       bool is_innodb =
           !my_strcasecmp(&my_charset_latin1, plugin->name, "InnoDB");
+      bool is_myrocks =
+          !my_strcasecmp(&my_charset_latin1, plugin->name, "ROCKSDB");
       if ((!is_daemon_keyring_proxy || is_help_or_validate_option()) &&
           !is_myisam && (!is_innodb || is_help_or_validate_option()) &&
-          my_strcasecmp(&my_charset_latin1, plugin->name, "CSV"))
+          my_strcasecmp(&my_charset_latin1, plugin->name, "CSV") && !is_myrocks)
         continue;
 
       if (plugin_ptr->state != PLUGIN_IS_UNINITIALIZED ||

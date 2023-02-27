@@ -7149,6 +7149,57 @@ static rocksdb::Status check_rocksdb_options_compatibility(
   return status;
 }
 
+static bool rocksdb_is_supported_system_table(const char *db, const char *name,
+                                              bool) {
+  if (strcmp(db, "mysql") == 0) {
+    return
+        // Permanent
+        strcmp(name, "general_log") != 0 &&
+        strcmp(name, "slow_log") != 0 &&
+
+        strcmp(name, "innodb_dynamic_metadata") != 0 &&
+        strcmp(name, "innodb_index_stats") != 0 &&
+        strcmp(name, "innodb_table_stats") != 0 &&
+        strcmp(name, "innodb_ddl_log") != 0 &&
+
+        // Temporary: DD
+        strcmp(name, "catalogs") != 0 &&
+        strcmp(name, "character_sets") != 0 &&
+        strcmp(name, "check_constraints") != 0 &&
+        strcmp(name, "collations") != 0 &&
+        strcmp(name, "column_statistics") != 0 &&
+        strcmp(name, "column_type_elements") != 0 &&
+        strcmp(name, "columns") != 0 &&
+        strcmp(name, "events") != 0 &&
+        strcmp(name, "foreign_key_column_usage") != 0 &&
+        strcmp(name, "foreign_keys") != 0 &&
+        strcmp(name, "index_column_usage") != 0 &&
+        strcmp(name, "index_partitions") != 0 &&
+        strcmp(name, "index_stats") != 0 &&
+        strcmp(name, "indexes") != 0 &&
+        strcmp(name, "indexes") != 0 &&
+        strcmp(name, "parameter_type_elements") != 0 &&
+        strcmp(name, "parameters") != 0 &&
+        strcmp(name, "resource_groups") != 0 &&
+        strcmp(name, "routines") != 0 &&
+        strcmp(name, "schemata") != 0 &&
+        strcmp(name, "st_spatial_reference_systems") != 0 &&
+        strcmp(name, "table_partition_values") != 0 &&
+        strcmp(name, "table_partitions") != 0 &&
+        strcmp(name, "table_stats") != 0 &&
+        strcmp(name, "tables") != 0 &&
+        strcmp(name, "tablespace_files") != 0 &&
+        strcmp(name, "tablespaces") != 0 &&
+        strcmp(name, "triggers") != 0 &&
+        strcmp(name, "view_routine_usage") != 0 &&
+        strcmp(name, "view_table_usage") != 0 &&
+        strcmp(name, "dd_properties") != 0;
+  }
+
+  assert(0);
+  return true;
+}
+
 static uint rocksdb_partition_flags() { return (HA_CANNOT_PARTITION_FK); }
 
 bool rdb_has_wsenv() {
@@ -7423,6 +7474,8 @@ static int rocksdb_init_internal(void *const p) {
   rocksdb_hton->clone_interface.clone_apply_begin = rocksdb_clone_apply_begin;
   rocksdb_hton->clone_interface.clone_apply = rocksdb_clone_apply;
   rocksdb_hton->clone_interface.clone_apply_end = rocksdb_clone_apply_end;
+
+  rocksdb_hton->is_supported_system_table = rocksdb_is_supported_system_table;
 
   rocksdb_hton->flags = HTON_SUPPORTS_EXTENDED_KEYS | HTON_CAN_RECREATE;
 

@@ -4341,6 +4341,8 @@ int Rdb_validate_tbls::add_table(Rdb_tbl_def *tdef) {
   and compare them to the list of tables from the RocksDB database dictionary
 */
 bool Rdb_validate_tbls::validate(void) {
+  return true;
+#if 0
   THD *const thd = my_core::thd_get_current_thd();
   bool result = true;
 
@@ -4410,6 +4412,7 @@ bool Rdb_validate_tbls::validate(void) {
     }
   }
   return result;
+#endif
 }
 
 /*

@@ -624,7 +624,10 @@ static bool fill_share_from_dd(THD *thd, TABLE_SHARE *share,
     handlerton *hton = plugin_data<handlerton *>(tmp_plugin);
 #endif
 
-    assert(hton && ha_storage_engine_is_enabled(hton));
+    fprintf(stderr, "name: %s, engine: %s\n", share->table_name.str,
+            engine_name.str);
+    assert(hton);
+    assert(ha_storage_engine_is_enabled(hton));
     assert(!ha_check_storage_engine_flag(hton, HTON_NOT_USER_SELECTABLE));
 
     plugin_unlock(nullptr, share->db_plugin);

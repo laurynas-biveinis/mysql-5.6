@@ -1,0 +1,49 @@
+--source include/have_rocksdb.inc
+
+SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE, ENGINE FROM
+       INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'mysql';
+
+ALTER TABLE sys.sys_config ENGINE=ROCKSDB;
+
+ALTER TABLE mysql.columns_priv ENGINE=ROCKSDB;
+ALTER TABLE mysql.component ENGINE=ROCKSDB;
+ALTER TABLE mysql.db ENGINE=ROCKSDB;
+ALTER TABLE mysql.default_roles ENGINE=ROCKSDB;
+ALTER TABLE mysql.engine_cost ENGINE=ROCKSDB;
+ALTER TABLE mysql.global_grants ENGINE=ROCKSDB;
+ALTER TABLE mysql.gtid_executed ENGINE=ROCKSDB;
+ALTER TABLE mysql.help_category ENGINE=ROCKSDB;
+ALTER TABLE mysql.help_keyword ENGINE=ROCKSDB;
+ALTER TABLE mysql.help_relation ENGINE=ROCKSDB;
+ALTER TABLE mysql.help_topic ENGINE=ROCKSDB;
+ALTER TABLE mysql.password_history
+      DROP PRIMARY KEY,
+      ADD PRIMARY KEY (Host, User, Password_timestamp);
+ALTER TABLE mysql.password_history ENGINE=ROCKSDB;
+ALTER TABLE mysql.procs_priv ENGINE=ROCKSDB;
+ALTER TABLE mysql.proxies_priv ENGINE=ROCKSDB;
+ALTER TABLE mysql.replication_asynchronous_connection_failover ENGINE=ROCKSDB;
+ALTER TABLE mysql.replication_asynchronous_connection_failover_managed ENGINE=ROCKSDB;
+ALTER TABLE mysql.replication_group_configuration_version ENGINE=ROCKSDB;
+ALTER TABLE mysql.replication_group_member_actions ENGINE=ROCKSDB;
+ALTER TABLE mysql.role_edges ENGINE=ROCKSDB;
+ALTER TABLE mysql.server_cost ENGINE=ROCKSDB;
+ALTER TABLE mysql.slave_master_info ENGINE=ROCKSDB;
+ALTER TABLE mysql.slave_relay_log_info ENGINE=ROCKSDB;
+ALTER TABLE mysql.tables_priv ENGINE=ROCKSDB;
+ALTER TABLE mysql.user ENGINE=ROCKSDB;
+
+# Requires attachable transaction support
+# ALTER TABLE mysql.plugin ENGINE=ROCKSDB;
+# ALTER TABLE mysql.time_zone_leap_second ENGINE=ROCKSDB;
+# ALTER TABLE mysql.time_zone_name ENGINE=ROCKSDB;
+# ALTER TABLE mysql.time_zone ENGINE=ROCKSDB;
+# ALTER TABLE mysql.time_zone_transition_type ENGINE=ROCKSDB;
+# ALTER TABLE mysql.time_zone_transition ENGINE=ROCKSDB;
+# ALTER TABLE mysql.servers ENGINE=ROCKSDB;
+# ALTER TABLE mysql.func ENGINE=ROCKSDB;
+
+--source include/restart_mysqld.inc
+
+SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE, ENGINE FROM
+INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'mysql';

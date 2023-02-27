@@ -183,7 +183,7 @@ SET(ROCKSDB_SOURCES
   ${ROCKSDB_LIB_SOURCES}
 )
 
-IF(WITH_FB_TSAN OR ROCKSDB_DYNAMIC_PLUGIN)
+IF(WITH_FB_TSAN)
   SET(PIC_EXT "_pic")
 ELSE()
   SET(PIC_EXT "")
@@ -194,12 +194,8 @@ IF(HAVE_EXTERNAL_ROCKSDB)
 ENDIF()
 
 IF (WITH_JEMALLOC)
-  # Not static linking jemalloc with a dynamic plugin to avoid
-  # "cannot allocate memory in static TLS block" error
-  IF(NOT ROCKSDB_DYNAMIC_PLUGIN)
-    SET(rocksdb_static_libs ${rocksdb_static_libs} -Wl,-rpath=$ORIGIN
-      ${JEMALLOC_LIBRARY})
-  ENDIF()
+  SET(rocksdb_static_libs ${rocksdb_static_libs} -Wl,-rpath=$ORIGIN
+    ${JEMALLOC_LIBRARY})
   ADD_DEFINITIONS(-DROCKSDB_JEMALLOC)
   ADD_DEFINITIONS(-DROCKSDB_MALLOC_USABLE_SIZE)
 ENDIF()
@@ -262,15 +258,10 @@ IF(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
   SET(rocksdb_static_libs ${rocksdb_static_libs} "-lrt")
 ENDIF()
 
-IF (ROCKSDB_DYNAMIC_PLUGIN)
-  MYSQL_ADD_PLUGIN(rocksdb ${ROCKSDB_SOURCES} STORAGE_ENGINE DEFAULT
-    MODULE_ONLY LINK_LIBRARIES ${rocksdb_static_libs})
-ELSE()
-  MYSQL_ADD_PLUGIN(rocksdb_se ${ROCKSDB_SOURCES} STORAGE_ENGINE DEFAULT
-    STATIC_ONLY LINK_LIBRARIES ${rocksdb_static_libs})
-    # to fix linkage error on partition_base
-    TARGET_LINK_LIBRARIES(rocksdb_se sql_main)
-ENDIF()
+MYSQL_ADD_PLUGIN(rocksdb_se ${ROCKSDB_SOURCES} STORAGE_ENGINE MANDATORY
+  LINK_LIBRARIES ${rocksdb_static_libs})
+# to fix linkage error on partition_base
+TARGET_LINK_LIBRARIES(rocksdb_se sql_main)
 
 IF(WITH_EMBEDDED_SERVER)
   ADD_SUBDIRECTORY(unittest)

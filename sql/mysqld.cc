@@ -7333,7 +7333,7 @@ static int init_server_components() {
     unireg_abort(1);
   }
 
-  /* Load builtin plugins, initialize MyISAM, CSV and InnoDB */
+  /* Load builtin plugins, initialize MyISAM, CSV, InnoDB, and MyRocks */
   if (plugin_register_builtin_and_init_core_se(&remaining_argc,
                                                remaining_argv)) {
     if (!opt_validate_config)
