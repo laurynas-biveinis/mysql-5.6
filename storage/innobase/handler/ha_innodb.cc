@@ -6002,6 +6002,7 @@ static int innobase_rollback(handlerton *hton, /*!< in: InnoDB handlerton */
   DBUG_PRINT("trans", ("aborting transaction"));
 
   trx_t *trx = check_trx_exists(thd);
+  ut_ad(!trx->is_dd_trx);
 
   TrxInInnoDB trx_in_innodb(trx);
 
@@ -19989,6 +19990,7 @@ static int innobase_xa_prepare(handlerton *hton, /*!< in: InnoDB handlerton */
                                                  SQL statement ended */
 {
   trx_t *trx = check_trx_exists(thd);
+  ut_ad(!trx->is_dd_trx);
 
   assert(hton == innodb_hton_ptr);
 

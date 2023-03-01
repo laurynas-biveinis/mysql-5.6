@@ -3521,9 +3521,16 @@ class Rdb_transaction {
 
   void set_params(int timeout_sec_arg, int max_row_locks_arg,
                   TABLE_TYPE table_type) {
-    m_timeout_sec = timeout_sec_arg;
-    m_max_row_locks = max_row_locks_arg;
-    set_lock_timeout(timeout_sec_arg, table_type);
+    // FIXME(laurynas): is this needed at all?
+    if (thd_tx_is_dd_trx(m_thd)) {
+      m_timeout_sec = 1;  // Minimum allowed. FIXME(laurynas): check.
+      m_max_row_locks = 0;
+      set_lock_timeout(1, table_type);
+    } else {
+      m_timeout_sec = timeout_sec_arg;
+      m_max_row_locks = max_row_locks_arg;
+      set_lock_timeout(timeout_sec_arg, table_type);
+    }
   }
 
   virtual void set_lock_timeout(int timeout_sec_arg, TABLE_TYPE table_type) = 0;
@@ -4601,9 +4608,13 @@ static void dbug_change_status_to_incomplete(rocksdb::Status *status) {
 class Rdb_transaction_impl : public Rdb_transaction {
   std::vector<rocksdb::Transaction *> m_rocksdb_tx{nullptr, nullptr};
   std::vector<rocksdb::Transaction *> m_rocksdb_reuse_tx{nullptr, nullptr};
+  bool is_attachable_trx{false};
 
  public:
   void set_lock_timeout(int timeout_sec_arg, TABLE_TYPE table_type) override {
+    assert(!is_attachable_trx || timeout_sec_arg == 1);
+    assert(!is_attachable_trx || table_type == USER_TABLE);
+
     if (m_rocksdb_tx[table_type]) {
       m_rocksdb_tx[table_type]->SetLockTimeout(
           rdb_convert_sec_to_ms(timeout_sec_arg));
@@ -4611,11 +4622,13 @@ class Rdb_transaction_impl : public Rdb_transaction {
   }
 
   void set_sync(bool sync) override {
+    assert(!is_attachable_trx);
     m_rocksdb_tx[TABLE_TYPE::USER_TABLE]->GetWriteOptions()->sync = sync;
   }
 
   void release_lock(const Rdb_key_def &key_descr, const std::string &rowkey,
                     bool force) override {
+    assert(!is_attachable_trx);
     if (!THDVAR(m_thd, lock_scanned_rows) || force) {
       m_rocksdb_tx[TABLE_TYPE::USER_TABLE]->UndoGetForUpdate(
           key_descr.get_cf(), rocksdb::Slice(rowkey));
@@ -4644,6 +4657,8 @@ class Rdb_transaction_impl : public Rdb_transaction {
       m_rocksdb_reuse_tx[INTRINSIC_TMP] = m_rocksdb_tx[INTRINSIC_TMP];
       m_rocksdb_tx[INTRINSIC_TMP] = nullptr;
     }
+    // TODO(laurynas): debug-only flag?
+    is_attachable_trx = false;
   }
 
   bool prepare() override {
@@ -4763,6 +4778,7 @@ class Rdb_transaction_impl : public Rdb_transaction {
 
   void acquire_snapshot(bool acquire_now, TABLE_TYPE table_type) override {
     if (table_type == INTRINSIC_TMP) {
+      assert(!is_attachable_trx);
       return;
     }
 
@@ -4789,6 +4805,7 @@ class Rdb_transaction_impl : public Rdb_transaction {
 
   void release_snapshot(TABLE_TYPE table_type) override {
     if (table_type == INTRINSIC_TMP) {
+      assert(!is_attachable_trx);
       return;
     }
 
@@ -4814,7 +4831,10 @@ class Rdb_transaction_impl : public Rdb_transaction {
   }
 
   bool has_snapshot(TABLE_TYPE table_type) {
-    if (table_type == INTRINSIC_TMP) return false;
+    if (table_type == INTRINSIC_TMP) {
+      assert(!is_attachable_trx);
+      return false;
+    }
     return m_read_opts[table_type].snapshot != nullptr;
   }
 
@@ -4822,6 +4842,7 @@ class Rdb_transaction_impl : public Rdb_transaction {
                       const rocksdb::Slice &key, const rocksdb::Slice &value,
                       TABLE_TYPE table_type,
                       const bool assume_tracked) override {
+    assert(!is_attachable_trx);
     ++m_write_count[table_type];
     return m_rocksdb_tx[table_type]->Put(column_family, key, value,
                                          assume_tracked);
@@ -4830,6 +4851,7 @@ class Rdb_transaction_impl : public Rdb_transaction {
   rocksdb::Status delete_key(rocksdb::ColumnFamilyHandle *const column_family,
                              const rocksdb::Slice &key, TABLE_TYPE table_type,
                              const bool assume_tracked) override {
+    assert(!is_attachable_trx);
     ++m_write_count[table_type];
     return m_rocksdb_tx[table_type]->Delete(column_family, key, assume_tracked);
   }
@@ -4838,6 +4860,7 @@ class Rdb_transaction_impl : public Rdb_transaction {
       rocksdb::ColumnFamilyHandle *const column_family,
       const rocksdb::Slice &key, TABLE_TYPE table_type,
       const bool assume_tracked) override {
+    assert(!is_attachable_trx);
     ++m_write_count[table_type];
     return m_rocksdb_tx[table_type]->SingleDelete(column_family, key,
                                                   assume_tracked);
@@ -4918,6 +4941,8 @@ class Rdb_transaction_impl : public Rdb_transaction {
                                  TABLE_TYPE table_type, bool exclusive,
                                  const bool do_validate,
                                  bool no_wait) override {
+    assert(!is_attachable_trx);
+
     if (table_type == INTRINSIC_TMP) {
       assert(false);
       return rocksdb::Status::NotSupported(
@@ -5001,7 +5026,12 @@ class Rdb_transaction_impl : public Rdb_transaction {
 
     write_opts.protection_bytes_per_key =
         THDVAR(m_thd, protection_bytes_per_key);
+
+    // TODO(laurynas): debug-only flag?
+    is_attachable_trx = m_thd->is_attachable_ro_transaction_active();
+
     if (table_type == INTRINSIC_TMP) {
+      assert(!is_attachable_trx);
       write_opts.sync = false;
       write_opts.disableWAL = true;
       tx_opts.skip_concurrency_control = true;
