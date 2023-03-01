@@ -34,14 +34,16 @@ ALTER TABLE mysql.tables_priv ENGINE=ROCKSDB;
 ALTER TABLE mysql.user ENGINE=ROCKSDB;
 
 # Requires attachable transaction support
-# ALTER TABLE mysql.plugin ENGINE=ROCKSDB;
-# ALTER TABLE mysql.time_zone_leap_second ENGINE=ROCKSDB;
-# ALTER TABLE mysql.time_zone_name ENGINE=ROCKSDB;
-# ALTER TABLE mysql.time_zone ENGINE=ROCKSDB;
-# ALTER TABLE mysql.time_zone_transition_type ENGINE=ROCKSDB;
-# ALTER TABLE mysql.time_zone_transition ENGINE=ROCKSDB;
-# ALTER TABLE mysql.servers ENGINE=ROCKSDB;
-# ALTER TABLE mysql.func ENGINE=ROCKSDB;
+ALTER TABLE mysql.plugin ENGINE=ROCKSDB;
+ALTER TABLE mysql.time_zone_leap_second ENGINE=ROCKSDB;
+ALTER TABLE mysql.time_zone_name ENGINE=ROCKSDB;
+ALTER TABLE mysql.time_zone ENGINE=ROCKSDB;
+ALTER TABLE mysql.time_zone_transition_type ENGINE=ROCKSDB;
+ALTER TABLE mysql.time_zone_transition ENGINE=ROCKSDB;
+ALTER TABLE mysql.servers ENGINE=ROCKSDB;
+ALTER TABLE mysql.func ENGINE=ROCKSDB;
+
+ALTER TABLE mysql.slave_worker_info ENGINE=ROCKSDB;
 
 --source include/restart_mysqld.inc
 
