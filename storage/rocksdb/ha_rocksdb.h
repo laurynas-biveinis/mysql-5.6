@@ -296,6 +296,8 @@ class ha_rocksdb : public my_core::handler, public blob_buffer {
   */
   bool m_dup_key_found;
 
+  bool m_no_read_locking{false};
+
 #ifndef NDEBUG
   /*
     Index tuple (for duplicate PK/unique SK). Used for sanity checking.

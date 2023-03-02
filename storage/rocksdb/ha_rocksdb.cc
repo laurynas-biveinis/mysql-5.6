@@ -10901,6 +10901,8 @@ rocksdb::Status ha_rocksdb::get_for_update(Rdb_transaction *const tx,
                                            const Rdb_key_def &key_descr,
                                            const rocksdb::Slice &key) const {
   assert(m_lock_rows != RDB_LOCK_NONE);
+  assert(!m_no_read_locking);
+
   bool exclusive = m_lock_rows != RDB_LOCK_READ;
   bool skip_wait =
       m_locked_row_action == THR_NOWAIT || m_locked_row_action == THR_SKIP;
@@ -11900,7 +11902,9 @@ int ha_rocksdb::check_and_lock_unique_pk(const struct update_row_info &row_info,
 
 int ha_rocksdb::acquire_prefix_lock(const Rdb_key_def &kd, Rdb_transaction *tx,
                                     const uchar *data) {
+  assert(!m_no_read_locking);
   assert(kd.is_partial_index());
+
   // Obtain shared lock on prefix.
   uint size = kd.pack_record(table, m_pack_buffer, data, m_sk_packed_tuple,
                              nullptr, false, 0, kd.partial_index_keyparts());
@@ -12377,7 +12381,9 @@ int ha_rocksdb::check_partial_index_prefix(const TABLE *table_arg,
                                            const Rdb_key_def &kd,
                                            Rdb_transaction *tx,
                                            const uchar *data) {
+  assert(!m_no_read_locking);
   assert(kd.is_partial_index());
+
   // TODO(mung) - We've already calculated prefix len when locking. If we
   // cache that value, we can avoid recalculating here.
   int size = kd.pack_record(table_arg, m_pack_buffer, data, m_sk_packed_tuple,
@@ -12613,6 +12619,8 @@ int ha_rocksdb::update_write_row(const uchar *const old_data,
                                  const uchar *const new_data,
                                  const bool skip_unique_check) {
   DBUG_ENTER_FUNC();
+
+  assert(!m_no_read_locking);
 
   THD *thd = ha_thd();
   if (thd && thd->killed) {
@@ -12911,6 +12919,7 @@ int ha_rocksdb::reset() {
   m_iterator.reset(nullptr);
   m_pk_iterator.reset(nullptr);
   m_converter->reset_buffer();
+  m_no_read_locking = false;
   DBUG_RETURN(HA_EXIT_SUCCESS);
 }
 
@@ -12930,6 +12939,7 @@ int ha_rocksdb::delete_row(const uchar *const buf) {
   DBUG_ENTER_FUNC();
 
   assert(buf != nullptr);
+  assert(!m_no_read_locking);
 
   ha_statistic_increment(&System_status_var::ha_delete_count);
   set_last_rowkey(buf);
@@ -13496,16 +13506,17 @@ THR_LOCK_DATA **ha_rocksdb::store_lock(THD *const thd, THR_LOCK_DATA **to,
 
   /* First, make a decision about MyRocks's internal locking */
   if (lock_type >= TL_WRITE_ALLOW_WRITE) {
+    assert(!m_no_read_locking);
     m_lock_rows = RDB_LOCK_WRITE;
   } else if (lock_type == TL_READ_WITH_SHARED_LOCKS) {
+    assert(!m_no_read_locking);
     m_lock_rows = RDB_LOCK_READ;
   } else if (lock_type != TL_IGNORE) {
     m_lock_rows = RDB_LOCK_NONE;
     if (THDVAR(thd, lock_scanned_rows)) {
       /*
-        The following logic was copied directly from
-        ha_innobase::store_lock_with_x_type() in
-        storage/innobase/handler/ha_innodb.cc and causes MyRocks to leave
+        The following logic was copied directly from ha_innobase::store_lock()
+        in storage/innobase/handler/ha_innodb.cc and causes MyRocks to leave
         locks in place on rows that are in a table that is not being updated.
       */
       const uint sql_command = my_core::thd_sql_command(thd);
@@ -13522,6 +13533,7 @@ THR_LOCK_DATA **ha_rocksdb::store_lock(THD *const thd, THR_LOCK_DATA **to,
               sql_command != SQLCOM_REPLACE_SELECT &&
               sql_command != SQLCOM_UPDATE && sql_command != SQLCOM_DELETE &&
               sql_command != SQLCOM_CREATE_TABLE))) {
+          assert(!m_no_read_locking);
           m_lock_rows = RDB_LOCK_READ;
         }
       }
@@ -13539,6 +13551,7 @@ THR_LOCK_DATA **ha_rocksdb::store_lock(THD *const thd, THR_LOCK_DATA **to,
 
     if ((lock_type >= TL_WRITE_CONCURRENT_INSERT && lock_type <= TL_WRITE) &&
         !in_lock_tables && !my_core::thd_tablespace_op(thd)) {
+      assert(!m_no_read_locking);
       lock_type = TL_WRITE_ALLOW_WRITE;
     }
 
@@ -13630,8 +13643,13 @@ int ha_rocksdb::external_lock(THD *const thd, int lock_type) {
       }
     }
   } else {
-    if (my_core::thd_tx_isolation(thd) < ISO_READ_COMMITTED ||
-        my_core::thd_tx_isolation(thd) > ISO_REPEATABLE_READ) {
+    if (lock_type == F_RDLCK) {
+      assert(!m_no_read_locking || is_acl_table(table));
+    }
+
+    if (!m_no_read_locking &&
+        (my_core::thd_tx_isolation(thd) < ISO_READ_COMMITTED ||
+         my_core::thd_tx_isolation(thd) > ISO_REPEATABLE_READ)) {
       my_error(ER_ISOLATION_MODE_NOT_SUPPORTED, MYF(0),
                tx_isolation_names[my_core::thd_tx_isolation(thd)]);
       DBUG_RETURN(HA_ERR_UNSUPPORTED);
@@ -14265,7 +14283,9 @@ int ha_rocksdb::extra(enum ha_extra_function operation) {
       // that indicates the end of REPLACE / INSERT ON DUPLICATE KEY
       m_insert_with_update = false;
       break;
-
+    case HA_EXTRA_NO_READ_LOCKING:
+      m_no_read_locking = true;
+      break;
     default:
       break;
   }
