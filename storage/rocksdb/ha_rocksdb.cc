@@ -13600,7 +13600,8 @@ int ha_rocksdb::external_lock(THD *const thd, int lock_type) {
   if (lock_type == F_WRLCK && !thd->rli_slave && !unsafe_for_binlog &&
       binlog_format != BINLOG_FORMAT_ROW &&
       binlog_format != BINLOG_FORMAT_UNSPEC &&
-      my_core::thd_binlog_filter_ok(thd)) {
+      my_core::thd_binlog_filter_ok(thd) &&
+      my_core::thd_sqlcom_can_generate_row_events(thd)) {
     my_error(ER_REQUIRE_ROW_BINLOG_FORMAT, MYF(0));
     DBUG_RETURN(HA_ERR_UNSUPPORTED);
   }
