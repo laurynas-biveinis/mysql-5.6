@@ -32,8 +32,8 @@ proxies_priv	CREATE TABLE `proxies_priv` (
   `Grantor` varchar(288) COLLATE utf8_bin NOT NULL DEFAULT '',
   `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Host`,`User`,`Proxied_host`,`Proxied_user`),
-  KEY `Grantor` (`Grantor`)
-) /*!50100 TABLESPACE `mysql` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='User proxy privileges'
+  KEY `Grantor` (`Grantor`(255))
+) /*!50100 TABLESPACE `mysql` */ ENGINE=ROCKSDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='User proxy privileges'
 select USER(),CURRENT_USER();
 USER()	CURRENT_USER()
 plug@localhost	plug_dest@%
@@ -502,8 +502,8 @@ proxies_priv	CREATE TABLE `proxies_priv` (
   `Grantor` varchar(288) COLLATE utf8_bin NOT NULL DEFAULT '',
   `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Host`,`User`,`Proxied_host`,`Proxied_user`),
-  KEY `Grantor` (`Grantor`)
-) /*!50100 TABLESPACE `mysql` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='User proxy privileges'
+  KEY `Grantor` (`Grantor`(255))
+) /*!50100 TABLESPACE `mysql` */ ENGINE=ROCKSDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='User proxy privileges'
 SELECT USER(),CURRENT_USER();
 USER()	CURRENT_USER()
 user_name_len_22_01234@localhost	user_name_len_22_0dest@%
@@ -534,8 +534,8 @@ proxies_priv	CREATE TABLE `proxies_priv` (
   `Grantor` varchar(288) COLLATE utf8_bin NOT NULL DEFAULT '',
   `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Host`,`User`,`Proxied_host`,`Proxied_user`),
-  KEY `Grantor` (`Grantor`)
-) /*!50100 TABLESPACE `mysql` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='User proxy privileges'
+  KEY `Grantor` (`Grantor`(255))
+) /*!50100 TABLESPACE `mysql` */ ENGINE=ROCKSDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='User proxy privileges'
 SELECT USER(),CURRENT_USER();
 USER()	CURRENT_USER()
 очень_очень_очень_длинный_юзер__@localhost	очень_очень_очень_длинный_дест__@%

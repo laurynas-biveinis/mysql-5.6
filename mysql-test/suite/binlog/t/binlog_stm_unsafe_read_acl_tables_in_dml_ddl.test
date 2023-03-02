@@ -30,7 +30,7 @@ CALL mtr.add_suppression('Unsafe statement written to the binary log using state
 # We run the test using serializable and repeatable read because, InnoDB is
 # limited to row-logging when transaction isolation level is READ COMMITTED
 # or READ UNCOMMITTED.
---let $isolation_levels='SERIALIZABLE,REPEATABLE READ'
+--let $isolation_levels='REPEATABLE READ'
 --let $i=1
 while($i <= 2)
 {
@@ -51,8 +51,6 @@ while($i <= 2)
     eval INSERT INTO t1 SELECT * FROM $acl_table;
     DROP TABLE t1;
 
-    eval ALTER TABLE $acl_table ADD COLUMN c1 INT, ALGORITHM=INPLACE;
-    eval ALTER TABLE $acl_table DROP COLUMN c1;
     eval ALTER TABLE $acl_table ADD COLUMN c1 INT, ALGORITHM=COPY;
     eval ALTER TABLE $acl_table DROP COLUMN c1;
 

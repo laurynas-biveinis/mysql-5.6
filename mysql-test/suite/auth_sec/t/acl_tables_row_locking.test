@@ -91,7 +91,7 @@ let query_row_locks= SELECT CONCAT(OBJECT_SCHEMA,'.',OBJECT_NAME)
 # Variables to loop through isolation levels.
 let $c=1;
 let $isolation_levels=
-  "SERIALIZABLE,REPEATABLE READ,READ COMMITTED,READ UNCOMMITTED";
+  "REPEATABLE READ,READ COMMITTED";
 let get_next_isolation=
   SELECT SUBSTRING_INDEX(SUBSTRING_INDEX($isolation_levels,',',\$c),',',-1);
 

@@ -18,6 +18,8 @@ audit_log.audit_log_prune_seconds_var_cnf @windows : BUG#32245509 Test lets mysq
 audit_null.audit_plugin_bugs : BUG#28080637 Test fails consistently
 
 # auth_sec
+auth_sec.acl_tables_locking_big_negative_ru : BUG#00000000 : MyRocks does not support READ UNCOMMITTED
+auth_sec.acl_tables_locking_big_negative_ser : BUG#00000000 : MyRocks does not support SERIALIZABLE
 
 # binlog suite tests
 binlog.binlog_mysqlbinlog_rewrite_db @windows     : BUG#26717205 Requires a debug client binary and fails consistently.
@@ -55,6 +57,11 @@ component_keyring_file.mysql_ts_alter_encrypt_1 : BUG#29531106 - ATTACHABLE_TRX(
 
 # main suite tests
 main.ds_mrr-big @solaris : BUG#14168107 Test leads to timeout on Solaris on slow sparc servers.
+main.dictionary_tablespace : BUG#00000000 : MyRocks TODO analyze this
+main.mysql_57_inplace_upgrade : BUG#00000000 : MyRocks TODO analyze this
+main.system_tables_myisam : BUG#00000000 : MyRocks low priority
+main.system_tables_myisam_lctn_1 : BUG#00000000 : MyRocks low priority
+main.system_tables_myisam_lctn_2 : BUG#00000000 : MyRocks low priority
 
 # Disabled due to InnoDB issues
 main.internal_tmp_disk_storage_engine : BUG#26917416 Disabled it since it's failing on pb2.

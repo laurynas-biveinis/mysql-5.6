@@ -69,7 +69,7 @@ SET @@sql_mode := @new_sql_mode ;
 
 
 # Repeat test for all isolation level.
---let $isolation_levels='SERIALIZABLE,REPEATABLE READ,READ COMMITTED,READ UNCOMMITTED'
+--let $isolation_levels='REPEATABLE READ,READ COMMITTED'
 --let $i=1
 while($i <= 4)
 {

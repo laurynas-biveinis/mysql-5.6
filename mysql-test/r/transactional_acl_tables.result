@@ -1843,12 +1843,12 @@ table_name IN ('user', 'db', 'columns_priv', 'procs_priv',
 'proxies_priv', 'tables_priv')
 ORDER BY table_name;
 TABLE_NAME	ENGINE
-columns_priv	InnoDB
-db	InnoDB
-procs_priv	InnoDB
-proxies_priv	InnoDB
-tables_priv	InnoDB
-user	InnoDB
+columns_priv	ROCKSDB
+db	ROCKSDB
+procs_priv	ROCKSDB
+proxies_priv	ROCKSDB
+tables_priv	ROCKSDB
+user	ROCKSDB
 # 
 # Clean-up. Restore original state of privilege tables.
 DROP TABLES mysql.user, mysql.db, mysql.columns_priv, mysql.procs_priv,
