@@ -13,7 +13,7 @@
 
 echo # Run the test for all isolation level for table $acl_table;
 let $c=1;
-while($c <= 4)
+while($c <= 2)
 {
   let isolation_level = `$get_next_isolation`;
 

@@ -134,6 +134,9 @@ connect(update_con2,localhost,writer2,,);
 --echo #
 --let column_name=User
 --let acl_table=mysql.user
+# Note that currently RocksDB locks do not appear in
+# performance_schema.data_locks table, thus the tests below may appear to be
+# recorded incorrectly.
 --source ../include/acl_tables_row_locking.inc
 --let acl_table=mysql.db
 --source ../include/acl_tables_row_locking.inc
@@ -158,7 +161,7 @@ connect(update_con2,localhost,writer2,,);
 
 
 let $c=1;
-while($c <= 4)
+while($c <= 2)
 {
   let isolation_level = `$get_next_isolation`;
 

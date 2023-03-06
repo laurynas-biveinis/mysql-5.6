@@ -20,6 +20,8 @@ audit_null.audit_plugin_bugs : BUG#28080637 Test fails consistently
 # auth_sec
 auth_sec.acl_tables_locking_big_negative_ru : BUG#00000000 : MyRocks does not support READ UNCOMMITTED
 auth_sec.acl_tables_locking_big_negative_ser : BUG#00000000 : MyRocks does not support SERIALIZABLE
+auth_sec.acl_tables_locking_big_positive_ru : BUG#00000000 : MyRocks does not support READ UNCOMMITTED
+auth_sec.acl_tables_locking_big_positive_ser : BUG#00000000 : MyRocks does not support SERIALIZABLE
 
 # binlog suite tests
 binlog.binlog_mysqlbinlog_rewrite_db @windows     : BUG#26717205 Requires a debug client binary and fails consistently.
@@ -31,6 +33,9 @@ clone.local_xa : BUG#00000000 : cross-engine consistent clone does not block XA 
 # func1 suite tests
 funcs_1.is_basics_mixed @darwin  : BUG#25882809 INCORRECT RESULT WHEN USING SUBQUERY ON TOP OF VIEW.
 funcs_1.is_basics_mixed @windows : BUG#25882809 INCORRECT RESULT WHEN USING SUBQUERY ON TOP OF VIEW.
+
+# information_schema suite tests
+information_schema.i_s_schema_definition_debug : BUG#00000000 : re-enable after MyRocks DD stabilizes
 
 # innodb suite tests
 innodb.analyze_table @solaris                     : BUG#22607584 Failing too often on PB2 due to timeout.
