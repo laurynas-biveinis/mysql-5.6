@@ -2834,6 +2834,7 @@ sub collect_mysqld_features {
 
   # InnoDB is always enabled as of 5.7.
   $mysqld_variables{'innodb'} = "ON";
+  $mysqld_variables{'rocksdb'} = "ON";
 }
 
 sub collect_mysqld_features_from_running_server () {
@@ -2867,6 +2868,7 @@ sub collect_mysqld_features_from_running_server () {
 
   # InnoDB is always enabled as of 5.7.
   $mysqld_variables{'innodb'} = "ON";
+  $mysqld_variables{'rocksdb'} = "ON";
 
   # Parse version
   my $version_str = $mysqld_variables{'version'};

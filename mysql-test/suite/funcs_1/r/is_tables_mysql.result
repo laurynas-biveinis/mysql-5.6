@@ -40,7 +40,7 @@ TABLE_CATALOG	def
 TABLE_SCHEMA	mysql
 TABLE_NAME	component
 TABLE_TYPE	BASE TABLE
-ENGINE	TMP_TABLE_ENGINE
+ENGINE	ROCKSDB
 VERSION	10
 ROW_FORMAT	Dynamic
 TABLE_ROWS	#TBLR#
@@ -57,7 +57,7 @@ TABLE_COLLATION	utf8_general_ci
 CHECKSUM	NULL
 CREATE_OPTIONS	#CO#
 TABLE_COMMENT	#TC#
-TABLE_SE_PRIVATE_DATA	autoinc=0;version=0;
+TABLE_SE_PRIVATE_DATA	NULL
 user_comment	Components
 Separator	-----------------------------------------------------
 TABLE_CATALOG	def

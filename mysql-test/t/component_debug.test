@@ -16,7 +16,9 @@ SET DEBUG_SYNC='now WAIT_FOR kill_query';
 --eval KILL QUERY $connection_id;
 
 connection default;
---error ER_QUERY_INTERRUPTED
+# ER_COMPONENT_MANIPULATE_ROW_FAILED is returned with SE error
+# HA_ERR_QUERY_INTERRUPTED, which also indicates query interruption
+--error ER_QUERY_INTERRUPTED,ER_COMPONENT_MANIPULATE_ROW_FAILED
 --reap
 --echo Since UNINSTALL component failed because of "Query execution
 --echo was interrupted" error. This should display three components.

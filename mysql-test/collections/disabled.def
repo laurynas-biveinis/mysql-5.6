@@ -51,6 +51,8 @@ innodb.log_first_rec_group                        : Bug#29692047 Disable for now
 innodb.fts_exec_interrupt                         : Bug#28534199 The test is unstable and should be rewritten
 innodb.slow_shutdown                              : Bug#31763837 mtr hits this debug assert post test run cleanup
 innodb.upgrade_fts_aux                            : Bug#33034679 Test needs an upgrade of its 5.7 data files
+innodb.mysql_ts_alter_encrypt_2 : BUG#00000000 : MyRocks mysql schema unsupported operations
+innodb.mysql_ts_alter_encrypt_2 : BUG#00000000 : MyRocks native DD cross-grade
 
 # keyring tests
 keyring_encrypted_file.keyring_migration_bugs @darwin : Bug#31041633
@@ -58,15 +60,21 @@ keyring_encrypted_file.keyring_migration_bugs @darwin : Bug#31041633
 # Tests that run ALTER on the "mysql" database
 innodb.mysql_ts_alter_encrypt_1                 : BUG#29531106 - ATTACHABLE_TRX(): ASSERTION `!M_THD->TRANSACTION_ROLLBACK_REQUEST' FAILED
 component_keyring_file.mysql_ts_alter_encrypt_1 : BUG#29531106 - ATTACHABLE_TRX(): ASSERTION `!M_THD->TRANSACTION_ROLLBACK_REQUEST' FAILED
+component_keyring_file.mysql_ts_alter_encrypt_2 : BUG#00000000 : MyRocks mysql schema unsupported operations
+component_keyring_file.upgrade : BUG#00000000 : MyRocks TODO analyze this
+component_keyring_file.dd_upgrade_encrypted : BUG#00000000 : MyRocks TODO analyze this
 
 
 # main suite tests
 main.ds_mrr-big @solaris : BUG#14168107 Test leads to timeout on Solaris on slow sparc servers.
 main.dictionary_tablespace : BUG#00000000 : MyRocks TODO analyze this
 main.mysql_57_inplace_upgrade : BUG#00000000 : MyRocks TODO analyze this
+main.dd_upgrade_partition : BUG#00000000 : MyRocks TODO analyze this
 main.system_tables_myisam : BUG#00000000 : MyRocks low priority
 main.system_tables_myisam_lctn_1 : BUG#00000000 : MyRocks low priority
 main.system_tables_myisam_lctn_2 : BUG#00000000 : MyRocks low priority
+main.deprecation_56 : BUG#00000000 : MyRocks low priority
+main.log_buffered-big : BUG#00000000 : MyRocks low priority
 
 # Disabled due to InnoDB issues
 main.internal_tmp_disk_storage_engine : BUG#26917416 Disabled it since it's failing on pb2.

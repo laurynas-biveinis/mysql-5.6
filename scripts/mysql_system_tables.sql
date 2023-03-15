@@ -326,7 +326,7 @@ CREATE TABLE IF NOT EXISTS slow_log (start_time TIMESTAMP(6) NOT NULL DEFAULT CU
 
 SET @@session.sql_require_primary_key = @old_sql_require_primary_key;
 
-SET @cmd = "CREATE TABLE IF NOT EXISTS component ( component_id int unsigned NOT NULL AUTO_INCREMENT, component_group_id int unsigned NOT NULL, component_urn text NOT NULL, PRIMARY KEY (component_id)) engine=INNODB DEFAULT CHARSET=utf8 COMMENT 'Components' ROW_FORMAT=DYNAMIC TABLESPACE=mysql";
+SET @cmd = "CREATE TABLE IF NOT EXISTS component ( component_id int unsigned NOT NULL AUTO_INCREMENT, component_group_id int unsigned NOT NULL, component_urn text NOT NULL, PRIMARY KEY (component_id)) engine=ROCKSDB DEFAULT CHARSET=utf8 COMMENT 'Components' ROW_FORMAT=DYNAMIC TABLESPACE=mysql";
 SET @str = CONCAT(@cmd, " ENCRYPTION='", @is_mysql_encrypted, "'");
 PREPARE stmt FROM @str;
 EXECUTE stmt;
