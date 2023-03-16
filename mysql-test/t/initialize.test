@@ -122,7 +122,7 @@ remove_file $MYSQLD_LOG;
 --echo # create bootstrap file
 write_file $BOOTSTRAP_SQL;
 CREATE DATABASE test;
-CREATE TABLE mysql.t1(a INT) ENGINE=innodb;
+CREATE TABLE mysql.t1(a INT) ENGINE=ROCKSDB;
 INSERT INTO mysql.t1 VALUES (1);
 INSERT INTO mysql.t1 VALUES (2);
 EOF

@@ -64,7 +64,7 @@ db	CREATE TABLE `db` (
   `Trigger_priv` enum('N','Y') COLLATE utf8_general_ci NOT NULL DEFAULT 'N',
   PRIMARY KEY (`Host`,`Db`,`User`),
   KEY `User` (`User`)
-) /*!50100 TABLESPACE `mysql` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='Database privileges'
+) /*!50100 TABLESPACE `mysql` */ ENGINE=ROCKSDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='Database privileges'
 show create table user;
 Table	Create Table
 user	CREATE TABLE `user` (

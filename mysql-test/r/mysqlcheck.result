@@ -59,9 +59,7 @@ note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
 mysql.columns_priv                                 OK
 mysql.component                                    OK
-mysql.db
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
+mysql.db                                           OK
 mysql.default_roles
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
@@ -207,9 +205,7 @@ mysql.time_zone_transition_type                    OK
 mysql.user                                         OK
 mysql.columns_priv                                 OK
 mysql.component                                    OK
-mysql.db
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
+mysql.db                                           OK
 mysql.default_roles
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
