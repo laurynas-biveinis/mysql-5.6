@@ -30,11 +30,15 @@ WHERE table_schema="mysql" AND engine="InnoDB"
 AND table_name NOT IN (
 "ndb_binlog_index", "user", "tables_priv",
 "procs_priv", "role_edges",
-"global_grants", "password_history",
+"password_history",
 "replication_asynchronous_connection_failover_managed"
 )
 ORDER BY table_name;
 Preparing deadlock scenario for mysql.func
+ROLLBACK;
+ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
+ROLLBACK;
+Preparing deadlock scenario for mysql.global_grants
 ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
 ROLLBACK;
