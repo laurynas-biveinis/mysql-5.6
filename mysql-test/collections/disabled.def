@@ -75,6 +75,7 @@ main.system_tables_myisam_lctn_1 : BUG#00000000 : MyRocks low priority
 main.system_tables_myisam_lctn_2 : BUG#00000000 : MyRocks low priority
 main.deprecation_56 : BUG#00000000 : MyRocks low priority
 main.log_buffered-big : BUG#00000000 : MyRocks low priority
+main.upgrade_system_tables : BUG#00000000 : MyRocks TODO analyze this
 
 # Disabled due to InnoDB issues
 main.internal_tmp_disk_storage_engine : BUG#26917416 Disabled it since it's failing on pb2.
