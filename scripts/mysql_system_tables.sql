@@ -306,7 +306,7 @@ DROP PREPARE stmt;
 
 
 
-SET @cmd = "CREATE TABLE IF NOT EXISTS procs_priv ( Host char(255) CHARACTER SET ASCII DEFAULT '' NOT NULL, Db char(64) binary DEFAULT '' NOT NULL, User char(80) binary DEFAULT '' NOT NULL, Routine_name char(64) COLLATE utf8_general_ci DEFAULT '' NOT NULL, Routine_type enum('FUNCTION','PROCEDURE') NOT NULL, Grantor varchar(288) DEFAULT '' NOT NULL, Proc_priv set('Execute','Alter Routine','Grant') COLLATE utf8_general_ci DEFAULT '' NOT NULL, Timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (Host,Db,User,Routine_name,Routine_type), KEY Grantor (Grantor) ) engine=InnoDB STATS_PERSISTENT=0 CHARACTER SET utf8 COLLATE utf8_bin   comment='Procedure privileges' ROW_FORMAT=DYNAMIC TABLESPACE=mysql";
+SET @cmd = "CREATE TABLE IF NOT EXISTS procs_priv ( Host char(255) CHARACTER SET ASCII DEFAULT '' NOT NULL, Db char(64) binary DEFAULT '' NOT NULL, User char(80) binary DEFAULT '' NOT NULL, Routine_name char(64) COLLATE utf8_general_ci DEFAULT '' NOT NULL, Routine_type enum('FUNCTION','PROCEDURE') NOT NULL, Grantor varchar(288) DEFAULT '' NOT NULL, Proc_priv set('Execute','Alter Routine','Grant') COLLATE utf8_general_ci DEFAULT '' NOT NULL, Timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (Host,Db,User,Routine_name,Routine_type), KEY Grantor (Grantor) ) engine=ROCKSDB STATS_PERSISTENT=0 CHARACTER SET utf8 COLLATE utf8_bin   comment='Procedure privileges' ROW_FORMAT=DYNAMIC TABLESPACE=mysql";
 SET @str = CONCAT(@cmd, " ENCRYPTION='", @is_mysql_encrypted, "'");
 PREPARE stmt FROM @str;
 EXECUTE stmt;
