@@ -13,10 +13,12 @@ SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE, ENGINE FROM
 # ALTER TABLE mysql.engine_cost ENGINE=ROCKSDB;
 # ALTER TABLE mysql.global_grants ENGINE=ROCKSDB;
 ALTER TABLE mysql.gtid_executed ENGINE=ROCKSDB;
-ALTER TABLE mysql.help_category ENGINE=ROCKSDB;
+# Converted:
+# ALTER TABLE mysql.help_category ENGINE=ROCKSDB;
 ALTER TABLE mysql.help_keyword ENGINE=ROCKSDB;
 ALTER TABLE mysql.help_relation ENGINE=ROCKSDB;
-ALTER TABLE mysql.help_topic ENGINE=ROCKSDB;
+# Converted:
+# ALTER TABLE mysql.help_topic ENGINE=ROCKSDB;
 ALTER TABLE mysql.password_history
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (Host, User, Password_timestamp);
