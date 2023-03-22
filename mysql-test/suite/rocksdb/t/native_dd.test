@@ -16,8 +16,7 @@ ALTER TABLE mysql.gtid_executed ENGINE=ROCKSDB;
 # Converted:
 # ALTER TABLE mysql.help_category ENGINE=ROCKSDB;
 # ALTER TABLE mysql.help_keyword ENGINE=ROCKSDB;
-ALTER TABLE mysql.help_relation ENGINE=ROCKSDB;
-# Converted:
+# ALTER TABLE mysql.help_relation ENGINE=ROCKSDB;
 # ALTER TABLE mysql.help_topic ENGINE=ROCKSDB;
 ALTER TABLE mysql.password_history
       DROP PRIMARY KEY,
