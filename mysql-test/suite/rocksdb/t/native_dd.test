@@ -22,8 +22,8 @@ ALTER TABLE mysql.password_history
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (Host, User, Password_timestamp);
 ALTER TABLE mysql.password_history ENGINE=ROCKSDB;
-ALTER TABLE mysql.procs_priv ENGINE=ROCKSDB;
 # Converted:
+# ALTER TABLE mysql.procs_priv ENGINE=ROCKSDB;
 # ALTER TABLE mysql.proxies_priv ENGINE=ROCKSDB;
 ALTER TABLE mysql.replication_asynchronous_connection_failover ENGINE=ROCKSDB;
 ALTER TABLE mysql.replication_asynchronous_connection_failover_managed ENGINE=ROCKSDB;

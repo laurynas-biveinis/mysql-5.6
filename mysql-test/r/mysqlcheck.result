@@ -72,15 +72,9 @@ mysql.gtid_executed
 Warning  : Please do not modify the gtid_executed table. This is a mysql internal system table to store GTIDs for committed transactions. Modifying it can lead to an inconsistent GTID state.
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
-mysql.help_category
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
-mysql.help_keyword
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
-mysql.help_relation
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
+mysql.help_category                                OK
+mysql.help_keyword                                 OK
+mysql.help_relation                                OK
 mysql.help_topic                                   OK
 mysql.innodb_index_stats
 note     : Table does not support optimize, doing recreate + analyze instead
@@ -98,9 +92,7 @@ status   : OK
 mysql.plugin
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
-mysql.procs_priv
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
+mysql.procs_priv                                   OK
 mysql.proxies_priv                                 OK
 mysql.replication_asynchronous_connection_failover
 note     : Table does not support optimize, doing recreate + analyze instead
@@ -210,15 +202,9 @@ mysql.gtid_executed
 Warning  : Please do not modify the gtid_executed table. This is a mysql internal system table to store GTIDs for committed transactions. Modifying it can lead to an inconsistent GTID state.
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
-mysql.help_category
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
-mysql.help_keyword
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
-mysql.help_relation
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
+mysql.help_category                                OK
+mysql.help_keyword                                 OK
+mysql.help_relation                                OK
 mysql.help_topic                                   OK
 mysql.innodb_index_stats
 note     : Table does not support optimize, doing recreate + analyze instead
@@ -236,9 +222,7 @@ status   : OK
 mysql.plugin
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
-mysql.procs_priv
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
+mysql.procs_priv                                   OK
 mysql.proxies_priv                                 OK
 mysql.replication_asynchronous_connection_failover
 note     : Table does not support optimize, doing recreate + analyze instead
