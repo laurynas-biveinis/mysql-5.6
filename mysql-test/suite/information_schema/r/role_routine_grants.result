@@ -199,8 +199,8 @@ SET GLOBAL activate_all_roles_on_login=on;
 SELECT * FROM INFORMATION_SCHEMA.ROLE_ROUTINE_GRANTS ;
 GRANTOR	GRANTOR_HOST	GRANTEE	GRANTEE_HOST	SPECIFIC_CATALOG	SPECIFIC_SCHEMA	SPECIFIC_NAME	ROUTINE_CATALOG	ROUTINE_SCHEMA	ROUTINE_NAME	PRIVILEGE_TYPE	IS_GRANTABLE
 root	localhost	hr_access	%	def	test	weekly_report	def	test	weekly_report	Execute	NO
-root	localhost	hr_rules	%	def	test	weekly_report	def	test	weekly_report	Execute	NO
 root	localhost	task1_lead	%	def	test	daily_report	def	test	daily_report	Execute	NO
+root	localhost	hr_rules	%	def	test	weekly_report	def	test	weekly_report	Execute	NO
 SELECT CURRENT_ROLE();
 CURRENT_ROLE()
 `hr_access`@`%`,`task1_lead`@`%`

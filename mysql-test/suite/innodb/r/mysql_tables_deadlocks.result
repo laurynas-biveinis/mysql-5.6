@@ -29,9 +29,7 @@ FROM information_schema.tables
 WHERE table_schema="mysql" AND engine="InnoDB"
 AND table_name NOT IN (
 "ndb_binlog_index", "user", "tables_priv",
-"procs_priv", "role_edges",
-"password_history",
-"replication_asynchronous_connection_failover_managed"
+"password_history"
 )
 ORDER BY table_name;
 Preparing deadlock scenario for mysql.func
