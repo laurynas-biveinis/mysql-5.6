@@ -8,7 +8,7 @@ memory_temptable_row_cost	NULL	#	NULL	0.1
 row_evaluate_cost	NULL	#	NULL	0.1
 SHOW INDEX FROM mysql.server_cost;
 Table	Non_unique	Key_name	Seq_in_index	Column_name	Collation	Cardinality	Sub_part	Packed	Null	Index_type	Comment	Index_comment	Visible	Expression
-server_cost	0	PRIMARY	1	cost_name	A	#	NULL	NULL		BTREE			YES	NULL
+server_cost	0	PRIMARY	1	cost_name	A	#	NULL	NULL		SE_SPECIFIC			YES	NULL
 SELECT * FROM mysql.engine_cost;
 engine_name	device_type	cost_name	cost_value	last_update	comment	default_value
 default	0	io_block_read_cost	NULL	#	NULL	1
