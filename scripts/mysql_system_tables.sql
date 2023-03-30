@@ -452,7 +452,7 @@ SET @cmd= "CREATE TABLE IF NOT EXISTS replication_asynchronous_connection_failov
     Configuration JSON DEFAULT NULL COMMENT 'The data to help manage group. For Managed_type = GroupReplication, Configuration value should contain {\"Primary_weight\": 80, \"Secondary_weight\": 60}, so that it assigns weight=80 to PRIMARY of the group, and weight=60 for rest of the members in mysql.replication_asynchronous_connection_failover table.',
     PRIMARY KEY(Channel_name, Managed_name)) DEFAULT CHARSET=utf8 STATS_PERSISTENT=0 COMMENT 'The managed source configuration details'";
 
-SET @str=IF(@have_innodb <> 0, CONCAT(@cmd, ' ENGINE= INNODB ROW_FORMAT=DYNAMIC TABLESPACE=mysql ENCRYPTION=\'', @is_mysql_encrypted,'\''), CONCAT(@cmd, ' ENGINE= MYISAM'));
+SET @str=IF(@have_innodb <> 0, CONCAT(@cmd, ' ENGINE= ROCKSDB ROW_FORMAT=DYNAMIC TABLESPACE=mysql ENCRYPTION=\'', @is_mysql_encrypted,'\''), CONCAT(@cmd, ' ENGINE= MYISAM'));
 PREPARE stmt FROM @str;
 EXECUTE stmt;
 DROP PREPARE stmt;
