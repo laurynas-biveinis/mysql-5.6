@@ -439,7 +439,7 @@ SET @cmd= "CREATE TABLE IF NOT EXISTS replication_asynchronous_connection_failov
     Managed_name CHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'The name of the group which this server belongs to.',
     PRIMARY KEY(Channel_name, Host, Port, Network_namespace, Managed_name), KEY(Channel_name, Managed_name)) DEFAULT CHARSET=utf8 STATS_PERSISTENT=0 COMMENT 'The source configuration details'";
 
-SET @str=IF(@have_innodb <> 0, CONCAT(@cmd, ' ENGINE= INNODB ROW_FORMAT=DYNAMIC TABLESPACE=mysql ENCRYPTION=\'', @is_mysql_encrypted,'\''), CONCAT(@cmd, ' ENGINE= MYISAM'));
+SET @str=IF(@have_innodb <> 0, CONCAT(@cmd, ' ENGINE= ROCKSDB ROW_FORMAT=DYNAMIC TABLESPACE=mysql ENCRYPTION=\'', @is_mysql_encrypted,'\''), CONCAT(@cmd, ' ENGINE= MYISAM'));
 PREPARE stmt FROM @str;
 EXECUTE stmt;
 DROP PREPARE stmt;

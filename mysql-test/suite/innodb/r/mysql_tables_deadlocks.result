@@ -54,10 +54,6 @@ Preparing deadlock scenario for mysql.plugin
 ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
 ROLLBACK;
-Preparing deadlock scenario for mysql.replication_asynchronous_connection_failover
-ROLLBACK;
-ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
-ROLLBACK;
 Preparing deadlock scenario for mysql.replication_group_member_actions
 ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
