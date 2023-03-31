@@ -351,7 +351,7 @@ SET @cmd="CREATE TABLE IF NOT EXISTS slave_relay_log_info (
   Assign_gtids_to_anonymous_transactions_value TEXT CHARACTER SET utf8 COLLATE utf8_bin  COMMENT 'Indicates the UUID used while generating GTIDs for anonymous transactions',
   PRIMARY KEY(Channel_name)) DEFAULT CHARSET=utf8 STATS_PERSISTENT=0 COMMENT 'Relay Log Information'";
 
-SET @str=IF(@have_innodb <> 0, CONCAT(@cmd, ' ENGINE= INNODB ROW_FORMAT=DYNAMIC TABLESPACE=mysql ENCRYPTION=\'', @is_mysql_encrypted,'\''), CONCAT(@cmd, ' ENGINE= MYISAM'));
+SET @str=IF(@have_innodb <> 0, CONCAT(@cmd, ' ENGINE= ROCKSDB ROW_FORMAT=DYNAMIC TABLESPACE=mysql ENCRYPTION=\'', @is_mysql_encrypted,'\''), CONCAT(@cmd, ' ENGINE= MYISAM'));
 PREPARE stmt FROM @str;
 EXECUTE stmt;
 DROP PREPARE stmt;

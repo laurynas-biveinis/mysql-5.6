@@ -32,8 +32,8 @@ ALTER TABLE mysql.password_history ENGINE=ROCKSDB;
 # ALTER TABLE mysql.replication_group_member_actions ENGINE=ROCKSDB;
 # ALTER TABLE mysql.role_edges ENGINE=ROCKSDB;
 # ALTER TABLE mysql.server_cost ENGINE=ROCKSDB;
-ALTER TABLE mysql.slave_master_info ENGINE=ROCKSDB;
-ALTER TABLE mysql.slave_relay_log_info ENGINE=ROCKSDB;
+# ALTER TABLE mysql.slave_master_info ENGINE=ROCKSDB;
+# ALTER TABLE mysql.slave_relay_log_info ENGINE=ROCKSDB;
 ALTER TABLE mysql.tables_priv ENGINE=ROCKSDB;
 ALTER TABLE mysql.user ENGINE=ROCKSDB;
 

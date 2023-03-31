@@ -39,8 +39,8 @@ if ($commands == 'configure')
   --source include/stop_slave.inc
   SHOW CREATE TABLE mysql.slave_relay_log_info;
   SHOW CREATE TABLE mysql.slave_worker_info;
-  ALTER TABLE mysql.slave_relay_log_info ENGINE= Innodb;
-  ALTER TABLE mysql.slave_worker_info ENGINE= Innodb;
+  ALTER TABLE mysql.slave_relay_log_info ENGINE=ROCKSDB;
+  ALTER TABLE mysql.slave_worker_info ENGINE=ROCKSDB;
   SHOW CREATE TABLE mysql.slave_relay_log_info;
   SHOW CREATE TABLE mysql.slave_worker_info;
   --source include/start_slave.inc

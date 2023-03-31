@@ -12,8 +12,8 @@ include/stop_slave.inc
 set @save.replica_parallel_workers= @@global.replica_parallel_workers;
 set @save.debug= @@global.debug;
 SET @@global.replica_parallel_workers= 2;
-ALTER TABLE mysql.slave_relay_log_info ENGINE= Innodb;
-ALTER TABLE mysql.slave_worker_info ENGINE= Innodb;
+ALTER TABLE mysql.slave_relay_log_info ENGINE=ROCKSDB;
+ALTER TABLE mysql.slave_worker_info ENGINE=ROCKSDB;
 include/start_slave.inc
 INSERT INTO db_1.test_1 VALUES(0);
 include/sync_slave_sql_with_master.inc
