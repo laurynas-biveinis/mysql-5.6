@@ -56,10 +56,6 @@ Preparing deadlock scenario for mysql.servers
 ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
 ROLLBACK;
-Preparing deadlock scenario for mysql.slave_master_info
-ROLLBACK;
-ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
-ROLLBACK;
 Preparing deadlock scenario for mysql.slave_relay_log_info
 ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction

@@ -4,6 +4,7 @@
 # can run without a problem.
 ###############################################################################
 
+--source include/have_binlog_format_row.inc
 --source include/not_group_replication_plugin.inc
 --source include/no_valgrind_without_big.inc
 --source include/master-slave.inc
@@ -11,7 +12,7 @@
 --source include/not_mts_replica_parallel_workers.inc
 --source include/stop_slave.inc
 SHOW CREATE TABLE mysql.slave_relay_log_info;
-ALTER TABLE mysql.slave_relay_log_info ENGINE= Innodb;
+ALTER TABLE mysql.slave_relay_log_info ENGINE= ROCKSDB;
 SHOW CREATE TABLE mysql.slave_relay_log_info;
 --let $saved_relay_repo= `SELECT @@global.relay_log_info_repository`
 --let $saved_master_repo= `SELECT @@global.master_info_repository`
