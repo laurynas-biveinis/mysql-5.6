@@ -1605,6 +1605,19 @@ static void test_locker_disabled() {
       &mutex_state, mutex_A1, PSI_MUTEX_LOCK, __FILE__, __LINE__);
   ok(mutex_locker != nullptr, "locker");
   mutex_service->end_mutex_wait(mutex_locker, 0);
+
+  const int max_locks = 4;
+  const char *lock_names[max_locks];
+  int lock_count =
+      thread_service->get_thread_held_locks(thread_1, lock_names, max_locks);
+  ok(lock_count == 1, "lock_count");
+  ok(strcmp(lock_names[0], "wait/synch/mutex/test/M-A") == 0, "lock_names");
+
+  mutex_service->unlock_mutex(mutex_A1);
+  lock_count =
+      thread_service->get_thread_held_locks(thread_1, lock_names, max_locks);
+  ok(lock_count == 0, "lock_count");
+
   rwlock_locker = rwlock_service->start_rwlock_rdwait(
       &rwlock_state, rwlock_A1, PSI_RWLOCK_READLOCK, __FILE__, __LINE__);
   ok(rwlock_locker != nullptr, "locker");
@@ -2653,7 +2666,7 @@ static void do_all_tests() {
 }
 
 int main(int, char **) {
-  plan(417);
+  plan(420);
 
   MY_INIT("pfs-t");
   do_all_tests();

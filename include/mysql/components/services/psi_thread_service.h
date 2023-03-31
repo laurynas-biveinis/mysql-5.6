@@ -390,6 +390,8 @@ notify_session_change_user_v1_t notify_session_change_user;
 
 thread_detect_telemetry_v7_t detect_telemetry;
 thread_abort_telemetry_v7_t abort_telemetry;
+/** @sa get_thread_held_locks_v1_t. */
+get_thread_held_locks_v1_t get_thread_held_locks;
 END_SERVICE_DEFINITION(psi_thread_v7)
 
 #endif /* COMPONENTS_SERVICES_PSI_THREAD_SERVICE_H */

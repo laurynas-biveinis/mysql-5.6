@@ -7781,6 +7781,9 @@ static void lo_detect_telemetry(PSI_thread *thread) {
       g_thread_chain->detect_telemetry(lo->m_chain);
     }
   }
+
+  return lock_count;
+}
 }
 
 static void lo_abort_telemetry(PSI_thread *thread) {
@@ -7791,6 +7794,22 @@ static void lo_abort_telemetry(PSI_thread *thread) {
       g_thread_chain->abort_telemetry(lo->m_chain);
     }
   }
+}
+
+static int lo_get_thread_held_locks(PSI_thread *thread,
+                                    const char **held_lock_names,
+                                    int max_count) {
+  LO_thread *lo = LO_thread::from_psi(thread);
+  int lock_count = 0;
+
+  if (lo != nullptr) {
+    if ((g_thread_chain != nullptr) && (lo->m_chain != nullptr)) {
+      lock_count = g_thread_chain->get_thread_held_locks(
+          lo->m_chain, held_lock_names, max_count);
+    }
+  }
+
+  return lock_count;
 }
 
 PSI_thread_service_v7 LO_thread_v7 = {lo_register_thread,
@@ -7830,7 +7849,8 @@ PSI_thread_service_v7 LO_thread_v7 = {lo_register_thread,
                                       lo_notify_session_change_user,
                                       lo_set_mem_cnt_THD,
                                       lo_detect_telemetry,
-                                      lo_abort_telemetry};
+                                      lo_abort_telemetry,
+                                      lo_get_thread_held_locks};
 
 static void *lo_get_thread_interface(int version) {
   switch (version) {
