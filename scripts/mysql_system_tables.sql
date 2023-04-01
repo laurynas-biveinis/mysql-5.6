@@ -184,8 +184,8 @@ SET @cmd = "CREATE TABLE IF NOT EXISTS password_history
   User CHAR(80) BINARY DEFAULT '' NOT NULL,
   Password_timestamp TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   Password TEXT,
-  PRIMARY KEY(Host, User, Password_timestamp DESC)
- ) engine=InnoDB STATS_PERSISTENT=0 CHARACTER SET utf8 COLLATE utf8_bin
+  PRIMARY KEY(Host, User, Password_timestamp)
+ ) engine=ROCKSDB STATS_PERSISTENT=0 CHARACTER SET utf8 COLLATE utf8_bin
  comment='Password history for user accounts' ROW_FORMAT=DYNAMIC TABLESPACE=mysql";
 SET @str = CONCAT(@cmd, " ENCRYPTION='", @is_mysql_encrypted, "'");
 PREPARE stmt FROM @str;
