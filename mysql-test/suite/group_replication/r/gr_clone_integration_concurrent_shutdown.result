@@ -56,6 +56,7 @@ call mtr.add_suppression("Plugin group_replication reported: 'Error, maximum num
 call mtr.add_suppression("Failed to establish an internal server connection to execute plugin operations");
 call mtr.add_suppression("Info table is not ready to be used. *");
 call mtr.add_suppression("Error while starting the group replication applier thread");
+call mtr.add_suppression("Error writing relay log configuration.");
 set session sql_log_bin=1;
 [connection server1]
 UNINSTALL PLUGIN clone;

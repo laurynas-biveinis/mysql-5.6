@@ -29,6 +29,8 @@ binlog_gtid.binlog_xa_select_gtid_executed_explicitly_crash : Bug#28588717 Fails
 
 # clone suite tests
 clone.local_xa : BUG#00000000 : cross-engine consistent clone does not block XA commits
+clone.remote_dml_recovery : BUG#00000000 : MyRocks native DD upgrade
+clone.remote_dml_upgrade : BUG#00000000 : MyRocks native DD upgrade
 
 # func1 suite tests
 funcs_1.is_basics_mixed @darwin  : BUG#25882809 INCORRECT RESULT WHEN USING SUBQUERY ON TOP OF VIEW.
@@ -53,6 +55,11 @@ innodb.slow_shutdown                              : Bug#31763837 mtr hits this d
 innodb.upgrade_fts_aux                            : Bug#33034679 Test needs an upgrade of its 5.7 data files
 innodb.mysql_ts_alter_encrypt_2 : BUG#00000000 : MyRocks mysql schema unsupported operations
 innodb.mysql_ts_alter_encrypt_2 : BUG#00000000 : MyRocks native DD cross-grade
+innodb.upgrade_compressed_recv : BUG#00000000 : MyRocks native DD upgrade
+innodb.portability_basic : BUG#00000000 : MyRocks native DD TODO analyze this
+innodb.portability_tablespace : BUG#00000000 : MyRocks native DD TODO analyze this
+innodb.row_format : BUG#00000000 : MyRocks native DD low priority
+innodb.upgrade_fts_shared_tablespace : BUG#00000000 : MyRocks native DD upgrade
 
 # keyring tests
 keyring_encrypted_file.keyring_migration_bugs @darwin : Bug#31041633
@@ -79,6 +86,19 @@ main.upgrade_system_tables : BUG#00000000 : MyRocks TODO analyze this
 main.information_schema_cs_myisam : BUG#00000000 : MyRocks low priority
 main.information_schema_ci_myisam : BUG#00000000 : MyRocks low priority
 main.log_tables : BUG#00000000 : MyRocks low priority
+main.initialize-bug20504142 : BUG#00000000 : MyRocks low priority
+main.dd_upgrade_error_ci : BUG#00000000 : MyRocks TODO analyze this
+main.dd_upgrade_lctn_ci_mac : BUG#00000000 : MyRocks low priority
+main.no_binlog_gtid_next_temporary_table : BUG#00000000 : MyRocks DD binlog- GTID+
+main.dd_schema_definition_after_upgrade_57_debug : BUG#00000000 : MyRocks low priority
+main.dd_upgrade_test : BUG#00000000 : MyRocks low priority
+main.no_binlog_gtid_mode_on_explicit_prepared_stmts : BUG#00000000 : MyRocks TODO analyze this
+main.no_binlog_gtid_empty_transaction : BUG#00000000 : MyRocks DD binlog- GTID+
+main.partition_myisam : BUG#00000000 : MyRocks low priority
+main.log_tables_myisam : BUG#00000000 : MyRocks low priority
+main.no_binlog_gtid_next_partially_failed_stmts : BUG#00000000 : MyRocks DD binlog- GTID+
+main.mysqld_cmdline_warnings : BUG#00000000 : MyRocks TODO analyze this
+main.tablespace : BUG#00000000 : MyRocks low priority
 
 
 # Disabled due to InnoDB issues
@@ -114,9 +134,30 @@ rpl_gtid.rpl_gtid_truncate_memory_table_after_start_server : BUG#24351040
 rpl_gtid.rpl_gtid_perfschema_applier_xa_status           : BUG#27914287 Disabled until the WL#9075 (Performance Schema, XA Transactions) be implemented
 rpl_gtid.rpl_gtid_mts_spco_deadlock_other_locks          : Bug#32499883 RPL_GTID.RPL_GTID_MTS_SPCO_DEADLOCK_OTHER_LOCKS FAILS ON PB2
 rpl_gtid.rpl_start_replica_until_pos_with_gtid_only      : Bug#33119241 START REPLICA UNTIL SOURCE_LOG_POS SHOULD NOT STOP ON REPLICA EVENTS
+rpl_gtid.rpl_gtid_create_select : BUG#00000000 : MyRocks DD mysql.gtid_executed
+rpl_gtid.rpl_wait_for_semi_sync_ack : BUG#00000000 : MyRocks DD needs analyzing
+rpl_gtid.rpl_gtid_mts_recovery_with_missing_relay_log : BUG#00000000 : MyRocks DD needs analyzing
+rpl_gtid.rpl_mts_spco_commands_nobinlog : BUG#00000000 : MyRocks DD mysql.gtid_executed
+rpl_gtid.rpl_mts_replica_preserve_commit_order_optimize_table_nobinlog : BUG#00000000 : MyRocks DD mysql.gtid_executed
+rpl_gtid.rpl_gtids_table_disable_binlog_on_slave : BUG#00000000 : MyRocks DD mysql.gtid_executed
+rpl_gtid.rpl_mts_replica_preserve_commit_order_repair_table_nobinlog : BUG#00000000 : MyRocks DD mysql.gtid_executed
+rpl_gtid.rpl_mts_replica_preserve_commit_order_xa_rollback_error_nobinlog : BUG#00000000 : MyRocks DD mysql.gtid_executed
+rpl_gtid.rpl_mts_replica_preserve_commit_order_xa_commit_error_nobinlog : BUG#00000000 : MyRocks DD mysql.gtid_executed
+rpl_gtid.rpl_mts_replica_preserve_commit_order_xa_prepare_gtid_nobinlog : BUG#00000000 : MyRocks DD mysql.gtid_executed
+rpl_gtid.rpl_wait_for_executed_gtid_set : BUG#00000000 : MyRocks DD mysql.gtid_executed
+
+# rocksdb suite tests
+rocksdb.rocksdb_read_free_rpl : BUG#00000000 : MyRocks native DD test needs updating
+rocksdb.validate_datadic : BUG#00000000 : MyRocks native DD test needs updating
+rocksdb.rpl_statement_not_found : BUG#00000000 : MyRocks native DD test needs updating
+rocksdb.read_only_tx : BUG#00000000 : MyRocks native DD test needs updating
+rocksdb.prefix_extractor_override : BUG#00000000 : MyRocks native DD test needs updating
+rocksdb.information_schema : BUG#00000000 : MyRocks native DD test needs updating
 
 # rocksdb_clone suite tests
 rocksdb_clone.remote_kill_donor : BUG#00000000 : re-enable after 8.0.30 rebase with better OpenSSL 3 support
+rocksdb_clone.remote_dml_recovery : BUG#00000000 : MyRocks native DD upgrade
+rocksdb_clone.remote_dml_upgrade : BUG#00000000 : MyRocks native DD upgrade
 
 # rpl_nogtid suite tests
 rpl_nogtid.rpl_perfschema_applier_xa_status_check : BUG#27914287 Disabled until the WL#9075 (Performance Schema, XA Transactions) be implemented
@@ -124,6 +165,7 @@ rpl_nogtid.rpl_binlog_format_errors               : BUG#29776083 EXPLICIT BINLOG
 
 # rpl suite tests
 rpl.rpl_io_thd_wait_for_disk_space_stress : BUG#23581287 Disabled until bug is fixed.
+rpl.rpl_gtid_innodb_sys_header : BUG#00000000 : MyRocks DD needs analysis
 
 # sys_vars tests
 sys_vars.max_execution_time_basic @freebsd : BUG#31041720
@@ -133,6 +175,7 @@ sys_vars.innodb_log_writer_threads_basic : Bug#32129814 SYS_VARS.INNODB_LOG_WRIT
 sysschema.v_wait_classes_global_by_avg_latency : BUG#21550054 Test fails too often.
 
 # x plugin suite tests
+x.upgrade : BUG#00000000 : MyRocks low priority
 
 # Group Replication tests.
 

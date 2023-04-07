@@ -3464,5 +3464,6 @@ col1	col2
 rollback;
 rollback;
 drop table t1;
+SET SESSION transaction_isolation = DEFAULT;
 drop function f1;
 SET @@global.log_bin_trust_function_creators= @old_log_bin_trust_function_creators;

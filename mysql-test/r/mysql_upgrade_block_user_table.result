@@ -6,12 +6,6 @@ CREATE TABLE mysql.tmp_backup_user AS SELECT * FROM mysql.user;
 # restart: --enable_user_tables_engine_check=ON --upgrade=FORCE --log-error=MYSQLD_LOG
 # There should be no errors
 Pattern "\[ERROR\]" not found
-#
-# 8.0.17 - MYSQL_UPGRADE with enable_user_tables_engine_check and skip rocksdb
-#
-# restart: --enable_user_tables_engine_check=ON --skip-rocksdb --upgrade=FORCE --log-error=MYSQLD_LOG
-# There should be no errors
-Pattern "\[ERROR\]" not found
 TRUNCATE TABLE mysql.tables_priv;
 INSERT INTO mysql.tables_priv (SELECT * FROM mysql.tmp_backup_tables_priv);
 DROP TABLE mysql.tmp_backup_tables_priv;

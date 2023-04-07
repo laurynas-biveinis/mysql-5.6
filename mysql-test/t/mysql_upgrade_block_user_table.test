@@ -22,21 +22,6 @@
 --let SEARCH_PATTERN= \[ERROR\]
 --source include/search_pattern.inc
 
---echo #
---echo # 8.0.17 - MYSQL_UPGRADE with enable_user_tables_engine_check and skip rocksdb
---echo #
-
---replace_result $MYSQLD_LOG MYSQLD_LOG
---let restart_parameters=restart: --enable_user_tables_engine_check=ON --skip-rocksdb --upgrade=FORCE --log-error=$MYSQLD_LOG
---let $wait_counter= 10000
---source include/restart_mysqld.inc
-
---echo # There should be no errors
---let SEARCH_FILE= $MYSQLD_LOG
-
---let SEARCH_PATTERN= \[ERROR\]
---source include/search_pattern.inc
-
 # Restore the saved contents of mysql.user and mysql.tables_priv
 --let $restore= 1
 --source include/backup_tables_priv_and_users.inc

@@ -41,7 +41,7 @@ i	LEFT(j,20)
 2	bbbbbbbbbbbbbbbbbbbb
 3	cccccccccccccccccccc
 CREATE USER 'test3'@'localhost' IDENTIFIED BY '123';
-ERROR HY000: The ACL operation failed due to the following error from SE: errcode 165 - Table is read only
+DROP USER 'test3'@'localhost';
 # connection con_test1_user try to modify
 SELECT user();
 user()
@@ -1279,7 +1279,7 @@ ERROR HY000: Can't lock file (errno: 165 - Table is read only)
 CREATE TABLE t2 ( i INT ) ENGINE = Innodb;
 ERROR HY000: Running in read-only mode
 CREATE USER 'test5'@'localhost' IDENTIFIED BY '123';
-ERROR HY000: The ACL operation failed due to the following error from SE: errcode 165 - Table is read only
+DROP USER 'test5'@'localhost';
 # restart: --read-only
 USE testdb_wl6445;
 INSERT INTO t1 VALUES (11,repeat('a',200)),(12,repeat('b',200)),(13,repeat('c',200));

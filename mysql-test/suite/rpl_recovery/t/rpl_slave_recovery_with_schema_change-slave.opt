@@ -7,4 +7,3 @@
 --slave_parallel_workers=10
 --slave_type_conversions=ALL_NON_LOSSY
 --log_column_names
---skip-rocksdb

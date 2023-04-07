@@ -125,7 +125,7 @@ Password_reuse_time smallint unsigned NULL DEFAULT NULL,
 Password_require_current enum('N', 'Y') COLLATE utf8_general_ci DEFAULT NULL,
 User_attributes JSON DEFAULT NULL,
 PRIMARY KEY Host (Host,User)
-) engine=InnoDB STATS_PERSISTENT=0 CHARACTER SET utf8 COLLATE utf8_bin comment='Users and global privileges' ROW_FORMAT=DYNAMIC TABLESPACE=mysql";
+) engine=ROCKSDB STATS_PERSISTENT=0 CHARACTER SET utf8 COLLATE utf8_bin comment='Users and global privileges' ROW_FORMAT=DYNAMIC TABLESPACE=mysql";
 SET @str = CONCAT(@cmd, " ENCRYPTION='", @is_mysql_encrypted, "'");
 PREPARE stmt FROM @str;
 EXECUTE stmt;

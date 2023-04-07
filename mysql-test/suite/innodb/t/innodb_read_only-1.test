@@ -69,9 +69,9 @@ SELECT i FROM t1 ORDER BY i;
 INSERT INTO t1 VALUES (11,repeat('a',200)),(12,repeat('b',200)),(13,repeat('c',200));
 SELECT i,LEFT(j,20) FROM t1 ORDER BY i;
 
-# User-manipulation statements are disallowed since ACL tables use InnoDB.
---error ER_ACL_OPERATION_FAILED
+# User-manipulation statements are allowed since ACL tables use MyRocks.
 CREATE USER 'test3'@'localhost' IDENTIFIED BY '123';
+DROP USER 'test3'@'localhost';
 
 --echo # connection con_test1_user try to modify
 --connect (con_test1_user,'localhost','test1','123',)
@@ -536,9 +536,9 @@ DELETE FROM t1;
 --ERROR ER_READ_ONLY_MODE
 CREATE TABLE t2 ( i INT ) ENGINE = Innodb;
 
-# User-manipulation statements are disallowed since ACL tables use InnoDB.
---error ER_ACL_OPERATION_FAILED
+# User-manipulation statements are allowed since ACL tables use MyRocks.
 CREATE USER 'test5'@'localhost' IDENTIFIED BY '123';
+DROP USER 'test5'@'localhost';
 
 let $restart_parameters = restart: --read-only;
 --source include/restart_mysqld.inc
