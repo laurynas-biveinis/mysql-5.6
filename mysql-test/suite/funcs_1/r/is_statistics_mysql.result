@@ -90,8 +90,8 @@ def	mysql	tables_priv	0	mysql	PRIMARY	4	Table_name	A	#CARD#	NULL	NULL		BTREE			Y
 def	mysql	time_zone	0	mysql	PRIMARY	1	Time_zone_id	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	time_zone_leap_second	0	mysql	PRIMARY	1	Transition_time	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	time_zone_name	0	mysql	PRIMARY	1	Name	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
-def	mysql	time_zone_transition	0	mysql	PRIMARY	1	Time_zone_id	A	#CARD#	NULL	NULL		BTREE			YES	NULL
-def	mysql	time_zone_transition	0	mysql	PRIMARY	2	Transition_time	A	#CARD#	NULL	NULL		BTREE			YES	NULL
+def	mysql	time_zone_transition	0	mysql	PRIMARY	1	Time_zone_id	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
+def	mysql	time_zone_transition	0	mysql	PRIMARY	2	Transition_time	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	time_zone_transition_type	0	mysql	PRIMARY	1	Time_zone_id	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	time_zone_transition_type	0	mysql	PRIMARY	2	Transition_type_id	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	user	0	mysql	PRIMARY	1	Host	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
