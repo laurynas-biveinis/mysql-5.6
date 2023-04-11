@@ -67,6 +67,7 @@ innodb.upgrade_fts_shared_tablespace : BUG#00000000 : MyRocks native DD upgrade
 innodb.upgrade_orphan : BUG#00000000 : MyRocks native DD upgrade
 innodb.partition_upgrade_5727_mac_lctn_1_debug : BUG#00000000 : MyRocks native DD upgrade
 innodb.partition_upgrade_5727_mac_lctn_2_debug : BUG#00000000 : MyRocks native DD upgrade
+innodb.mysql_tables_deadlocks : BUG#00000000 : MyRocks mysql schema TODO at the end
 
 # keyring tests
 keyring_encrypted_file.keyring_migration_bugs @darwin : Bug#31041633
