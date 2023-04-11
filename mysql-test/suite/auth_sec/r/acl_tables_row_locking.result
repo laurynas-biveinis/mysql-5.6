@@ -365,8 +365,6 @@ FROM performance_schema.data_locks
 WHERE LOCK_TYPE='RECORD' AND
 (LOCATE('u2',LOCK_DATA)>0 OR LOCATE('u2x',LOCK_DATA)>0);
 tab	INDEX_NAME	LOCK_MODE	Has_lock
-mysql.tables_priv	Grantor	X	Acquired row lock on u2/u2x
-mysql.tables_priv	PRIMARY	X,REC_NOT_GAP	Acquired row lock on u2/u2x
 COMMIT;
 "Case 1.1: Using REPEATABLE READ with SELECT LOCK IN SHARE MODE"
 SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
@@ -396,8 +394,6 @@ FROM performance_schema.data_locks
 WHERE LOCK_TYPE='RECORD' AND
 (LOCATE('u2',LOCK_DATA)>0 OR LOCATE('u2x',LOCK_DATA)>0);
 tab	INDEX_NAME	LOCK_MODE	Has_lock
-mysql.tables_priv	Grantor	X	Acquired row lock on u2/u2x
-mysql.tables_priv	PRIMARY	X,REC_NOT_GAP	Acquired row lock on u2/u2x
 COMMIT;
 "Case 1.2: Start a transaction in READ COMMITTED"
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -424,8 +420,6 @@ FROM performance_schema.data_locks
 WHERE LOCK_TYPE='RECORD' AND
 (LOCATE('u2',LOCK_DATA)>0 OR LOCATE('u2x',LOCK_DATA)>0);
 tab	INDEX_NAME	LOCK_MODE	Has_lock
-mysql.tables_priv	Grantor	X,REC_NOT_GAP	Acquired row lock on u2/u2x
-mysql.tables_priv	PRIMARY	X,REC_NOT_GAP	Acquired row lock on u2/u2x
 COMMIT;
 "Case 1.2: Using READ COMMITTED with SELECT LOCK IN SHARE MODE"
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -455,8 +449,6 @@ FROM performance_schema.data_locks
 WHERE LOCK_TYPE='RECORD' AND
 (LOCATE('u2',LOCK_DATA)>0 OR LOCATE('u2x',LOCK_DATA)>0);
 tab	INDEX_NAME	LOCK_MODE	Has_lock
-mysql.tables_priv	Grantor	X,REC_NOT_GAP	Acquired row lock on u2/u2x
-mysql.tables_priv	PRIMARY	X,REC_NOT_GAP	Acquired row lock on u2/u2x
 COMMIT;
 # Run the test for all isolation level for table mysql.columns_priv
 "Case 1.1: Start a transaction in REPEATABLE READ"

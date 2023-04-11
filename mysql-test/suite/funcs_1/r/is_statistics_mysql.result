@@ -82,11 +82,11 @@ def	mysql	slave_master_info	0	mysql	PRIMARY	1	Channel_name	A	#CARD#	NULL	NULL		S
 def	mysql	slave_relay_log_info	0	mysql	PRIMARY	1	Channel_name	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	slave_worker_info	0	mysql	PRIMARY	1	Channel_name	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	slave_worker_info	0	mysql	PRIMARY	2	Id	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
-def	mysql	tables_priv	1	mysql	Grantor	1	Grantor	A	#CARD#	NULL	NULL		BTREE			YES	NULL
-def	mysql	tables_priv	0	mysql	PRIMARY	1	Host	A	#CARD#	NULL	NULL		BTREE			YES	NULL
-def	mysql	tables_priv	0	mysql	PRIMARY	2	Db	A	#CARD#	NULL	NULL		BTREE			YES	NULL
-def	mysql	tables_priv	0	mysql	PRIMARY	3	User	A	#CARD#	NULL	NULL		BTREE			YES	NULL
-def	mysql	tables_priv	0	mysql	PRIMARY	4	Table_name	A	#CARD#	NULL	NULL		BTREE			YES	NULL
+def	mysql	tables_priv	1	mysql	Grantor	1	Grantor	A	#CARD#	255	NULL		SE_SPECIFIC			YES	NULL
+def	mysql	tables_priv	0	mysql	PRIMARY	1	Host	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
+def	mysql	tables_priv	0	mysql	PRIMARY	2	Db	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
+def	mysql	tables_priv	0	mysql	PRIMARY	3	User	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
+def	mysql	tables_priv	0	mysql	PRIMARY	4	Table_name	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	time_zone	0	mysql	PRIMARY	1	Time_zone_id	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	time_zone_leap_second	0	mysql	PRIMARY	1	Transition_time	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL
 def	mysql	time_zone_name	0	mysql	PRIMARY	1	Name	A	#CARD#	NULL	NULL		SE_SPECIFIC			YES	NULL

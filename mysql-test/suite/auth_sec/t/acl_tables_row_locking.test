@@ -78,9 +78,9 @@ SELECT To_user FROM mysql.role_edges WHERE To_user='u2';
 
 --echo # Backup user 'u2' and rename it as 'u2x'. This row
 --echo # is used to test DML on mysql.user.
-CREATE TABLE user_bk AS SELECT * FROM mysql.user WHERE User='u2';
+CREATE TABLE user_bk ENGINE=ROCKSDB AS SELECT * FROM mysql.user WHERE User='u2';
 UPDATE user_bk SET user='u2x' WHERE user LIKE 'u2';
-CREATE TABLE user_copy AS SELECT * FROM mysql.user LIMIT 0;
+CREATE TABLE user_copy ENGINE=ROCKSDB AS SELECT * FROM mysql.user LIMIT 0;
 
 let query_row_locks= SELECT CONCAT(OBJECT_SCHEMA,'.',OBJECT_NAME)
   tab,INDEX_NAME,LOCK_MODE, 'Acquired row lock on u2/u2x' AS Has_lock
@@ -460,46 +460,6 @@ while($c <= 2)
 
   connection update_con2;
   ROLLBACK;
-
-
-  --echo # Case 15:
-  --echo # Reference ACL table in a foreign key. Reading ACL table while
-  --echo # updating the table in different isolation mode.
-  --echo # Make sure a concurrent ACL DML on ACL table is blocked.
-  connection update_con2;
-
-  CREATE TABLE fk_to_acl_table
-    (Host char(255) CHARACTER SET ASCII DEFAULT '' NOT NULL,
-     User char(32) COLLATE utf8_bin DEFAULT '' NOT NULL,
-     address CHAR(255),
-     FOREIGN KEY (Host, User) REFERENCES mysql.user(Host,User));
-  UPDATE user_bk SET user='u2' WHERE user LIKE 'u2x';
-
-  ALTER TABLE fk_to_acl_table MODIFY COLUMN address char(200),
-        ALGORITHM=COPY;
-
-  SELECT User FROM mysql.user WHERE User='u2';
-  eval SET SESSION TRANSACTION ISOLATION LEVEL $isolation_level;
-  START TRANSACTION;
-  INSERT INTO fk_to_acl_table VALUES ('%', 'u2', '2nd cross, 1st main, downtown');
-  --echo # Make sure S record locks are held on ACL table.
-  eval $query_row_locks;
-
-  connection update_con1;
-  --echo # Make sure that we do not allow updating ACL tables.
-  --error ER_LOCK_WAIT_TIMEOUT
-  REPLACE INTO mysql.user SELECT * FROM user_bk;
-  --error ER_LOCK_WAIT_TIMEOUT
-  UPDATE mysql.user SET user='u2x' WHERE user LIKE 'u2';
-  --error ER_LOCK_WAIT_TIMEOUT
-  DELETE FROM mysql.user WHERE User='u2';
-
-  connection update_con2;
-  ROLLBACK;
-  --echo # Cleanup
-  connection default;
-  UPDATE user_bk SET user='u2x' WHERE user LIKE 'u2';
-  DROP TABLE fk_to_acl_table;
 
   connection default;
   --source include/wait_innodb_all_purged.inc

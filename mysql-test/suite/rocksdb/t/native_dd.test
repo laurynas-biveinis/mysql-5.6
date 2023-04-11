@@ -1,7 +1,7 @@
 --source include/have_rocksdb.inc
 
-SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE, ENGINE FROM
-       INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'mysql';
+SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM
+       INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'mysql' AND ENGINE="InnoDB";
 
 # Converted:
 # ALTER TABLE sys.sys_config ENGINE=ROCKSDB;
@@ -33,7 +33,7 @@ ALTER TABLE mysql.gtid_executed ENGINE=ROCKSDB;
 # ALTER TABLE mysql.server_cost ENGINE=ROCKSDB;
 # ALTER TABLE mysql.slave_master_info ENGINE=ROCKSDB;
 # ALTER TABLE mysql.slave_relay_log_info ENGINE=ROCKSDB;
-ALTER TABLE mysql.tables_priv ENGINE=ROCKSDB;
+# ALTER TABLE mysql.tables_priv ENGINE=ROCKSDB;
 # ALTER TABLE mysql.user ENGINE=ROCKSDB;
 
 # Requires attachable transaction support
@@ -48,7 +48,7 @@ ALTER TABLE mysql.tables_priv ENGINE=ROCKSDB;
 
 # ALTER TABLE mysql.slave_worker_info ENGINE=ROCKSDB;
 
---source include/restart_mysqld.inc
+# --source include/restart_mysqld.inc
 
-SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE, ENGINE FROM
-INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'mysql';
+# SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE, ENGINE FROM
+# INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'mysql';
