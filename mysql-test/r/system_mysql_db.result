@@ -129,7 +129,7 @@ func	CREATE TABLE `func` (
   `dl` char(128) COLLATE utf8_bin NOT NULL DEFAULT '',
   `type` enum('function','aggregate') COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`name`)
-) /*!50100 TABLESPACE `mysql` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='User defined functions'
+) /*!50100 TABLESPACE `mysql` */ ENGINE=ROCKSDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin STATS_PERSISTENT=0 ROW_FORMAT=DYNAMIC COMMENT='User defined functions'
 show create table tables_priv;
 Table	Create Table
 tables_priv	CREATE TABLE `tables_priv` (
