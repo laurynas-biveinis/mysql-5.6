@@ -186,6 +186,7 @@ rpl.rpl_semi_sync : BUG#00000000 : double histogram free
 rpl.rpl_semi_sync_optimize_for_static_plugin_config : BUG#00000000 : double histogram free
 rpl.rpl_ssl_semisync : BUG#00000000 : double histogram free
 rpl.rpl_semi_sync_uninstall_plugin : BUG#00000000 : double histogram free
+rpl.rpl_multi_source_mts_reset_worker_info : BUG#00000000 : MyRocks mysql schema supports only ROW
 
 # sys_vars tests
 sys_vars.max_execution_time_basic @freebsd : BUG#31041720

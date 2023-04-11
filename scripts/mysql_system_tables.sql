@@ -413,7 +413,7 @@ SET @cmd= "CREATE TABLE IF NOT EXISTS slave_worker_info (
   Channel_name VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'The channel on which the replica is connected to a source. Used in Multisource Replication',
   PRIMARY KEY(Channel_name, Id)) DEFAULT CHARSET=utf8 STATS_PERSISTENT=0 COMMENT 'Worker Information'";
 
-SET @str=IF(@have_innodb <> 0, CONCAT(@cmd, ' ENGINE= INNODB ROW_FORMAT=DYNAMIC TABLESPACE=mysql ENCRYPTION=\'', @is_mysql_encrypted,'\''), CONCAT(@cmd, ' ENGINE= MYISAM'));
+SET @str=IF(@have_innodb <> 0, CONCAT(@cmd, ' ENGINE= ROCKSDB ROW_FORMAT=DYNAMIC TABLESPACE=mysql ENCRYPTION=\'', @is_mysql_encrypted,'\''), CONCAT(@cmd, ' ENGINE= ROCKSDB'));
 PREPARE stmt FROM @str;
 EXECUTE stmt;
 DROP PREPARE stmt;
