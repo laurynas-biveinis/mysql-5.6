@@ -45,10 +45,6 @@ Preparing deadlock scenario for mysql.innodb_table_stats
 ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
 ROLLBACK;
-Preparing deadlock scenario for mysql.plugin
-ROLLBACK;
-ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
-ROLLBACK;
 Preparing deadlock scenario for mysql.servers
 ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
@@ -58,10 +54,6 @@ ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
 ROLLBACK;
 Preparing deadlock scenario for mysql.time_zone
-ROLLBACK;
-ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
-ROLLBACK;
-Preparing deadlock scenario for mysql.time_zone_leap_second
 ROLLBACK;
 ERROR 40001: Deadlock found when trying to get lock; try restarting transaction
 ROLLBACK;

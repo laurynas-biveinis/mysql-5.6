@@ -112,9 +112,7 @@ status   : OK
 mysql.time_zone
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
-mysql.time_zone_leap_second
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
+mysql.time_zone_leap_second                        OK
 mysql.time_zone_name
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
@@ -220,9 +218,7 @@ status   : OK
 mysql.time_zone
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
-mysql.time_zone_leap_second
-note     : Table does not support optimize, doing recreate + analyze instead
-status   : OK
+mysql.time_zone_leap_second                        OK
 mysql.time_zone_name
 note     : Table does not support optimize, doing recreate + analyze instead
 status   : OK
