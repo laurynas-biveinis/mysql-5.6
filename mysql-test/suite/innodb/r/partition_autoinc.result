@@ -54,7 +54,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p2.ibd
@@ -94,7 +93,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p2.ibd
@@ -200,7 +198,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p3.ibd
@@ -235,7 +232,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/tr.ibd
@@ -270,7 +266,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p3.ibd
@@ -288,7 +283,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p3.ibd
 ./test/tr.ibd
@@ -333,7 +327,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p1.ibd
 ./test/tr.ibd
 SHOW CREATE TABLE t1;
@@ -386,7 +379,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p2.ibd
@@ -421,7 +413,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p2.ibd
@@ -495,7 +486,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p2.ibd
@@ -540,7 +530,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/tr.ibd
@@ -617,7 +606,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p01.ibd
 ./test/t1#p#p02.ibd
 ./test/t1#p#p11.ibd
@@ -674,7 +662,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p01.ibd
 ./test/t1#p#p02.ibd
 ./test/t1#p#p11.ibd
@@ -738,7 +725,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p01.ibd
 ./test/t1#p#p02.ibd
 ./test/t1#p#p11.ibd
@@ -836,7 +822,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p2.ibd
@@ -885,7 +870,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0.ibd
 ./test/t1#p#p1.ibd
 ./test/t1#p#p2.ibd
@@ -998,7 +982,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0#sp#sp00.ibd
 ./test/t1#p#p0#sp#sp01.ibd
 ./test/t1#p#p1#sp#sp10.ibd
@@ -1071,7 +1054,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0#sp#sp00.ibd
 ./test/t1#p#p0#sp#sp01.ibd
 ./test/t1#p#p1#sp#sp10.ibd
@@ -1143,7 +1125,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p0#sp#sp00.ibd
 ./test/t1#p#p0#sp#sp01.ibd
 ./test/t1#p#p1#sp#sp10.ibd
@@ -1192,7 +1173,6 @@ LOWER(path)
 ./mtr/global_suppressions.ibd
 ./mtr/test_ignored_global_suppressions.ibd
 ./mtr/test_suppressions.ibd
-./sys/sys_config.ibd
 ./test/t1#p#p1#sp#sp10.ibd
 ./test/t1#p#p1#sp#sp11.ibd
 ./test/t1#p#p22#sp#sp220.ibd

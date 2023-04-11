@@ -34,10 +34,10 @@ ALTER TABLE mysql.gtid_executed ENGINE=ROCKSDB;
 # ALTER TABLE mysql.slave_master_info ENGINE=ROCKSDB;
 # ALTER TABLE mysql.slave_relay_log_info ENGINE=ROCKSDB;
 ALTER TABLE mysql.tables_priv ENGINE=ROCKSDB;
-ALTER TABLE mysql.user ENGINE=ROCKSDB;
+# ALTER TABLE mysql.user ENGINE=ROCKSDB;
 
 # Requires attachable transaction support
-ALTER TABLE mysql.plugin ENGINE=ROCKSDB;
+# ALTER TABLE mysql.plugin ENGINE=ROCKSDB;
 ALTER TABLE mysql.time_zone_leap_second ENGINE=ROCKSDB;
 ALTER TABLE mysql.time_zone_name ENGINE=ROCKSDB;
 ALTER TABLE mysql.time_zone ENGINE=ROCKSDB;
