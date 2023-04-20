@@ -1488,6 +1488,8 @@ class MDL_context {
 
   bool has_locks(MDL_key::enum_mdl_namespace mdl_namespace) const;
 
+  bool has_locks_except(MDL_key::enum_mdl_namespace mdl_namespace) const;
+
   bool has_locks_waited_for() const;
 
 #ifndef NDEBUG
@@ -1816,7 +1818,7 @@ class MDL_mutex {
 */
 class MDL_mutex_guard {
  public:
-  MDL_mutex_guard(MDL_mutex *mdl_mutex, THD *thd);
+  MDL_mutex_guard(MDL_mutex *mdl_mutex, THD *thd, mysql_mutex_t *mutex);
   ~MDL_mutex_guard();
 
  private:
@@ -1828,6 +1830,9 @@ class MDL_mutex_guard {
 
   // MDL ticket of the held mutex.
   MDL_ticket *m_ticket{nullptr};
+
+  // Regular mutex to lock and unlock if MDL mutex is disabled.
+  mysql_mutex_t *m_mutex{nullptr};
 };
 
 #endif

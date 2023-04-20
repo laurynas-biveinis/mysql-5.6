@@ -1674,7 +1674,7 @@ bool enable_deprecation_warning = true;
 bool enable_optimizer_cputime_with_wallclock = true;
 bool enable_pfs_global_select = false;
 bool enable_rocksdb_intrinsic_tmp_table = false;
-bool mdl_mutex_thread_remove = true;
+bool use_mdl_mutex = true;
 
 /**
   This variable holds handle to the object that's responsible
@@ -6335,6 +6335,10 @@ static int init_thread_environment() {
                    &LOCK_optimizer_force_index_rewrite_map, MY_MUTEX_INIT_FAST);
   mysql_rwlock_init(key_rwlock_LOCK_server_shutting_down,
                     &LOCK_server_shutting_down);
+
+  // Init THD static objects.
+  THD::init_mutex_thd_security_ctx();
+
   return 0;
 }
 
