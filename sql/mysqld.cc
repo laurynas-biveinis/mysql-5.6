@@ -11888,6 +11888,8 @@ SHOW_VAR status_vars[] = {
      SHOW_SCOPE_GLOBAL},
     {"Resource_group_supported", (char *)show_resource_group_support, SHOW_FUNC,
      SHOW_SCOPE_GLOBAL},
+    {"Write_throttle_lag_ms", (char *)&last_write_throttle_lag_ms, SHOW_LONG,
+     SHOW_SCOPE_GLOBAL},
     {"Telemetry_traces_supported", (char *)show_telemetry_traces_support,
      SHOW_FUNC, SHOW_SCOPE_GLOBAL},
     {"Deprecated_use_i_s_processlist_count",
