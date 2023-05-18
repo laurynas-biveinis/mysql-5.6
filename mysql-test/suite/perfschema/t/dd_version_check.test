@@ -125,6 +125,10 @@ insert into test.pfs_published_schema
  values("MySQL 8.0.33",
         "00421db55e31bdc58161e2051c78e6b2040250db74f63afe3e473441d43769b4");
 
+insert into test.pfs_published_schema
+ values("MySQL 8.0.36-025",
+        "24c67a30991f18700153dbdd6b45f24332c60e53301a348d02946957a4dbd87e");
+
 create table test.pfs_check_table
   (id int NOT NULL AUTO_INCREMENT,
    t text NOT NULL,
@@ -257,7 +261,7 @@ delimiter ;$$
 
 --echo "Checking the performance schema database structure ..."
 
-# call test.pfs_check_proc();
+call test.pfs_check_proc();
 
 # Debug
 # select count(*) from test.pfs_check_table;

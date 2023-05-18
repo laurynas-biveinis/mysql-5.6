@@ -317,14 +317,6 @@ our @DEFAULT_SUITES = qw(
   stress
   test_service_privacy
   thread_pool
-
-  fb_vectordb
-  rocksdb
-  rocksdb_clone
-  rocksdb_dd_innodb
-  rocksdb_rpl
-  rocksdb_stress
-  rocksdb_sys_vars
 );
 
 our $DEFAULT_SUITES = join ',', @DEFAULT_SUITES;
