@@ -18,6 +18,7 @@ let extra_args=--no-defaults --basedir=$BASEDIR --debug=+d,ddse_rocksdb;
 --echo # Try --initialize
 --echo #
 
+
 --echo # Run the server with --initialize
 --exec $MYSQLD $extra_args --initialize --default_dd_storage_engine=RocksDB --datadir=$DDIR --log-error-verbosity=3 > $MYSQLD_LOG 2>&1
 
@@ -29,6 +30,9 @@ let extra_args=--no-defaults --basedir=$BASEDIR --debug=+d,ddse_rocksdb;
 --echo # Restarting the server
 --source include/start_mysqld.inc
 
+--echo #
+--echo # Error log checks
+--echo #
 --let $assert_file = $MYSQLD_LOG
 --let $assert_count = 1
 
@@ -39,6 +43,9 @@ let extra_args=--no-defaults --basedir=$BASEDIR --debug=+d,ddse_rocksdb;
 --let $assert_text = Check Data dictionary initializing
 --let $assert_select = Data dictionary initializing
 --let $assert_only_after = Check RocksDB:Init column families
+--source include/assert_grep.inc
+
+--let $assert_text=disabling rocksdb_large_prefix is not allowed with MySQL data dictionary in MyRocks
 --source include/assert_grep.inc
 
 --echo # Remove data dir and log file.

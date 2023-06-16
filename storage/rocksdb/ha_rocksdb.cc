@@ -62,6 +62,7 @@
 #include "sql/sql_partition.h"
 #include "sql/sql_table.h"
 #include "sql/sql_thd_internal_api.h"
+#include "sql/strfunc.h"
 
 /* RocksDB includes */
 #include "env/composite_env_wrapper.h"
@@ -930,7 +931,6 @@ static unsigned long long rocksdb_table_stats_max_num_rows_scanned = 0ul;
 static bool rocksdb_enable_bulk_load_api = 1;
 static bool rocksdb_enable_remove_orphaned_dropped_cfs = 1;
 static bool rocksdb_print_snapshot_conflict_queries = 0;
-static bool rocksdb_large_prefix = 0;
 static bool rocksdb_allow_to_start_after_corruption = 0;
 static ulong rocksdb_write_policy = rocksdb::TxnDBWritePolicy::WRITE_COMMITTED;
 static char *rocksdb_read_free_rpl_tables;
@@ -2688,12 +2688,6 @@ static MYSQL_SYSVAR_BOOL(table_stats_use_table_scan,
                          rocksdb_table_stats_use_table_scan);
 
 static MYSQL_SYSVAR_BOOL(
-    large_prefix, rocksdb_large_prefix, PLUGIN_VAR_RQCMDARG,
-    "Support large index prefix length of 3072 bytes. If off, the maximum "
-    "index prefix length is 767.",
-    nullptr, nullptr, false);
-
-static MYSQL_SYSVAR_BOOL(
     allow_to_start_after_corruption, rocksdb_allow_to_start_after_corruption,
     PLUGIN_VAR_OPCMDARG | PLUGIN_VAR_READONLY,
     "Allow server still to start successfully even if RocksDB corruption is "
@@ -3096,7 +3090,6 @@ static struct SYS_VAR *rocksdb_system_variables[] = {
     MYSQL_SYSVAR(table_stats_use_table_scan),
     MYSQL_SYSVAR(table_stats_background_thread_nice_value),
 
-    MYSQL_SYSVAR(large_prefix),
     MYSQL_SYSVAR(allow_to_start_after_corruption),
     MYSQL_SYSVAR(error_on_suboptimal_collation),
     MYSQL_SYSVAR(stats_recalc_rate),
@@ -11603,13 +11596,6 @@ bool ha_rocksdb::is_pk(const uint index, const TABLE *const table_arg,
 
   return index == table_arg->s->primary_key ||
          is_hidden_pk(index, table_arg, tbl_def_arg);
-}
-
-uint ha_rocksdb::max_supported_key_part_length(
-    HA_CREATE_INFO *create_info MY_ATTRIBUTE((unused))) const {
-  DBUG_ENTER_FUNC();
-  DBUG_RETURN(rocksdb_large_prefix ? MAX_INDEX_COL_LEN_LARGE
-                                   : MAX_INDEX_COL_LEN_SMALL);
 }
 
 const char *ha_rocksdb::get_key_name(const uint index,
