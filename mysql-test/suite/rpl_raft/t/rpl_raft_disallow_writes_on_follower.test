@@ -33,6 +33,24 @@ insert into non_trx values(1);
 set @@global.allow_binlog_writes_on_raft_follower = 0;
 
 connection server_1;
+# Setting this on a leader should not break anything
+set @@global.allow_binlog_writes_on_raft_follower = 1;
+insert into trx values(2);
+insert into non_trx values(2);
+set @@global.allow_binlog_writes_on_raft_follower = 0;
+select * from trx;
+select * from non_trx;
+
+# catchup server_2
+connection server_1;
+let $sync_slave_connection= server_2;
+source include/sync_slave_sql_with_master.inc;
+
+connection server_2;
+select * from trx;
+select * from non_trx;
+
+connection server_1;
 drop table trx;
 drop table non_trx;
 
