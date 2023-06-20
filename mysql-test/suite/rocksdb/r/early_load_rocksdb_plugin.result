@@ -1,6 +1,9 @@
 # shut server down
 # Server is down
 #
+# Run the server with --help (a too-restrictive assert regression test)
+#
+#
 # Run the server with --initialize
 #
 #
