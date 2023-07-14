@@ -1601,7 +1601,7 @@ uint write_time_check_batch;
  * replication lag */
 bool bypass_write_throttle_admin_check;
 /* Controls num most recent data points to collect for
- * information_schema.write_statistics */
+ * performance_schema.write_statistics */
 uint write_stats_count;
 /* Controls the frequency(seconds) at which write stats and replica lag stats
  * are collected*/
@@ -11939,6 +11939,8 @@ SHOW_VAR status_vars[] = {
      SHOW_SCOPE_GLOBAL},
     {"Write_throttle_lag_period_peak_ms",
      (char *)show_write_throttle_lag_period_peak, SHOW_FUNC, SHOW_SCOPE_GLOBAL},
+    {"Write_throttle_action_count", (char *)&write_throttle_action_count,
+     SHOW_LONGLONG, SHOW_SCOPE_GLOBAL},
     {"Telemetry_traces_supported", (char *)show_telemetry_traces_support,
      SHOW_FUNC, SHOW_SCOPE_GLOBAL},
     {"Deprecated_use_i_s_processlist_count",
