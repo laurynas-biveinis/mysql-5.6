@@ -1356,6 +1356,8 @@ The following options may be given as the first argument:
  Deleting rows by primary key lookup, without reading rows
  (Blind Deletes). Blind delete is disabled if the table
  has secondary key
+ --rocksdb-block-cache-numshardbits=# 
+ Block cache numshardbits for RocksDB
  --rocksdb-block-cache-size=# 
  block_cache size for RocksDB
  --rocksdb-block-restart-interval=# 
@@ -2564,6 +2566,7 @@ rocksdb-allow-mmap-reads FALSE
 rocksdb-allow-mmap-writes FALSE
 rocksdb-allow-to-start-after-corruption FALSE
 rocksdb-blind-delete-primary-key FALSE
+rocksdb-block-cache-numshardbits -1
 rocksdb-block-cache-size 536870912
 rocksdb-block-restart-interval 16
 rocksdb-block-size 4096
