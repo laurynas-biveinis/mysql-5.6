@@ -14,7 +14,6 @@ let extra_args=--no-defaults --basedir=$BASEDIR --debug=+d,ddse_rocksdb;
 --source include/shutdown_mysqld.inc
 --echo # Server is down
 
-
 --echo #
 --echo # Run the server with --help (a too-restrictive assert regression test)
 --echo #
