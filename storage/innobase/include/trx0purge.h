@@ -96,6 +96,8 @@ void trx_purge_stop(void);
 /** Resume purge, move to PURGE_STATE_RUN. */
 void trx_purge_run(void);
 
+void trx_purge_truncate_undo_spaces(void);
+
 /** Purge states */
 enum purge_state_t {
   PURGE_STATE_INIT,    /*!< Purge instance created */
