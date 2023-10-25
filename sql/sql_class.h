@@ -183,6 +183,7 @@ struct before_image_mismatch {
   std::string log_pos;
   std::string source_img;
   std::string local_img;
+  std::string primary_key;
 };
 
 namespace dd {
