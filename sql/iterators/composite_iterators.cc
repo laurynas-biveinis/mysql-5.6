@@ -84,6 +84,8 @@ int FilterIterator::Read() {
       return 1;
     }
 
+    thd()->check_yield();
+
     /* check for errors evaluating the condition */
     if (thd()->is_error()) return 1;
 
@@ -136,6 +138,7 @@ int LimitOffsetIterator::Read() {
           ++*m_skipped_rows;
         }
         m_source->UnlockRow();
+        thd()->check_yield();
       }
       m_seen_rows = m_offset;
       m_needs_offset = false;
@@ -150,6 +153,7 @@ int LimitOffsetIterator::Read() {
         // Count rows until the end or error (ignore the error if any).
         while (m_source->Read() == 0) {
           ++*m_skipped_rows;
+          thd()->check_yield();
         }
       }
       return -1;
@@ -405,6 +409,7 @@ int AggregateIterator::Read() {
         }
 
         // We're still in the same group, so just loop back.
+        thd()->check_yield();
       }
 
     case OUTPUTTING_ROLLUP_ROWS:
@@ -503,6 +508,7 @@ int NestedLoopIterator::Read() {
       thd()->send_kill_message();
       return 1;
     }
+    thd()->check_yield();
     if (err == -1) {
       // Out of inner rows for this outer row. If we are an outer join
       // and never found any inner rows, return a null-complemented row.
@@ -1208,6 +1214,8 @@ bool MaterializeIterator<Profiler>::MaterializeQueryBlock(
       return true;
     }
 
+    thd()->check_yield();
+
     // Materialize items for this row.
     if (query_block.copy_items) {
       if (copy_funcs(query_block.temp_table_param, thd())) return true;
@@ -1733,6 +1741,8 @@ bool TemptableAggregateIterator<Profiler>::Init() {
       return true;
     }
 
+    thd()->check_yield();
+
     // Materialize items for this row.
     if (copy_funcs(m_temp_table_param, thd(), CFT_FIELDS))
       return true; /* purecov: inspected */
@@ -2032,6 +2042,7 @@ int WeedoutIterator::Read() {
     }
 
     // Duplicate, so read the next row instead.
+    thd()->check_yield();
   }
 }
 
@@ -2063,6 +2074,8 @@ int RemoveDuplicatesIterator::Read() {
       thd()->send_kill_message();
       return 1;
     }
+
+    thd()->check_yield();
 
     bool any_changed = false;
     for (Cached_item *cache : m_caches) {
@@ -2105,6 +2118,8 @@ int RemoveDuplicatesOnIndexIterator::Read() {
       thd()->send_kill_message();
       return 1;
     }
+
+    thd()->check_yield();
 
     if (!m_first_row && key_cmp(m_key->key_part, m_key_buf, m_key_len) == 0) {
       // Same as previous row, so keep scanning.
@@ -2157,6 +2172,8 @@ int NestedLoopSemiJoinWithDuplicateRemovalIterator::Read() {
         return 1;
       }
 
+      thd()->check_yield();
+
       if (m_deduplicate_against_previous_row &&
           key_cmp(m_key->key_part, m_key_buf, m_key_len) == 0) {
         // Same as previous row, so keep scanning.
@@ -2170,6 +2187,8 @@ int NestedLoopSemiJoinWithDuplicateRemovalIterator::Read() {
       thd()->send_kill_message();
       return 1;
     }
+
+    thd()->check_yield();
 
     // Now find a single (matching) inner row.
     if (m_source_inner->Init()) {
