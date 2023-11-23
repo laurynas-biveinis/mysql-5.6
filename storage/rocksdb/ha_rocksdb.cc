@@ -9213,7 +9213,10 @@ int ha_rocksdb::alloc_key_buffers(const TABLE &table_arg,
   m_pk_descr = kd_arr[pk_index(table_arg, tbl_def_arg)];
 
   // move this into get_table_handler() ??
-  m_pk_descr->setup(table_arg, tbl_def_arg);
+  uint rtn = m_pk_descr->setup(table_arg, tbl_def_arg);
+  if (rtn) {
+    return rtn;
+  }
 
   pack_key_len = m_pk_descr->max_storage_fmt_length();
   m_pk_packed_tuple = reinterpret_cast<uchar *>(
@@ -9226,7 +9229,10 @@ int ha_rocksdb::alloc_key_buffers(const TABLE &table_arg,
     if (i == table_arg.s->primary_key) continue;
 
     // TODO: move this into get_table_handler() ??
-    kd_arr[i]->setup(table_arg, tbl_def_arg);
+    rtn = kd_arr[i]->setup(table_arg, tbl_def_arg);
+    if (rtn) {
+      return rtn;
+    }
 
     const uint packed_len = kd_arr[i]->max_storage_fmt_length();
     if (packed_len > max_packed_sk_len) {
@@ -9701,10 +9707,10 @@ int ha_rocksdb::create_key_defs(
       in-place alter table.  Copy over existing keys from the old_tbl_def and
       generate the necessary new key definitions if any.
     */
-    if (create_inplace_key_defs(table_arg, tbl_def_arg, *old_table_arg,
-                                *old_tbl_def_arg, cfs, ttl_duration,
-                                ttl_column)) {
-      DBUG_RETURN(HA_EXIT_FAILURE);
+    if ((err = create_inplace_key_defs(table_arg, tbl_def_arg, *old_table_arg,
+                                       *old_tbl_def_arg, cfs, ttl_duration,
+                                       ttl_column))) {
+      DBUG_RETURN(err);
     }
   }
 
@@ -9880,7 +9886,7 @@ bool ha_rocksdb::create_cfs(
     false - Ok
     true  - error, either given table ddl is not supported by rocksdb or OOM.
 */
-bool ha_rocksdb::create_inplace_key_defs(
+uint ha_rocksdb::create_inplace_key_defs(
     const TABLE &table_arg, Rdb_tbl_def &tbl_def_arg,
     const TABLE &old_table_arg, const Rdb_tbl_def &old_tbl_def_arg,
     const std::array<key_def_cf_info, MAX_INDEXES + 1> &cfs,
@@ -9916,7 +9922,7 @@ bool ha_rocksdb::create_inplace_key_defs(
                         "for Index Number (%u,%u), table %s",
                         gl_index_id.cf_id, gl_index_id.index_id,
                         old_tbl_def_arg.full_tablename().c_str());
-        return true;
+        return HA_EXIT_FAILURE;
       }
 
       uint32 ttl_rec_offset =
@@ -9941,16 +9947,19 @@ bool ha_rocksdb::create_inplace_key_defs(
           index_info.m_index_flags, ttl_rec_offset, ttl_duration);
     } else if (create_key_def(table_arg, i, tbl_def_arg, new_key_descr[i],
                               cfs[i], ttl_duration, ttl_column)) {
-      return true;
+      return HA_EXIT_FAILURE;
     }
 
     assert(new_key_descr[i] != nullptr);
-    new_key_descr[i]->setup(table_arg, tbl_def_arg);
+    int rtn = new_key_descr[i]->setup(table_arg, tbl_def_arg);
+    if (rtn) {
+      return rtn;
+    }
   }
 
   tbl_def_arg.m_tbl_stats.set(new_key_descr[0]->m_stats.m_rows, 0, 0);
 
-  return false;
+  return HA_EXIT_SUCCESS;
 }
 
 std::unordered_map<std::string, uint> ha_rocksdb::get_old_key_positions(
@@ -10151,7 +10160,10 @@ int ha_rocksdb::create_key_def(
   }
 
   // initialize key_def
-  new_key_def->setup(table_arg, tbl_def_arg);
+  uint rtn = new_key_def->setup(table_arg, tbl_def_arg);
+  if (rtn) {
+    return rtn;
+  }
   DBUG_RETURN(HA_EXIT_SUCCESS);
 }
 
@@ -10911,6 +10923,24 @@ int ha_rocksdb::index_read_intern(uchar *const buf, const uchar *const key,
   }
 
   const Rdb_key_def &kd = *m_key_descr_arr[active_index_pos()];
+
+  if (kd.is_vector_index()) {
+    auto vector_db_handler = get_vector_db_handler();
+    // hard code query_vector and k value for now to unblock testing
+    const std::vector<float> query_vector{10, 6, 5};
+    rc =
+        vector_db_handler->knn_search(kd.get_vector_index(), query_vector, 128);
+    if (rc) {
+      DBUG_RETURN(rc);
+    }
+    if (!vector_db_handler->has_more_results()) {
+      DBUG_RETURN(HA_ERR_END_OF_FILE);
+    }
+    const auto &pk = vector_db_handler->current_pk();
+    rc = get_row_by_rowid(buf, pk.data(), pk.size(), nullptr, false, false);
+    DBUG_RETURN(rc);
+  }
+
   bool using_full_key = false;
   m_full_key_lookup = false;
 
@@ -10924,6 +10954,7 @@ int ha_rocksdb::index_read_intern(uchar *const buf, const uchar *const key,
   } else {
     const uint actual_key_parts = kd.get_key_parts();
     using_full_key = is_using_full_key(keypart_map, actual_key_parts);
+
     /*
       Handle some special cases when we do exact key lookups.
     */
@@ -11128,6 +11159,13 @@ int ha_rocksdb::index_read_last_map(uchar *const buf, const uchar *const key,
   DBUG_ENTER_FUNC();
 
   DBUG_RETURN(index_read_map(buf, key, keypart_map, HA_READ_PREFIX_LAST));
+}
+
+Rdb_vector_db_handler *ha_rocksdb::get_vector_db_handler() {
+  if (m_vector_db_handler == nullptr) {
+    m_vector_db_handler = std::make_unique<Rdb_vector_db_handler>();
+  }
+  return m_vector_db_handler.get();
 }
 
 /**
@@ -11606,6 +11644,17 @@ int ha_rocksdb::index_next_with_direction_intern(uchar *const buf,
   table->m_status = STATUS_NOT_FOUND;
   /* TODO(yzha) - row stats are gone in 8.0
   stats.rows_requested++; */
+
+  if (kd.is_vector_index()) {
+    auto vector_db_handler = get_vector_db_handler();
+    vector_db_handler->next_result();
+    if (!vector_db_handler->has_more_results()) {
+      DBUG_RETURN(HA_ERR_END_OF_FILE);
+    }
+    const auto &pk = vector_db_handler->current_pk();
+    rc = get_row_by_rowid(buf, pk.data(), pk.size(), nullptr, false, false);
+    DBUG_RETURN(rc);
+  }
 
   for (;;) {
     DEBUG_SYNC(thd, "rocksdb.check_flags_inwdi");
@@ -12896,6 +12945,23 @@ int ha_rocksdb::update_write_sk(const TABLE *const table_arg,
     return HA_EXIT_SUCCESS;
   }
 
+  if (kd.is_vector_index()) {
+    auto vector_db_handler = get_vector_db_handler();
+    auto field = kd.get_table_field_for_part_no((TABLE *)table_arg, 0);
+    const auto decode_rtn = vector_db_handler->decode_value(
+        field, kd.get_vector_index_config().dimension());
+    if (decode_rtn) {
+      return decode_rtn;
+    }
+    auto pk = row_info.new_pk_slice;
+    const auto vector_index_rtn = kd.get_vector_index()->add_vector(
+        pk.ToString(), vector_db_handler->get_buffer());
+    if (vector_index_rtn) {
+      return vector_index_rtn;
+    }
+    return HA_EXIT_SUCCESS;
+  }
+
   bool store_row_debug_checksums = should_store_row_debug_checksums();
   new_packed_size =
       kd.pack_record(table_arg, m_pack_buffer, row_info.new_data,
@@ -13450,6 +13516,11 @@ int ha_rocksdb::delete_row(const uchar *const buf) {
     if (!is_pk(i, *table, *m_tbl_def)) {
       int packed_size;
       const Rdb_key_def &kd = *m_key_descr_arr[i];
+
+      if (kd.is_vector_index()) {
+        // placeholder, not supported now
+        DBUG_RETURN(HA_ERR_UNSUPPORTED);
+      }
 
       // The unique key should be locked so that behavior is
       // similar to InnoDB and reduce conflicts. The key
@@ -19720,7 +19791,6 @@ static bool parse_fault_injection_params(
   return false;
 }
 
-
 bool ha_rocksdb::get_se_private_data(dd::Table *dd_table, bool reset) {
   static dd::Object_id next_dd_index_id = Rdb_key_def::MIN_DD_INDEX_ID;
 
@@ -19791,4 +19861,5 @@ mysql_declare_plugin(rocksdb_se){
     myrocks::rdb_i_s_lock_info, myrocks::rdb_i_s_trx_info,
     myrocks::rdb_i_s_deadlock_info,
     myrocks::rdb_i_s_bypass_rejected_query_history,
-    myrocks::rdb_i_s_live_files_metadata mysql_declare_plugin_end;
+    myrocks::rdb_i_s_live_files_metadata,
+    myrocks::rdb_i_s_vector_index_config mysql_declare_plugin_end;

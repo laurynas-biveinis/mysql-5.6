@@ -606,6 +606,10 @@ The following options may be given as the first argument:
  Set/unset failure injection points
  --fast-integer-to-string 
  Optimized implementation of integer to string conversion
+ --fb-vector-max-dimension[=#] 
+ maximum vector dimension
+ --fb-vector-min-dimension[=#] 
+ minimum vector dimension
  --filesort-max-file-size=# 
  The max size of a file to use for filesort. Raise an
  error when this is exceeded. 0 means no limit.
@@ -2545,6 +2549,10 @@ The following options may be given as the first argument:
  Verify all DD tables match all RocksDB tables (0 means no
  verification, 1 means verify and fail on error, and 2
  means verify but continue
+ --rocksdb-vector-index[=name] 
+ Enable or disable ROCKSDB_VECTOR_INDEX plugin. Possible
+ values are ON, OFF, FORCE (don't start if the plugin
+ fails to load).
  --rocksdb-verify-row-debug-checksums 
  Verify checksums when reading index/table records
  --rocksdb-wal-bytes-per-sync=# 
@@ -3393,6 +3401,8 @@ explicit-defaults-for-timestamp TRUE
 external-locking FALSE
 failure-injection-points 
 fast-integer-to-string FALSE
+fb-vector-max-dimension 4096
+fb-vector-min-dimension 3
 filesort-max-file-size 0
 flush FALSE
 flush-only-old-table-cache-entries FALSE
@@ -3945,6 +3955,7 @@ rocksdb-use-hyper-clock-cache FALSE
 rocksdb-use-io-uring FALSE
 rocksdb-use-write-buffer-manager FALSE
 rocksdb-validate-tables 1
+rocksdb-vector-index ON
 rocksdb-verify-row-debug-checksums FALSE
 rocksdb-wal-bytes-per-sync 0
 rocksdb-wal-dir 

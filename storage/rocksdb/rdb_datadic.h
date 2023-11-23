@@ -36,9 +36,11 @@
 #include "./rdb_global.h"
 #include "./rdb_mutex_wrapper.h"
 #include "./rdb_utils.h"
+#include "./rdb_vector_db.h"
 
 /* Server header files */
 #include "sql/dd/object_id.h"
+#include "sql/fb_vector_base.h"
 
 // Forward declarations
 #ifdef ROCKSDB_CUSTOM_NAMESPACE
@@ -588,7 +590,7 @@ class Rdb_key_def {
     KEY_MAY_BE_COVERED = 3,
   };
 
-  void setup(const TABLE &table, const Rdb_tbl_def &tbl_def);
+  [[nodiscard]] uint setup(const TABLE &table, const Rdb_tbl_def &tbl_def);
 
   [[nodiscard]] static uint extract_ttl_duration(const TABLE &table_arg,
                                                  const Rdb_tbl_def &tbl_def_arg,
@@ -629,6 +631,16 @@ class Rdb_key_def {
   std::shared_ptr<rocksdb::ColumnFamilyHandle> get_shared_cf() const {
     return m_cf_handle;
   }
+
+  bool is_vector_index() const {
+    return m_vector_index_config.type() != FB_VECTOR_INDEX_TYPE::NONE;
+  }
+
+  FB_vector_index_config get_vector_index_config() const {
+    return m_vector_index_config;
+  }
+
+  Rdb_vector_index *get_vector_index() const { return m_vector_index.get(); }
 
   /* Check if keypart #kp can be unpacked from index tuple */
   inline bool can_unpack(const uint kp) const;
@@ -839,6 +851,13 @@ class Rdb_key_def {
   uchar m_index_number_storage_form[INDEX_NUMBER_SIZE];
 
   std::shared_ptr<rocksdb::ColumnFamilyHandle> m_cf_handle;
+
+  FB_vector_index_config m_vector_index_config{};
+
+  std::unique_ptr<Rdb_vector_index> m_vector_index;
+
+  [[nodiscard]] uint setup_vector_index(const TABLE &tbl,
+                                        const Rdb_tbl_def &tbl_def);
 
   static void pack_variable_format(const uchar *src, size_t src_len,
                                    uchar **dst);

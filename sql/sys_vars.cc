@@ -10421,6 +10421,18 @@ static Sys_var_bool Sys_install_plugin_skip_registration(
     GLOBAL_VAR(install_plugin_skip_registration), CMD_LINE(OPT_ARG),
     DEFAULT(false));
 
+static Sys_var_uint Sys_fb_vector_min_dimension(
+    "fb_vector_min_dimension", "minimum vector dimension",
+    SESSION_VAR(fb_vector_min_dimension), CMD_LINE(OPT_ARG),
+    VALID_RANGE(1, 1024), DEFAULT(3), BLOCK_SIZE(1), NO_MUTEX_GUARD,
+    NOT_IN_BINLOG, ON_CHECK(nullptr), ON_UPDATE(nullptr));
+
+static Sys_var_uint Sys_fb_vector_max_dimension(
+    "fb_vector_max_dimension", "maximum vector dimension",
+    SESSION_VAR(fb_vector_max_dimension), CMD_LINE(OPT_ARG),
+    VALID_RANGE(1, 1024 * 1024), DEFAULT(4 * 1024), BLOCK_SIZE(1),
+    NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(nullptr), ON_UPDATE(nullptr));
+
 static Sys_var_bool Sys_skip_sys_tables_engine_check(
     "skip_sys_tables_engine_check",
     "skip System Tables storage engine check. If True, System Tables can use "

@@ -1444,6 +1444,9 @@ void warn_on_deprecated_user_defined_collation(
 %token<lexer.keyword> RAFT_SYM 10010                /* MYSQL */
 %token<lexer.keyword> SHARDBEATER 10011             /* FB MYSQL */
 %token<lexer.keyword> PRIVACY_POLICY 10012          /* FB MYSQL */
+%token<lexer.keyword> FB_VECTOR_DIMENSION_SYM 10013     /* FB MYSQL */
+%token<lexer.keyword> FB_VECTOR_INDEX_TYPE_SYM 10014    /* FB MYSQL */
+%token<lexer.keyword> FB_VECTOR_INDEX_METRIC_SYM 10015  /* FB MYSQL */
 %token<lexer.keyword> DUMP_SYM 10016                    /* FB MYSQL */
 %token<lexer.keyword> THREADS_SYM 10017                 /* FB MYSQL */
 %token<lexer.keyword> CHUNK_SIZE_SYM 10018              /* FB MYSQL */
@@ -8107,6 +8110,18 @@ common_index_option:
         | SECONDARY_ENGINE_ATTRIBUTE_SYM opt_equal json_attribute
           {
             $$ = make_index_secondary_engine_attribute(YYMEM_ROOT, $3);
+          }
+        | FB_VECTOR_INDEX_TYPE_SYM opt_equal TEXT_STRING_sys
+          {
+            $$ = make_fb_vector_index_type_attribute(YYMEM_ROOT, to_lex_cstring($3));
+          }
+        | FB_VECTOR_INDEX_METRIC_SYM opt_equal TEXT_STRING_sys
+          {
+            $$ = make_fb_vector_index_metric_attribute(YYMEM_ROOT, to_lex_cstring($3));
+          }
+        | FB_VECTOR_DIMENSION_SYM opt_equal ulong_num
+          {
+            $$ = make_fb_vector_index_dimension_attribute(YYMEM_ROOT, $3);
           }
         ;
 
