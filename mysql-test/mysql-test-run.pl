@@ -318,6 +318,7 @@ our @DEFAULT_SUITES = qw(
   test_service_privacy
   thread_pool
 
+  fb_vectordb
   rocksdb
   rocksdb_clone
   rocksdb_dd_innodb
@@ -3424,6 +3425,10 @@ sub environment_setup {
   $ENV{'MYSQL_TMP_DIR'}       = $opt_tmpdir;
   $ENV{'MYSQLTEST_VARDIR'}    = $opt_vardir;
   $ENV{'USE_RUNNING_SERVER'}  = using_extern();
+
+  # see https://github.com/OpenMathLib/OpenBLAS/wiki/faq#multi-threaded,
+  # OpenBLAS multi-threading causes server hang during shutdown.
+  $ENV{'OPENBLAS_NUM_THREADS'}  = 1;
 
   if (IS_WINDOWS) {
     $ENV{'SECURE_LOAD_PATH'}      = $glob_mysql_test_dir . "\\std_data";
