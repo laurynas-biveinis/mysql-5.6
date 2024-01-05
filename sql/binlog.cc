@@ -1755,7 +1755,8 @@ bool MYSQL_BIN_LOG::write_metadata_event(THD *thd,
     param.is_from_applier = true;
   }
 
-  if (RUN_HOOK_STRICT(raft_replication, ingestion, (thd, &param))) {
+  if (enable_raft_plugin &&
+      RUN_HOOK_STRICT(raft_replication, ingestion, (thd, &param))) {
     return false;
   }
 
