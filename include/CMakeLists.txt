@@ -141,6 +141,7 @@ IF (INSTALL_EXTRA_HEADERS)
     mysql/raft_optype.h
     mysql/raft_replication.h
     mysql/service_command.h
+    mysql/service_cpu_scheduler.h
     mysql/service_locking.h
     mysql/service_my_plugin_log.h
     mysql/service_mysql_keyring.h
