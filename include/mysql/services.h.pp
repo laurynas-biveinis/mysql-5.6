@@ -237,29 +237,46 @@ int command_service_run_command(MYSQL_SESSION session,
                                 void *service_callbacks_ctx);
 #include <mysql/service_cpu_scheduler.h>
 
+#include "my_inttypes.h"
 class THD;
 using tp_scheduler_hint = void *;
 using tp_conn_handle = void *;
 using tp_tenant_id_handle = void *;
 using tp_routine = void *(*)(void *);
+struct tp_cpu_stats {
+  int64_t cpu_usage_ns;
+  int64_t delay_total_ns;
+};
 extern "C" struct cpu_scheduler_service_st {
   bool (*enqueue_task)(tp_routine routine, void *param,
                        tp_tenant_id_handle tenant_id, tp_scheduler_hint &hint);
-  tp_conn_handle (*create_connection)(THD *thd, const char *db);
+  tp_conn_handle (*create_connection)(THD *thd, const char *db,
+                                      bool acquire_conn_slot);
   void (*destroy_connection)(tp_conn_handle conn_handle);
   void (*attach_connection)(tp_conn_handle conn_handle);
   void (*detach_connection)(tp_conn_handle conn_handle);
   tp_tenant_id_handle (*get_connection_tenant_id)(tp_conn_handle conn_handle);
   void (*destroy_tenant_id)(tp_tenant_id_handle tenant_id);
+  bool (*get_current_task_cpu_stats)(tp_cpu_stats &cpu_stats);
+  int (*get_current_task_wait_stats)(char* buf_stats, size_t buf_len);
+  bool (*is_scheduler_enabled)();
+  tp_conn_handle (*get_current_task_connection)();
+  tp_tenant_id_handle (*get_tenant_id)(const char *db);
 } * cpu_scheduler_service;
 bool tp_enqueue_task(tp_routine routine, void *param,
                      tp_tenant_id_handle tenant_id, tp_scheduler_hint &hint);
-tp_conn_handle tp_create_connection(THD *thd, const char *db);
+tp_conn_handle tp_create_connection(THD *thd, const char *db,
+                                    bool acquire_conn_slot);
 void tp_destroy_connection(tp_conn_handle conn_handle);
 void tp_attach_connection(tp_conn_handle conn_handle);
 void tp_detach_connection(tp_conn_handle conn_handle);
 tp_tenant_id_handle tp_get_connection_tenant_id(tp_conn_handle conn_handle);
 void tp_destroy_tenant_id(tp_tenant_id_handle tenant_id);
+bool tp_get_current_task_cpu_stats(tp_cpu_stats &cpu_stats);
+int tp_get_current_task_wait_stats(char* buf_stats, size_t buf_len);
+bool tp_is_scheduler_enabled();
+tp_conn_handle tp_get_current_task_connection();
+tp_tenant_id_handle tp_get_tenant_id(const char *db);
 #include <mysql/service_locking.h>
 #include "my_inttypes.h"
 enum enum_locking_service_lock_type {
