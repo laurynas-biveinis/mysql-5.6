@@ -3806,6 +3806,76 @@ int pfs_get_thread_held_locks_vc(PSI_thread *thread,
 }
 
 /**
+  Implementation of the thread instrumentation interface.
+  @sa PSI_v6::thread_start_delay.
+*/
+void pfs_thread_start_delay_vc(PSI_thread *thread, int64_t delay_start) {
+  PFS_thread *pfs = reinterpret_cast<PFS_thread *>(thread);
+  if (likely(pfs)) {
+    // Record delay start. This would be done only before the very first
+    // quantum.
+    pfs->m_cpu_sched_stat.m_delay_start = delay_start;
+  }
+}
+
+/**
+  Implementation of the thread instrumentation interface.
+  @sa PSI_v6::thread_start_quantum.
+*/
+void pfs_thread_start_quantum_vc(PSI_thread *thread, int64_t quantum_start) {
+  PFS_thread *pfs = reinterpret_cast<PFS_thread *>(thread);
+  if (likely(pfs)) {
+    auto &cpu_sched_stat = pfs->m_cpu_sched_stat;
+    if (!cpu_sched_stat.m_cpu_start) {
+      // Record delay between previous and new quantums.
+      auto delay_start = cpu_sched_stat.m_delay_start;
+      if (delay_start) {
+        cpu_sched_stat.m_delay_start = 0;
+        if (delay_start < quantum_start) {
+          cpu_sched_stat.m_delay_total_ns += quantum_start - delay_start;
+        }
+      }
+
+      // Record start of new quantum.
+      cpu_sched_stat.m_cpu_start = quantum_start;
+    }
+  }
+}
+
+/**
+  Implementation of the thread instrumentation interface.
+  @sa PSI_v6::thread_end_quantum.
+*/
+void pfs_thread_end_quantum_vc(PSI_thread *thread, int64_t quantum_end) {
+  PFS_thread *pfs = reinterpret_cast<PFS_thread *>(thread);
+  if (likely(pfs)) {
+    auto &cpu_sched_stat = pfs->m_cpu_sched_stat;
+    auto cpu_start = cpu_sched_stat.m_cpu_start;
+    if (cpu_start) {
+      // Record CPU usage for this quantum.
+      cpu_sched_stat.m_cpu_start = 0;
+      if (cpu_start < quantum_end) {
+        cpu_sched_stat.m_cpu_total_ns += quantum_end - cpu_start;
+      }
+
+      // Record start of delay between quantums.
+      cpu_sched_stat.m_delay_start = quantum_end;
+    }
+  }
+}
+
+/**
+  Implementation of the thread instrumentation interface.
+  @sa PSI_v6::thread_reset_cpu_stats.
+*/
+void pfs_thread_reset_cpu_stats_vc(PSI_thread *thread) {
+  PFS_thread *pfs = reinterpret_cast<PFS_thread *>(thread);
+  if (likely(pfs)) {
+    pfs->m_cpu_sched_stat.reset();
+  }
+}
+
+/**
   Implementation of the mutex instrumentation interface.
   @sa PSI_v1::start_mutex_wait.
 */
@@ -9739,7 +9809,11 @@ PSI_thread_service_v6 pfs_thread_service_v6 = {
     pfs_notify_session_disconnect_vc,
     pfs_notify_session_change_user_vc,
     pfs_set_mem_cnt_THD_vc,
-    pfs_get_thread_held_locks_vc};
+    pfs_get_thread_held_locks_vc,
+    pfs_thread_start_delay_vc,
+    pfs_thread_start_quantum_vc,
+    pfs_thread_end_quantum_vc,
+    pfs_thread_reset_cpu_stats_vc};
 
 SERVICE_TYPE(psi_thread_v6)
 SERVICE_IMPLEMENTATION(performance_schema, psi_thread_v6) = {
@@ -9780,7 +9854,12 @@ SERVICE_IMPLEMENTATION(performance_schema, psi_thread_v6) = {
     pfs_unregister_notification_vc,
     pfs_notify_session_connect_vc,
     pfs_notify_session_disconnect_vc,
-    pfs_notify_session_change_user_vc};
+    pfs_notify_session_change_user_vc,
+    pfs_get_thread_held_locks_vc,
+    pfs_thread_start_delay_vc,
+    pfs_thread_start_quantum_vc,
+    pfs_thread_end_quantum_vc,
+    pfs_thread_reset_cpu_stats_vc};
 
 /**
   Implementation of the instrumentation interface.
@@ -9830,7 +9909,11 @@ PSI_thread_service_v7 pfs_thread_service_v7 = {
     pfs_set_mem_cnt_THD_vc,
     pfs_detect_telemetry_vc,
     pfs_abort_telemetry_vc,
-    pfs_get_thread_held_locks_vc};
+    pfs_get_thread_held_locks_vc,
+    pfs_thread_start_delay_vc,
+    pfs_thread_start_quantum_vc,
+    pfs_thread_end_quantum_vc,
+    pfs_thread_reset_cpu_stats_vc};
 
 SERVICE_TYPE(psi_thread_v7)
 SERVICE_IMPLEMENTATION(performance_schema, psi_thread_v7) = {

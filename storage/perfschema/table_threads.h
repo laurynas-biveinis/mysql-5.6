@@ -96,6 +96,8 @@ struct row_threads {
   bool m_telemetry_active;
   /** Column THREAD_PRIORITY. */
   int m_thread_priority;
+  /** Data for columns CPU_USAGE and DELAY_TOTAL. */
+  PFS_cpu_sched_stat m_cpu_sched_stat;
 };
 
 class PFS_index_threads_by_thread_id : public PFS_index_threads {

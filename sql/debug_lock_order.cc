@@ -7812,6 +7812,42 @@ static int lo_get_thread_held_locks(PSI_thread *thread,
   return lock_count;
 }
 
+static void lo_thread_start_delay(PSI_thread *thread, int64_t delay_start) {
+  LO_thread *lo = LO_thread::from_psi(thread);
+  if (lo != nullptr) {
+    if ((g_thread_chain != nullptr) && (lo->m_chain != nullptr)) {
+      g_thread_chain->thread_start_delay(lo->m_chain, delay_start);
+    }
+  }
+}
+
+static void lo_thread_start_quantum(PSI_thread *thread, int64_t quantum_start) {
+  LO_thread *lo = LO_thread::from_psi(thread);
+  if (lo != nullptr) {
+    if ((g_thread_chain != nullptr) && (lo->m_chain != nullptr)) {
+      g_thread_chain->thread_start_quantum(lo->m_chain, quantum_start);
+    }
+  }
+}
+
+void lo_thread_end_quantum(PSI_thread *thread, int64_t quantum_end) {
+  LO_thread *lo = LO_thread::from_psi(thread);
+  if (lo != nullptr) {
+    if ((g_thread_chain != nullptr) && (lo->m_chain != nullptr)) {
+      g_thread_chain->thread_end_quantum(lo->m_chain, quantum_end);
+    }
+  }
+}
+
+void lo_thread_reset_cpu_stats(PSI_thread *thread) {
+  LO_thread *lo = LO_thread::from_psi(thread);
+  if (lo != nullptr) {
+    if ((g_thread_chain != nullptr) && (lo->m_chain != nullptr)) {
+      g_thread_chain->thread_reset_cpu_stats(lo->m_chain);
+    }
+  }
+}
+
 PSI_thread_service_v7 LO_thread_v7 = {lo_register_thread,
                                       lo_spawn_thread,
                                       lo_new_thread,
@@ -7850,7 +7886,11 @@ PSI_thread_service_v7 LO_thread_v7 = {lo_register_thread,
                                       lo_set_mem_cnt_THD,
                                       lo_detect_telemetry,
                                       lo_abort_telemetry,
-                                      lo_get_thread_held_locks};
+                                      lo_get_thread_held_locks,
+                                      lo_thread_start_delay,
+                                      lo_thread_start_quantum,
+                                      lo_thread_end_quantum,
+                                      lo_thread_reset_cpu_stats};
 
 static void *lo_get_thread_interface(int version) {
   switch (version) {

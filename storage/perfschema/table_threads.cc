@@ -75,6 +75,8 @@ Plugin_table table_threads::m_table_def(
     "  MAX_TOTAL_MEMORY BIGINT unsigned not null,\n"
     "  TELEMETRY_ACTIVE ENUM ('YES', 'NO') not null,\n"
     "  THREAD_PRIORITY INTEGER,\n"
+    "  CPU_USAGE TIME(6),\n"
+    "  DELAY_TOTAL TIME(6),\n"
     "  PRIMARY KEY (THREAD_ID) USING HASH,\n"
     "  KEY (PROCESSLIST_ID) USING HASH,\n"
     "  KEY (THREAD_OS_ID) USING HASH,\n"
@@ -336,6 +338,8 @@ int table_threads::make_row(PFS_thread *pfs) {
 
   m_row.m_telemetry_active = (pfs->m_telemetry_session != nullptr);
 
+  m_row.m_cpu_sched_stat = pfs->m_cpu_sched_stat;
+
   if (!pfs->m_lock.end_optimistic_lock(&lock)) {
     return HA_ERR_RECORD_DELETED;
   }
@@ -348,11 +352,15 @@ int table_threads::read_row_values(TABLE *table, unsigned char *buf,
   Field *f;
   const char *str = nullptr;
   int len = 0;
+  int64_t now_ns = 0;
+  MYSQL_TIME t;
+  t.neg = false;
 
   /* Set the null bits */
-  assert(table->s->null_bytes == 2);
+  assert(table->s->null_bytes == 3);
   buf[0] = 0;
   buf[1] = 0;
+  buf[2] = 0;
 
   for (; (f = *fields); fields++) {
     if (read_all || bitmap_is_set(table->read_set, f->field_index())) {
@@ -489,6 +497,46 @@ int table_threads::read_row_values(TABLE *table, unsigned char *buf,
         case 24: /* THREAD_PRIORITY */
           if (m_row.m_thread_priority > -20 && m_row.m_thread_priority < 20) {
             set_field_long(f, m_row.m_thread_priority);
+          } else {
+            f->set_null();
+          }
+          break;
+        case 25: /* CPU_USAGE */
+          if (m_row.m_cpu_sched_stat.m_cpu_start ||
+              m_row.m_cpu_sched_stat.m_cpu_total_ns) {
+            int64_t cpu_usage_ns = m_row.m_cpu_sched_stat.m_cpu_total_ns;
+            if (m_row.m_cpu_sched_stat.m_cpu_start) {
+              if (!now_ns) {
+                now_ns = my_getsystime() * 100;
+              }
+              if (now_ns > m_row.m_cpu_sched_stat.m_cpu_start) {
+                cpu_usage_ns += now_ns - m_row.m_cpu_sched_stat.m_cpu_start;
+              }
+            }
+
+            calc_time_from_sec(&t, cpu_usage_ns / 1000000000,
+                               cpu_usage_ns / 1000 % 1000000);
+            f->store_time(&t);
+          } else {
+            f->set_null();
+          }
+          break;
+        case 26: /* DELAY_TOTAL */
+          if (m_row.m_cpu_sched_stat.m_delay_start ||
+              m_row.m_cpu_sched_stat.m_delay_total_ns) {
+            int64_t delay_total_ns = m_row.m_cpu_sched_stat.m_delay_total_ns;
+            if (m_row.m_cpu_sched_stat.m_delay_start) {
+              if (!now_ns) {
+                now_ns = my_getsystime() * 100;
+              }
+              if (now_ns > m_row.m_cpu_sched_stat.m_delay_start) {
+                delay_total_ns += now_ns - m_row.m_cpu_sched_stat.m_delay_start;
+              }
+            }
+
+            calc_time_from_sec(&t, delay_total_ns / 1000000000,
+                               delay_total_ns / 1000 % 1000000);
+            f->store_time(&t);
           } else {
             f->set_null();
           }

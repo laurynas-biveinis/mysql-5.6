@@ -335,10 +335,13 @@
   80036-024:
   - Add new table SQL_PLANS for capturing query execution PLANS
 
+  80036-025:
+  - Add CPU_USAGE and DELAY_TOTAL columns to P_S.processlist and P_S.threads.
+
   The last three digits reprents Facebook specific MySQL Schema changes.
-  Version published is now 80036-024. i.e. 8.0.36 Facebook schema change no. 24.
+  Version published is now 80036-025. i.e. 8.0.36 Facebook schema change no. 25.
 */
 
-static const uint PFS_DD_VERSION = 80036024;
+static const uint PFS_DD_VERSION = 80036025;
 
 #endif /* PFS_DD_VERSION_H */

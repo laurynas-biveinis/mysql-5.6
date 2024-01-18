@@ -14,7 +14,7 @@ ID	USER	HOST	DB	COMMAND	TIME	STATE	INFO
 Warnings:
 Warning	1287	'INFORMATION_SCHEMA.PROCESSLIST' is deprecated and will be removed in a future release. Please use performance_schema.processlist instead
 SELECT * FROM performance_schema.processlist;
-ID	USER	HOST	DB	COMMAND	TIME	STATE	INFO	EXECUTION_ENGINE
+ID	USER	HOST	DB	COMMAND	TIME	STATE	INFO	EXECUTION_ENGINE	CPU_USAGE	DELAY_TOTAL
 SHOW PROCESSLIST;
 ERROR 42000: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
 SET @@global.performance_schema_show_processlist = ON;
@@ -28,7 +28,7 @@ ID	USER	HOST	DB	COMMAND	TIME	STATE	INFO
 Warnings:
 Warning	1287	'INFORMATION_SCHEMA.PROCESSLIST' is deprecated and will be removed in a future release. Please use performance_schema.processlist instead
 SELECT * FROM performance_schema.processlist;
-ID	USER	HOST	DB	COMMAND	TIME	STATE	INFO	EXECUTION_ENGINE
+ID	USER	HOST	DB	COMMAND	TIME	STATE	INFO	EXECUTION_ENGINE	CPU_USAGE	DELAY_TOTAL
 SHOW PROCESSLIST;
 ERROR 42000: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
 GRANT PROCESS ON *.* TO ''@'localhost';

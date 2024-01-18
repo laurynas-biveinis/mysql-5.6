@@ -215,9 +215,17 @@ static void set_mem_cnt_THD_noop(THD *, THD **backup_thd) {
 static void detect_telemetry_noop(PSI_thread * /*unused*/) {}
 static void abort_telemetry_noop(PSI_thread * /*unused*/) {}
 
-static int pfs_get_thread_held_locks_noop(PSI_thread *, const char **, int) {
+static int get_thread_held_locks_noop(PSI_thread *, const char **, int) {
   return 0;
 }
+
+static void thread_start_delay_noop(PSI_thread *, int64_t) { return; }
+
+static void thread_start_quantum_noop(PSI_thread *, int64_t) { return; }
+
+static void thread_end_quantum_noop(PSI_thread *, int64_t) { return; }
+
+static void thread_reset_cpu_stats_noop(PSI_thread *) { return; }
 
 static PSI_thread_service_t psi_thread_noop = {
     register_thread_noop,
@@ -262,7 +270,11 @@ static PSI_thread_service_t psi_thread_noop = {
     set_mem_cnt_THD_noop,
     detect_telemetry_noop,
     abort_telemetry_noop,
-    pfs_get_thread_held_locks_noop};
+    get_thread_held_locks_noop,
+    thread_start_delay_noop,
+    thread_start_quantum_noop,
+    thread_end_quantum_noop,
+    thread_reset_cpu_stats_noop};
 
 struct PSI_thread_bootstrap *psi_thread_hook = nullptr;
 PSI_thread_service_t *psi_thread_service = &psi_thread_noop;

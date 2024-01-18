@@ -804,6 +804,7 @@ PFS_thread *create_thread(PFS_thread_class *klass, PSI_thread_seqnum seqnum,
     pfs->m_os_name[PFS_MAX_OS_NAME_LENGTH - 1] = '\0';
 
     pfs->m_session_all_memory_stat.reset();
+    pfs->m_cpu_sched_stat.reset();
 
 #ifdef HAVE_PSI_SERVER_TELEMETRY_TRACES_INTERFACE
     pfs->m_telemetry = nullptr;
