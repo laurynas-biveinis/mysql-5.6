@@ -153,6 +153,7 @@ struct LEX;
 struct Sql_cmd_srs_attributes;
 struct udf_func;
 struct PT_install_component_set_element;
+struct Dump_table_opts;
 
 template <class T>
 class List;
@@ -335,6 +336,49 @@ struct PT_install_component_set_element {
   Item *expr;
 };
 
+/**
+  Options struct for PT_dump_table root node.
+*/
+struct Dump_table_opts {
+  static constexpr int DEFAULT_THREADS = 1;
+  static constexpr int DEFAULT_CHUNKSIZE = 128;
+  /**
+    Number of worker threads to dump with.
+  */
+  int nthreads;
+
+  /**
+    Chunk size. For now in rows, later can be MB, GB, etc.
+  */
+  int chunk_size;
+
+  void merge(const Dump_table_opts &other) {
+    if (other.nthreads) {
+      nthreads = other.nthreads;
+    }
+    if (other.chunk_size) {
+      chunk_size = other.chunk_size;
+    }
+  }
+
+  /**
+    Can't use constructor because this is nested inside YYSTYPE.
+  */
+  void clear() {
+    nthreads = 0;
+    chunk_size = 0;
+  }
+
+  void init() {
+    if (nthreads == 0) {
+      nthreads = DEFAULT_THREADS;
+    }
+    if (chunk_size == 0) {
+      chunk_size = DEFAULT_CHUNKSIZE;
+    }
+  }
+};
+
 enum class Set_operator { UNION, EXCEPT, INTERSECT };
 
 union YYSTYPE {
@@ -431,6 +475,7 @@ union YYSTYPE {
   PT_order_list *order_list;
   Limit_options limit_options;
   Query_options select_options;
+  Dump_table_opts dump_table_opts;
   PT_limit_clause *limit_clause;
   Parse_tree_node *node;
   enum olap_type olap_type;

@@ -360,6 +360,7 @@ enum enum_sql_command {
   SQLCOM_START_SHARDBEATER,
   SQLCOM_STOP_SHARDBEATER,
   SQLCOM_SHOW_SHARDBEATER_STAT,
+  SQLCOM_DUMP,
   SQLCOM_END
 };
 #include "plugin_audit_message_types.h"
