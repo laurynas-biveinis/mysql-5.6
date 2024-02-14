@@ -103,6 +103,7 @@ binlog::Binlog_recovery &binlog::Binlog_recovery::recover(
           }
         }
       }
+      [[fallthrough]];
       default: {
         break;
       }

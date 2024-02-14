@@ -2076,6 +2076,7 @@ static bool safe_update_on_fly(const QEP_TAB *join_tab,
       return true;
     case JT_INDEX_SCAN:
       assert(false);  // cannot happen, due to "no_keyread" instruction.
+      [[fallthrough]];
     default:
       break;  // Avoid compiler warning
   }
