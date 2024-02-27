@@ -342,6 +342,7 @@ struct PT_install_component_set_element {
 struct Dump_table_opts {
   static constexpr int DEFAULT_THREADS = 1;
   static constexpr int DEFAULT_CHUNKSIZE = 128;
+
   /**
     Number of worker threads to dump with.
   */
@@ -352,12 +353,20 @@ struct Dump_table_opts {
   */
   int chunk_size;
 
+  /**
+    Whether to use a consistent snapshot / read.
+  */
+  bool consistent;
+
   void merge(const Dump_table_opts &other) {
     if (other.nthreads) {
       nthreads = other.nthreads;
     }
     if (other.chunk_size) {
       chunk_size = other.chunk_size;
+    }
+    if (other.consistent) {
+      consistent = true;
     }
   }
 
@@ -367,8 +376,13 @@ struct Dump_table_opts {
   void clear() {
     nthreads = 0;
     chunk_size = 0;
+    consistent = false;
   }
 
+  /**
+    Prime the options struct for use by initializing any unset fields to their
+    default values.
+  */
   void init() {
     if (nthreads == 0) {
       nthreads = DEFAULT_THREADS;
