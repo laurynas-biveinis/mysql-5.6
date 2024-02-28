@@ -1,3 +1,5 @@
+Warnings:
+Warning	1287	'@@binlog_format' is deprecated and will be removed in a future release.
 include/gtid_utils.inc
 include/gtid_step_reset.inc
 FLUSH LOGS;
