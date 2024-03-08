@@ -10420,3 +10420,11 @@ static Sys_var_bool Sys_install_plugin_skip_registration(
     "permanently, or skips registration making it a one time installation",
     GLOBAL_VAR(install_plugin_skip_registration), CMD_LINE(OPT_ARG),
     DEFAULT(false));
+
+static Sys_var_bool Sys_skip_sys_tables_engine_check(
+    "skip_sys_tables_engine_check",
+    "skip System Tables storage engine check. If True, System Tables can use "
+    "any supported storage engines; If False, System Tables can only use "
+    "default_dd_system_storage_engine",
+    GLOBAL_VAR(skip_sys_tables_engine_check), CMD_LINE(OPT_ARG),
+    DEFAULT(false));

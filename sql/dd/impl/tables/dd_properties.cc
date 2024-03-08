@@ -106,6 +106,8 @@ DD_properties::DD_properties() : m_properties() {
       SERVER_UPGRADE_THRESHOLD  The lowest innovation release we can upgrade
                                 to from an LTS release.
       DD_ENGINE                 Actual DD engine
+      DD_SYSTEM_ENGINE_UPGRADED The DD SYSTEM engine of the last
+                                completed successful upgrade.
   */
   m_property_desc = {
       {"DD_VERSION", Property_type::UNSIGNED_INT_32},
@@ -125,7 +127,8 @@ DD_properties::DD_properties() : m_properties() {
       {"MYSQL_VERSION_STABILITY", Property_type::CHARACTER_STRING},
       {"SERVER_DOWNGRADE_THRESHOLD", Property_type::UNSIGNED_INT_32},
       {"SERVER_UPGRADE_THRESHOLD", Property_type::UNSIGNED_INT_32},
-      {"DD_ENGINE", Property_type::UNSIGNED_INT_32}};
+      {"DD_ENGINE", Property_type::UNSIGNED_INT_32},
+      {"DD_SYSTEM_ENGINE_UPGRADED", Property_type::UNSIGNED_INT_32}};
 }
 
 // Read all properties from disk and populate the cache.

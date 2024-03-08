@@ -880,18 +880,42 @@ bool upgrade_system_schemas(THD *thd) {
         !exists_version)
       return true;
 
-  MySQL_check check;
+  legacy_db_type dd_system_engine = DB_TYPE_UNKNOWN;
+  bool exists_dd_system_engine = false;
+  if (dd::tables::DD_properties::instance().get(
+          thd, "DD_SYSTEM_ENGINE_UPGRADED",
+          reinterpret_cast<uint *>(&dd_system_engine),
+          &exists_dd_system_engine) ||
+      !exists_dd_system_engine)
+    if (dd::tables::DD_properties::instance().get(
+            thd, "DD_ENGINE", reinterpret_cast<uint *>(&dd_system_engine),
+            &exists_dd_system_engine) ||
+        !exists_dd_system_engine)
+      return true;
 
-  if (dd::bootstrap::DD_bootstrap_ctx::instance().is_server_patch_downgrade()) {
-    /* purecov: begin inspected */
-    LogErr(SYSTEM_LEVEL, ER_SERVER_DOWNGRADE_STATUS, server_version,
-           MYSQL_VERSION_ID, "started");
-    sysd::notify("STATUS=Server downgrade in progress\n");
-    /* purecov: end */
+  // force upgrade or either version changed or dd system engine is changed
+  // when force upgrade is specified, do code as version changed
+  assert(is_force_upgrade() || ((server_version == MYSQL_VERSION_ID) ^
+                                (dd_system_engine == get_dd_engine_type())));
+
+  MySQL_check check;
+  if (dd_system_engine != get_dd_engine_type()) {
+    LogErr(SYSTEM_LEVEL, ER_SYSTEM_TABLE_SERVER_UPGRADE_STATUS,
+           get_dd_engine_name(dd_system_engine), get_dd_engine_name(),
+           "started");
   } else {
-    LogErr(SYSTEM_LEVEL, ER_SERVER_UPGRADE_STATUS, server_version,
-           MYSQL_VERSION_ID, "started");
-    sysd::notify("STATUS=Server upgrade in progress\n");
+    if (dd::bootstrap::DD_bootstrap_ctx::instance()
+            .is_server_patch_downgrade()) {
+      /* purecov: begin inspected */
+      LogErr(SYSTEM_LEVEL, ER_SERVER_DOWNGRADE_STATUS, server_version,
+             MYSQL_VERSION_ID, "started");
+      sysd::notify("STATUS=Server downgrade in progress\n");
+      /* purecov: end */
+    } else {
+      LogErr(SYSTEM_LEVEL, ER_SERVER_UPGRADE_STATUS, server_version,
+             MYSQL_VERSION_ID, "started");
+      sysd::notify("STATUS=Server upgrade in progress\n");
+    }
   }
 
   bootstrap_error_handler.set_log_error(false);
@@ -911,7 +935,9 @@ bool upgrade_system_schemas(THD *thd) {
                : check.check_system_schemas(thd)) ||
           check.repair_tables(thd) ||
           dd::tables::DD_properties::instance().set(
-              thd, "MYSQLD_VERSION_UPGRADED", MYSQL_VERSION_ID);
+              thd, "MYSQLD_VERSION_UPGRADED", MYSQL_VERSION_ID) ||
+          dd::tables::DD_properties::instance().set(
+              thd, "DD_SYSTEM_ENGINE_UPGRADED", get_dd_engine_type());
   }
   create_upgrade_file();
   bootstrap_error_handler.set_log_error(true);
@@ -924,9 +950,16 @@ bool upgrade_system_schemas(THD *thd) {
     sysd::notify("STATUS=Server downgrade complete\n");
     /* purecov: end */
   } else {
-    if (!err)
-      LogErr(SYSTEM_LEVEL, ER_SERVER_UPGRADE_STATUS, server_version,
-             MYSQL_VERSION_ID, "completed");
+    if (!err) {
+      if (dd_system_engine != get_dd_engine_type()) {
+        LogErr(SYSTEM_LEVEL, ER_SYSTEM_TABLE_SERVER_UPGRADE_STATUS,
+               get_dd_engine_name(dd_system_engine), get_dd_engine_name(),
+               "completed");
+      } else {
+        LogErr(SYSTEM_LEVEL, ER_SERVER_UPGRADE_STATUS, server_version,
+               MYSQL_VERSION_ID, "completed");
+      }
+    }
     sysd::notify("STATUS=Server upgrade complete\n");
   }
 
