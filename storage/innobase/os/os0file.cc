@@ -1738,7 +1738,7 @@ It is the caller's responsibility to free the returned string after it
 is no longer needed.
 @param[in]      path            Path name
 @return own: parent directory of the path */
-static char *os_file_get_parent_dir(const char *path) {
+char *os_file_get_parent_dir(const char *path) {
   bool has_trailing_slash = false;
 
   /* Find the offset of the last slash */
@@ -3188,15 +3188,18 @@ bool os_file_create_directory(const char *pathname, bool fail_if_exists) {
 
 /** This function scans the contents of a directory and invokes the callback
 for each entry.
-@param[in]      path            directory name as null-terminated string
-@param[in]      scan_cbk        use callback to be called for each entry
-@param[in]	handle_nodir	handle ENOENT error for the directory
-@param[in]      is_drop         attempt to drop the directory after scan
+@param[in]  path            directory name as null-terminated string
+@param[in]  scan_cbk        use callback to be called for each entry
+@param[in]	handle_nodir	 handle ENOENT error for the directory
+@param[in]  is_drop         attempt to drop the directory after scan
+@parem[in]  max_loop        only scan max_loop files at a time
+                            (only works if is_drop is false)
 @return true if call succeeds, false on error */
 bool os_file_scan_directory(const char *path, os_dir_cbk_t scan_cbk,
-                            bool handle_nodir, bool is_drop) {
+                            bool handle_nodir, bool is_drop, uint max_loop) {
   DIR *directory;
   dirent *entry;
+  uint loop{0};
 
   directory = opendir(path);
 
@@ -3211,6 +3214,10 @@ bool os_file_scan_directory(const char *path, os_dir_cbk_t scan_cbk,
   while (entry != nullptr) {
     scan_cbk(path, entry->d_name);
     entry = readdir(directory);
+    if (!is_drop && max_loop && ++loop >= max_loop) {
+      /* exit without a full scan */
+      break;
+    }
   }
 
   closedir(directory);
