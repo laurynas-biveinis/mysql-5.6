@@ -129,7 +129,19 @@ typedef enum _thd_wait_type_e {
   */
   THD_WAIT_GTID_EXECUTED = 18,
 
-  THD_WAIT_LAST = 19
+  /**
+    Used for storage engine latch waits.
+  */
+  THD_WAIT_LATCH = 19,
+
+  /**
+    Separate type for yields in Raft plugin, to be able to disable it if needed
+    without affecting the server yields. The concern is that yields in Raft
+    could happen while some global lock is held which could stall writes.
+  */
+  THD_WAIT_RAFT_YIELD = 20,
+
+  THD_WAIT_LAST = 21,
 } thd_wait_type;
 
 extern "C" struct thd_wait_service_st {
