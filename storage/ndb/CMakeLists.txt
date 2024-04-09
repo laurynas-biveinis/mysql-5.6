@@ -25,6 +25,12 @@ IF(NOT WITH_NDB)
   RETURN()
 ENDIF()
 
+# older gcc doesn't support "#include <charconv>"
+IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.1)
+  MESSAGE(WARNING "Skips building NDB for gcc older than 8.1")
+  RETURN()
+ENDIF()
+
 # Add both MySQL and NDB cmake repositories to search path
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
     ${CMAKE_SOURCE_DIR}/cmake
