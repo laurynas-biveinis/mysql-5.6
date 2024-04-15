@@ -20,6 +20,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+# Disable Group Replication by default
+SET(WITH_GROUP_REPLICATION 0)
+
 MSVC_CPPCHECK_DISABLE()
 
 SET(GROUP_REPLICATION_SOURCES

@@ -879,7 +879,7 @@ IF(NOT WITHOUT_SERVER)
   ELSE()
     OPTION(WITH_UNIT_TESTS "Compile MySQL with unit tests" ON)
   ENDIF()
-  OPTION(WITH_ROUTER "Build MySQL Router" ON)
+  OPTION(WITH_ROUTER "Build MySQL Router" OFF)
 ENDIF()
 
 IF(EXISTS ${CMAKE_SOURCE_DIR}/internal/CMakeLists.txt)
