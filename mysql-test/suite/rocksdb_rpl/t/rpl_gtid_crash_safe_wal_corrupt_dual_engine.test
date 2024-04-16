@@ -251,5 +251,5 @@ drop table rocksdb_t;
 
 --disable_query_log
 connection slave;
-call mtr.add_suppression("Recovery from master pos");
+call mtr.add_suppression("Recovery from source pos");
 --enable_query_log

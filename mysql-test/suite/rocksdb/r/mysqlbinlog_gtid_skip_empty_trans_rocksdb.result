@@ -1,6 +1,8 @@
 reset master;
 set timestamp=1000000000;
 set SESSION binlog_format = 'ROW';
+Warnings:
+Warning	1287	'@@binlog_format' is deprecated and will be removed in a future release.
 create database test2;
 create database test3;
 use test;

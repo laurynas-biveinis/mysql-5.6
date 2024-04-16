@@ -7,7 +7,7 @@
 # This is a test case for issue#655 -- SingleDelete on Primary Key may
 # cause extra rows than Secondary Keys
 
-call mtr.add_suppression("Recovery from master pos");
+call mtr.add_suppression("Recovery from source pos");
 
 connection master;
 --disable_warnings
