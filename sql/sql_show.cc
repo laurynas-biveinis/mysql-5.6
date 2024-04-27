@@ -2369,6 +2369,11 @@ bool store_create_info(THD *thd, Table_ref *table_list, String *packet,
                        field->m_secondary_engine_attribute.length);
       packet->append(STRING_WITH_LEN(" */"));
     }
+    if (field->m_fb_vector_dimension > 0) {
+      packet->append(STRING_WITH_LEN(" FB_VECTOR_DIMENSION "));
+      auto dimension_str = std::to_string(field->m_fb_vector_dimension);
+      packet->append(dimension_str);
+    }
   }
 
   key_info = table->key_info;
