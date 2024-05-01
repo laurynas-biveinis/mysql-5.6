@@ -6653,6 +6653,7 @@ void pfs_start_statement_vc(PSI_statement_locker *locker, const char *db,
 
   state->prev_state = {};
   state->current_state = {};
+  state->m_aggregate_count_initiated = false;
 
   state->m_thread = reinterpret_cast<PSI_thread *>(pfs_thread);
 
@@ -6668,6 +6669,7 @@ void pfs_start_statement_vc(PSI_statement_locker *locker, const char *db,
   state->m_query_sample_length = 0;
   state->m_query_sample_truncated = false;
   state->m_secondary = false;
+  state->m_capture_stats_periodic = true;
 
   /*
     Data collection in PFS event.
@@ -7024,13 +7026,27 @@ void pfs_set_statement_secondary_engine_vc(PSI_statement_locker *locker,
   }
 }
 
-void pfs_snapshot_statement_vc(PSI_statement_locker *locker, void * /**/) {
-  PSI_statement_locker_state *state =
-      reinterpret_cast<PSI_statement_locker_state *>(locker);
-  state->prev_state = state->current_state;
+static inline enum_object_type sp_type_to_object_type(uint sp_type) {
+  enum_sp_type value = to_sp_type(sp_type);
+
+  switch (value) {
+    case enum_sp_type::FUNCTION:
+      return OBJECT_TYPE_FUNCTION;
+    case enum_sp_type::PROCEDURE:
+      return OBJECT_TYPE_PROCEDURE;
+    case enum_sp_type::TRIGGER:
+      return OBJECT_TYPE_TRIGGER;
+    case enum_sp_type::EVENT:
+      return OBJECT_TYPE_EVENT;
+    default:
+      assert(false);
+      /* Dead code */
+      return NO_OBJECT_TYPE;
+  }
 }
 
-void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
+void pfs_snapshot_statement_helper(PSI_statement_locker *locker, void *stmt_da,
+                                   bool statement_completed) {
   auto *state = reinterpret_cast<PSI_statement_locker_state *>(locker);
   auto *da = reinterpret_cast<Diagnostics_area *>(stmt_da);
   assert(state != nullptr);
@@ -7038,7 +7054,7 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
 
   const uint flags = state->m_collect_flags;
 
-  if (flags == 0) {
+  if (flags == 0 || !state->m_capture_stats_periodic) {
     return;
   }
 
@@ -7126,87 +7142,90 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
       }
 
       if (pfs_flags & STATE_FLAG_EVENT) {
-        auto *pfs =
-            reinterpret_cast<PFS_events_statements *>(state->m_statement);
-        assert(pfs != nullptr);
+        if (statement_completed) {
+          auto *pfs =
+              reinterpret_cast<PFS_events_statements *>(state->m_statement);
+          assert(pfs != nullptr);
 
-        size_t message_text_length;
-        pfs_dirty_state dirty_state;
-        thread->m_stmt_lock.allocated_to_dirty(&dirty_state);
+          size_t message_text_length;
+          pfs_dirty_state dirty_state;
+          thread->m_stmt_lock.allocated_to_dirty(&dirty_state);
 
-        switch (da->status()) {
-          case Diagnostics_area::DA_EMPTY:
-            break;
-          case Diagnostics_area::DA_OK:
-            message_text_length = da->message_text_length();
-            if (message_text_length > 0) {
-              memcpy(pfs->m_message_text, da->message_text(),
-                     message_text_length);
-            }
-            pfs->m_message_text[message_text_length] = '\0';
-            pfs->m_message_text_length = message_text_length;
+          switch (da->status()) {
+            case Diagnostics_area::DA_EMPTY:
+              break;
+            case Diagnostics_area::DA_OK:
+              message_text_length = da->message_text_length();
+              if (message_text_length > 0) {
+                memcpy(pfs->m_message_text, da->message_text(),
+                       message_text_length);
+              }
+              pfs->m_message_text[message_text_length] = '\0';
+              pfs->m_message_text_length = message_text_length;
 
-            pfs->m_rows_affected = da->affected_rows();
-            pfs->m_warning_count = da->last_statement_cond_count();
-            memcpy(pfs->m_sqlstate, "00000", SQLSTATE_LENGTH);
-            break;
-          case Diagnostics_area::DA_EOF:
-            pfs->m_warning_count = da->last_statement_cond_count();
-            break;
-          case Diagnostics_area::DA_ERROR:
-            message_text_length = da->message_text_length();
-            if (message_text_length > 0) {
-              memcpy(pfs->m_message_text, da->message_text(),
-                     message_text_length);
-            }
-            pfs->m_message_text[message_text_length] = '\0';
-            pfs->m_message_text_length = message_text_length;
+              pfs->m_rows_affected = da->affected_rows();
+              pfs->m_warning_count = da->last_statement_cond_count();
+              memcpy(pfs->m_sqlstate, "00000", SQLSTATE_LENGTH);
+              break;
+            case Diagnostics_area::DA_EOF:
+              pfs->m_warning_count = da->last_statement_cond_count();
+              break;
+            case Diagnostics_area::DA_ERROR:
+              message_text_length = da->message_text_length();
+              if (message_text_length > 0) {
+                memcpy(pfs->m_message_text, da->message_text(),
+                       message_text_length);
+              }
+              pfs->m_message_text[message_text_length] = '\0';
+              pfs->m_message_text_length = message_text_length;
 
-            pfs->m_sql_errno = da->mysql_errno();
-            memcpy(pfs->m_sqlstate, da->returned_sqlstate(), SQLSTATE_LENGTH);
-            pfs->m_error_count++;
-            {
-              /* check 'skipped' error */
-              Diagnostics_area::Sql_condition_iterator it =
-                  da->sql_conditions();
-              const Sql_condition *err;
-              while ((err = it++)) {
-                if (err->mysql_errno() == ER_DUPLICATE_STATEMENT_EXECUTION) {
-                  pfs->m_skipped_count++;
-                  break;
+              pfs->m_sql_errno = da->mysql_errno();
+              memcpy(pfs->m_sqlstate, da->returned_sqlstate(), SQLSTATE_LENGTH);
+              pfs->m_error_count++;
+              {
+                /* check 'skipped' error */
+                Diagnostics_area::Sql_condition_iterator it =
+                    da->sql_conditions();
+                const Sql_condition *err;
+                while ((err = it++)) {
+                  if (err->mysql_errno() == ER_DUPLICATE_STATEMENT_EXECUTION) {
+                    pfs->m_skipped_count++;
+                    break;
+                  }
                 }
               }
-            }
-            break;
-          case Diagnostics_area::DA_DISABLED:
-            break;
-        }
+              break;
+            case Diagnostics_area::DA_DISABLED:
+              break;
+          }
 
-        if (pfs_flags & STATE_FLAG_TIMED) {
-          pfs->m_timer_end = timer_end;
-        }
-        if (pfs_flags & STATE_FLAG_CPU) {
-          pfs->m_cpu_time = cpu_time;
-        }
-        pfs->m_end_event_id = thread->m_event_id;
+          if (pfs_flags & STATE_FLAG_TIMED) {
+            pfs->m_timer_end = timer_end;
+          }
+          if (pfs_flags & STATE_FLAG_CPU) {
+            pfs->m_cpu_time = cpu_time;
+          }
+          pfs->m_end_event_id = thread->m_event_id;
 
-        pfs->m_max_controlled_memory = stmt_controlled_size;
-        pfs->m_max_total_memory = stmt_total_size;
+          pfs->m_max_controlled_memory = stmt_controlled_size;
+          pfs->m_max_total_memory = stmt_total_size;
 
-        pfs_program = reinterpret_cast<PFS_program *>(state->m_parent_sp_share);
-        pfs_prepared_stmt = reinterpret_cast<PFS_prepared_stmt *>(
-            state->m_parent_prepared_stmt);
+          pfs_program =
+              reinterpret_cast<PFS_program *>(state->m_parent_sp_share);
+          pfs_prepared_stmt = reinterpret_cast<PFS_prepared_stmt *>(
+              state->m_parent_prepared_stmt);
 
-        if (thread->m_flag_events_statements_history) {
-          insert_events_statements_history(thread, pfs);
+          if (thread->m_flag_events_statements_history) {
+            insert_events_statements_history(thread, pfs);
+          }
+          if (thread->m_flag_events_statements_history_long) {
+            insert_events_statements_history_long(pfs);
+          }
+
+          assert(thread->m_events_statements_count > 0);
+          thread->m_events_statements_count--;
+          thread->m_stmt_lock.dirty_to_allocated(&dirty_state);
         }
-        if (thread->m_flag_events_statements_history_long) {
-          insert_events_statements_history_long(pfs);
-        }
-
-        assert(thread->m_events_statements_count > 0);
-        thread->m_events_statements_count--;
-        thread->m_stmt_lock.dirty_to_allocated(&dirty_state);
       }
     } else {
       if (pfs_flags & STATE_FLAG_DIGEST) {
@@ -7230,48 +7249,121 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
       stat = &event_name_array[index];
     }
 
-    if (pfs_flags & STATE_FLAG_TIMED) {
-      /* Aggregate to EVENTS_STATEMENTS_SUMMARY_..._BY_EVENT_NAME (timed) */
-      stat->aggregate_value(wait_time);
-      stat->m_cpu_time += cpu_time;
-    } else {
-      /* Aggregate to EVENTS_STATEMENTS_SUMMARY_..._BY_EVENT_NAME (counted) */
-      stat->aggregate_counted();
+    if (!state->m_aggregate_count_initiated) {
+      if (pfs_flags & STATE_FLAG_TIMED) {
+        /* Aggregate to EVENTS_STATEMENTS_SUMMARY_..._BY_EVENT_NAME (timed) */
+        stat->aggregate_value(wait_time);
+        stat->m_cpu_time += cpu_time;
+      } else {
+        /* Aggregate to EVENTS_STATEMENTS_SUMMARY_..._BY_EVENT_NAME (counted) */
+        stat->aggregate_counted();
+      }
     }
 
-    stat->m_lock_time += state->current_state.m_lock_time;
-    stat->m_rows_sent += state->current_state.m_rows_sent;
-    stat->m_rows_examined += state->current_state.m_rows_examined;
-    stat->m_rows_deleted += state->current_state.m_rows_deleted;
-    stat->m_rows_updated += state->current_state.m_rows_updated;
-    stat->m_tmp_table_bytes_written +=
-        state->current_state.m_tmp_table_bytes_written;
-    stat->m_filesort_bytes_written +=
-        state->current_state.m_filesort_bytes_written;
-    stat->m_index_dive_count += state->current_state.m_index_dive_count;
-    stat->m_index_dive_cpu += state->current_state.m_index_dive_cpu;
-    stat->m_compilation_cpu += state->current_state.m_compilation_cpu;
-    stat->m_elapsed_time += state->current_state.m_elapsed_time;
-    stat->m_rows_inserted += state->current_state.m_rows_inserted;
-    stat->m_created_tmp_disk_tables +=
-        state->current_state.m_created_tmp_disk_tables;
-    stat->m_created_tmp_tables += state->current_state.m_created_tmp_tables;
-    stat->m_select_full_join += state->current_state.m_select_full_join;
-    stat->m_select_full_range_join +=
-        state->current_state.m_select_full_range_join;
-    stat->m_select_range += state->current_state.m_select_range;
-    stat->m_select_range_check += state->current_state.m_select_range_check;
-    stat->m_select_scan += state->current_state.m_select_scan;
-    stat->m_sort_merge_passes += state->current_state.m_sort_merge_passes;
-    stat->m_sort_range += state->current_state.m_sort_range;
-    stat->m_sort_rows += state->current_state.m_sort_rows;
-    stat->m_sort_scan += state->current_state.m_sort_scan;
-    stat->m_no_index_used += state->current_state.m_no_index_used;
-    stat->m_no_good_index_used += state->current_state.m_no_good_index_used;
-    stat->m_filesort_disk_usage_peak +=
-        state->current_state.m_filesort_disk_usage_peak;
-    stat->m_tmp_table_disk_usage_peak +=
-        state->current_state.m_tmp_table_disk_usage_peak;
+    unsigned long long lock_time =
+        state->current_state.m_lock_time - state->prev_state.m_lock_time;
+    unsigned long long rows_sent =
+        state->current_state.m_rows_sent - state->prev_state.m_rows_sent;
+    unsigned long long rows_examined = state->current_state.m_rows_examined -
+                                       state->prev_state.m_rows_examined;
+    unsigned long long rows_deleted =
+        state->current_state.m_rows_deleted - state->prev_state.m_rows_deleted;
+    unsigned long long rows_updated =
+        state->current_state.m_rows_updated - state->prev_state.m_rows_updated;
+    unsigned long long tmp_table_bytes_written =
+        state->current_state.m_tmp_table_bytes_written -
+        state->prev_state.m_tmp_table_bytes_written;
+    unsigned long long filesort_bytes_written =
+        state->current_state.m_filesort_bytes_written -
+        state->prev_state.m_filesort_bytes_written;
+    unsigned long long index_dive_count =
+        state->current_state.m_index_dive_count -
+        state->prev_state.m_index_dive_count;
+    unsigned long long index_dive_cpu = state->current_state.m_index_dive_cpu -
+                                        state->prev_state.m_index_dive_cpu;
+    unsigned long long compilation_cpu =
+        state->current_state.m_compilation_cpu -
+        state->prev_state.m_compilation_cpu;
+    unsigned long long elapsed_time =
+        state->current_state.m_elapsed_time - state->prev_state.m_elapsed_time;
+    unsigned long long rows_inserted = state->current_state.m_rows_inserted -
+                                       state->prev_state.m_rows_inserted;
+    unsigned long long created_tmp_disk_tables =
+        state->current_state.m_created_tmp_disk_tables -
+        state->prev_state.m_created_tmp_disk_tables;
+    unsigned long long created_tmp_tables =
+        state->current_state.m_created_tmp_tables -
+        state->prev_state.m_created_tmp_tables;
+    unsigned long long select_full_join =
+        state->current_state.m_select_full_join -
+        state->prev_state.m_select_full_join;
+    unsigned long long select_full_range_join =
+        state->current_state.m_select_full_range_join -
+        state->prev_state.m_select_full_range_join;
+    unsigned long long select_range =
+        state->current_state.m_select_range - state->prev_state.m_select_range;
+    unsigned long long select_range_check =
+        state->current_state.m_select_range_check -
+        state->prev_state.m_select_range_check;
+    unsigned long long select_scan =
+        state->current_state.m_select_scan - state->prev_state.m_select_scan;
+    unsigned long long sort_merge_passes =
+        state->current_state.m_sort_merge_passes -
+        state->prev_state.m_sort_merge_passes;
+    unsigned long long sort_range =
+        state->current_state.m_sort_range - state->prev_state.m_sort_range;
+    unsigned long long sort_rows =
+        state->current_state.m_sort_rows - state->prev_state.m_sort_rows;
+    unsigned long long sort_scan =
+        state->current_state.m_sort_scan - state->prev_state.m_sort_scan;
+    unsigned long long no_index_used = state->current_state.m_no_index_used -
+                                       state->prev_state.m_no_index_used;
+    unsigned long long no_good_index_used =
+        state->current_state.m_no_good_index_used -
+        state->prev_state.m_no_good_index_used;
+    unsigned long long filesort_disk_usage_peak = 0;
+    if (state->current_state.m_filesort_disk_usage_peak >
+        state->prev_state.m_filesort_disk_usage_peak) {
+      filesort_disk_usage_peak =
+          state->current_state.m_filesort_disk_usage_peak -
+          state->prev_state.m_filesort_disk_usage_peak;
+    }
+    unsigned long long tmp_table_disk_usage_peak = 0;
+    if (state->current_state.m_tmp_table_disk_usage_peak >
+        state->prev_state.m_tmp_table_disk_usage_peak) {
+      tmp_table_disk_usage_peak =
+          state->current_state.m_tmp_table_disk_usage_peak -
+          state->prev_state.m_tmp_table_disk_usage_peak;
+    }
+
+    stat->m_lock_time += lock_time;
+    stat->m_rows_sent += rows_sent;
+    stat->m_rows_examined += rows_examined;
+    stat->m_rows_deleted += rows_deleted;
+    stat->m_rows_updated += rows_updated;
+    stat->m_tmp_table_bytes_written += tmp_table_bytes_written;
+    stat->m_filesort_bytes_written += filesort_bytes_written;
+    stat->m_index_dive_count += index_dive_count;
+    stat->m_index_dive_cpu += index_dive_cpu;
+    stat->m_compilation_cpu += compilation_cpu;
+    stat->m_elapsed_time += elapsed_time;
+    stat->m_rows_inserted += rows_inserted;
+    stat->m_created_tmp_disk_tables += created_tmp_disk_tables;
+    stat->m_created_tmp_tables += created_tmp_tables;
+    stat->m_select_full_join += select_full_join;
+    stat->m_select_full_range_join += select_full_range_join;
+    stat->m_select_range += select_range;
+    stat->m_select_range_check += select_range_check;
+    stat->m_select_scan += select_scan;
+    stat->m_sort_merge_passes += sort_merge_passes;
+    stat->m_sort_range += sort_range;
+    stat->m_sort_rows += sort_rows;
+    stat->m_sort_scan += sort_scan;
+    stat->m_no_index_used += no_index_used;
+    stat->m_no_good_index_used += no_good_index_used;
+    stat->m_filesort_disk_usage_peak += filesort_disk_usage_peak;
+    stat->m_tmp_table_disk_usage_peak += tmp_table_disk_usage_peak;
+
     stat->aggregate_memory_size(stmt_controlled_size, stmt_total_size);
 
     if (state->m_secondary) {
@@ -7281,27 +7373,39 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
     if (digest_stat != nullptr) {
       bool new_max_wait = false;
 
+      // Not allowing incomplete stats to be uploaded to the aggregates
+      // Limiting to summary_by_all stats which are snapshotted at
+      // periodic intervals.
+      // Histograms should be updated only on statement completion.
+      // Similarly, the aggregate statistics should be computed only on
+      // completed statement stats.
       if (pfs_flags & STATE_FLAG_TIMED) {
-        digest_stat->m_stat.aggregate_value(wait_time);
-        digest_stat->m_stat.m_cpu_time += cpu_time;
-
-        /* Update the digest sample if it's a new maximum. */
-        if (wait_time > digest_stat->get_sample_timer_wait()) {
-          new_max_wait = true;
-        }
-        time_normalizer *normalizer = time_normalizer::get_statement();
-        const ulong bucket_index = normalizer->bucket_index(wait_time);
-
-        /* Update digest histogram. */
-        auto histogram = digest_stat->get_histogram();
-        if (histogram) {
-          histogram->increment_bucket(bucket_index);
+        if (!state->m_aggregate_count_initiated) {
+          digest_stat->m_stat.aggregate_value(wait_time);
+          digest_stat->m_stat.m_cpu_time += cpu_time;
         }
 
-        /* Update global histogram. */
-        global_statements_histogram.increment_bucket(bucket_index);
+        if (statement_completed) {
+          /* Update the digest sample if it's a new maximum. */
+          if (wait_time > digest_stat->get_sample_timer_wait()) {
+            new_max_wait = true;
+          }
+          time_normalizer *normalizer = time_normalizer::get_statement();
+          const ulong bucket_index = normalizer->bucket_index(wait_time);
+
+          /* Update digest histogram. */
+          auto histogram = digest_stat->get_histogram();
+          if (histogram) {
+            histogram->increment_bucket(bucket_index);
+          }
+
+          /* Update global histogram. */
+          global_statements_histogram.increment_bucket(bucket_index);
+        }
       } else {
-        digest_stat->m_stat.aggregate_counted();
+        if (!state->m_aggregate_count_initiated) {
+          digest_stat->m_stat.aggregate_counted();
+        }
       }
 
       if (state->m_query_sample_length != 0) {
@@ -7353,211 +7457,209 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
         }
       }
 
-      digest_stat->m_stat.m_lock_time += state->current_state.m_lock_time;
-      digest_stat->m_stat.m_rows_sent += state->current_state.m_rows_sent;
-      digest_stat->m_stat.m_rows_examined +=
-          state->current_state.m_rows_examined;
-      digest_stat->m_stat.m_rows_deleted += state->current_state.m_rows_deleted;
-      digest_stat->m_stat.m_rows_inserted +=
-          state->current_state.m_rows_inserted;
-      digest_stat->m_stat.m_rows_updated += state->current_state.m_rows_updated;
-      digest_stat->m_stat.m_tmp_table_bytes_written +=
-          state->current_state.m_tmp_table_bytes_written;
-      digest_stat->m_stat.m_filesort_bytes_written +=
-          state->current_state.m_filesort_bytes_written;
-      digest_stat->m_stat.m_index_dive_count +=
-          state->current_state.m_index_dive_count;
-      digest_stat->m_stat.m_index_dive_cpu +=
-          state->current_state.m_index_dive_cpu;
-      digest_stat->m_stat.m_compilation_cpu +=
-          state->current_state.m_compilation_cpu;
-      digest_stat->m_stat.m_elapsed_time += state->current_state.m_elapsed_time;
-      digest_stat->m_stat.m_created_tmp_disk_tables +=
-          state->current_state.m_created_tmp_disk_tables;
-      digest_stat->m_stat.m_created_tmp_tables +=
-          state->current_state.m_created_tmp_tables;
-      digest_stat->m_stat.m_select_full_join +=
-          state->current_state.m_select_full_join;
-      digest_stat->m_stat.m_select_full_range_join +=
-          state->current_state.m_select_full_range_join;
-      digest_stat->m_stat.m_select_range += state->current_state.m_select_range;
-      digest_stat->m_stat.m_select_range_check +=
-          state->current_state.m_select_range_check;
-      digest_stat->m_stat.m_select_scan += state->current_state.m_select_scan;
-      digest_stat->m_stat.m_sort_merge_passes +=
-          state->current_state.m_sort_merge_passes;
-      digest_stat->m_stat.m_sort_range += state->current_state.m_sort_range;
-      digest_stat->m_stat.m_sort_rows += state->current_state.m_sort_rows;
-      digest_stat->m_stat.m_sort_scan += state->current_state.m_sort_scan;
-      digest_stat->m_stat.m_no_index_used +=
-          state->current_state.m_no_index_used;
-      digest_stat->m_stat.m_no_good_index_used +=
-          state->current_state.m_no_good_index_used;
+      digest_stat->m_stat.m_lock_time += lock_time;
+      digest_stat->m_stat.m_rows_sent += rows_sent;
+      digest_stat->m_stat.m_rows_examined += rows_examined;
+      digest_stat->m_stat.m_rows_deleted += rows_deleted;
+      digest_stat->m_stat.m_rows_inserted += rows_inserted;
+      digest_stat->m_stat.m_rows_updated += rows_updated;
+      digest_stat->m_stat.m_tmp_table_bytes_written += tmp_table_bytes_written;
+      digest_stat->m_stat.m_filesort_bytes_written += filesort_bytes_written;
+      digest_stat->m_stat.m_index_dive_count += index_dive_count;
+      digest_stat->m_stat.m_index_dive_cpu += index_dive_cpu;
+      digest_stat->m_stat.m_compilation_cpu += compilation_cpu;
+      digest_stat->m_stat.m_elapsed_time += elapsed_time;
+      digest_stat->m_stat.m_created_tmp_disk_tables += created_tmp_disk_tables;
+      digest_stat->m_stat.m_created_tmp_tables += created_tmp_tables;
+      digest_stat->m_stat.m_select_full_join += select_full_join;
+      digest_stat->m_stat.m_select_full_range_join += select_full_range_join;
+      digest_stat->m_stat.m_select_range += select_range;
+      digest_stat->m_stat.m_select_range_check += select_range_check;
+      digest_stat->m_stat.m_select_scan += select_scan;
+      digest_stat->m_stat.m_sort_merge_passes += sort_merge_passes;
+      digest_stat->m_stat.m_sort_range += sort_range;
+      digest_stat->m_stat.m_sort_rows += sort_rows;
+      digest_stat->m_stat.m_sort_scan += sort_scan;
+      digest_stat->m_stat.m_no_index_used += no_index_used;
+      digest_stat->m_stat.m_no_good_index_used += no_good_index_used;
+      digest_stat->m_stat.m_filesort_disk_usage_peak +=
+          filesort_disk_usage_peak;
+      digest_stat->m_stat.m_tmp_table_disk_usage_peak +=
+          tmp_table_disk_usage_peak;
+
       digest_stat->m_stat.aggregate_memory_size(stmt_controlled_size,
                                                 stmt_total_size);
       if (state->m_secondary) {
         digest_stat->m_stat.m_count_secondary++;
       }
-      digest_stat->m_stat.m_filesort_disk_usage_peak +=
-          state->current_state.m_filesort_disk_usage_peak;
-      digest_stat->m_stat.m_tmp_table_disk_usage_peak +=
-          state->current_state.m_tmp_table_disk_usage_peak;
     } else {
-      if (pfs_flags & STATE_FLAG_TIMED) {
-        time_normalizer *normalizer = time_normalizer::get_statement();
-        const ulong bucket_index = normalizer->bucket_index(wait_time);
-
-        /* Update global histogram. */
-        global_statements_histogram.increment_bucket(bucket_index);
-      }
-    }
-
-    if (pfs_program != nullptr) {
-      PFS_statement_stat *sub_stmt_stat = nullptr;
-      sub_stmt_stat = &pfs_program->m_stmt_stat;
-      if (sub_stmt_stat != nullptr) {
+      if (statement_completed) {
         if (pfs_flags & STATE_FLAG_TIMED) {
-          sub_stmt_stat->aggregate_value(wait_time);
-          sub_stmt_stat->m_cpu_time += cpu_time;
-        } else {
-          sub_stmt_stat->aggregate_counted();
-        }
+          time_normalizer *normalizer = time_normalizer::get_statement();
+          const ulong bucket_index = normalizer->bucket_index(wait_time);
 
-        sub_stmt_stat->m_lock_time += state->current_state.m_lock_time;
-        sub_stmt_stat->m_rows_sent += state->current_state.m_rows_sent;
-        sub_stmt_stat->m_rows_examined += state->current_state.m_rows_examined;
-        sub_stmt_stat->m_rows_deleted += state->current_state.m_rows_deleted;
-        sub_stmt_stat->m_rows_inserted += state->current_state.m_rows_inserted;
-        sub_stmt_stat->m_rows_updated += state->current_state.m_rows_updated;
-        sub_stmt_stat->m_tmp_table_bytes_written +=
-            state->current_state.m_tmp_table_bytes_written;
-        sub_stmt_stat->m_filesort_bytes_written +=
-            state->current_state.m_filesort_bytes_written;
-        sub_stmt_stat->m_index_dive_count +=
-            state->current_state.m_index_dive_count;
-        sub_stmt_stat->m_index_dive_cpu +=
-            state->current_state.m_index_dive_cpu;
-        sub_stmt_stat->m_compilation_cpu +=
-            state->current_state.m_compilation_cpu;
-        sub_stmt_stat->m_elapsed_time += state->current_state.m_elapsed_time;
-        sub_stmt_stat->m_created_tmp_disk_tables +=
-            state->current_state.m_created_tmp_disk_tables;
-        sub_stmt_stat->m_created_tmp_tables +=
-            state->current_state.m_created_tmp_tables;
-        sub_stmt_stat->m_select_full_join +=
-            state->current_state.m_select_full_join;
-        sub_stmt_stat->m_select_full_range_join +=
-            state->current_state.m_select_full_range_join;
-        sub_stmt_stat->m_select_range += state->current_state.m_select_range;
-        sub_stmt_stat->m_select_range_check +=
-            state->current_state.m_select_range_check;
-        sub_stmt_stat->m_select_scan += state->current_state.m_select_scan;
-        sub_stmt_stat->m_sort_merge_passes +=
-            state->current_state.m_sort_merge_passes;
-        sub_stmt_stat->m_sort_range += state->current_state.m_sort_range;
-        sub_stmt_stat->m_sort_rows += state->current_state.m_sort_rows;
-        sub_stmt_stat->m_sort_scan += state->current_state.m_sort_scan;
-        sub_stmt_stat->m_no_index_used += state->current_state.m_no_index_used;
-        sub_stmt_stat->m_no_good_index_used +=
-            state->current_state.m_no_good_index_used;
-        sub_stmt_stat->aggregate_memory_size(stmt_controlled_size,
-                                             stmt_total_size);
-        if (state->m_secondary) {
-          sub_stmt_stat->m_count_secondary++;
+          /* Update global histogram. */
+          global_statements_histogram.increment_bucket(bucket_index);
         }
-        sub_stmt_stat->m_filesort_disk_usage_peak +=
-            state->current_state.m_filesort_disk_usage_peak;
-        sub_stmt_stat->m_tmp_table_disk_usage_peak +=
-            state->current_state.m_tmp_table_disk_usage_peak;
       }
     }
 
-    if (pfs_prepared_stmt != nullptr) {
-      if (state->m_in_prepare) {
-        PFS_single_stat *prepared_stmt_stat = nullptr;
-        prepared_stmt_stat = &pfs_prepared_stmt->m_prepare_stat;
-        if (prepared_stmt_stat != nullptr) {
+    // The partial statement snapshots are only used for esms_by_all, hence we
+    // skip updating snapshots for other tables.
+    if (statement_completed) {
+      // Will be nullptr when statement_completed is false
+      if (pfs_program != nullptr) {
+        PFS_statement_stat *sub_stmt_stat = nullptr;
+        // m_stmt_stat is used for table_esms_by_program
+        sub_stmt_stat = &pfs_program->m_stmt_stat;
+        if (sub_stmt_stat != nullptr) {
           if (pfs_flags & STATE_FLAG_TIMED) {
-            prepared_stmt_stat->aggregate_value(wait_time);
+            sub_stmt_stat->aggregate_value(wait_time);
+            sub_stmt_stat->m_cpu_time += cpu_time;
           } else {
-            prepared_stmt_stat->aggregate_counted();
-          }
-        }
-      } else {
-        PFS_statement_stat *prepared_stmt_stat = nullptr;
-        prepared_stmt_stat = &pfs_prepared_stmt->m_execute_stat;
-        if (prepared_stmt_stat != nullptr) {
-          if (pfs_flags & STATE_FLAG_TIMED) {
-            prepared_stmt_stat->aggregate_value(wait_time);
-            prepared_stmt_stat->m_cpu_time += cpu_time;
-          } else {
-            prepared_stmt_stat->aggregate_counted();
+            sub_stmt_stat->aggregate_counted();
           }
 
-          prepared_stmt_stat->m_lock_time += state->current_state.m_lock_time;
-          prepared_stmt_stat->m_rows_sent += state->current_state.m_rows_sent;
-          prepared_stmt_stat->m_rows_examined +=
+          sub_stmt_stat->m_lock_time += state->current_state.m_lock_time;
+          sub_stmt_stat->m_rows_sent += state->current_state.m_rows_sent;
+          sub_stmt_stat->m_rows_examined +=
               state->current_state.m_rows_examined;
-          prepared_stmt_stat->m_rows_deleted +=
-              state->current_state.m_rows_deleted;
-          prepared_stmt_stat->m_rows_inserted +=
+          sub_stmt_stat->m_rows_deleted += state->current_state.m_rows_deleted;
+          sub_stmt_stat->m_rows_inserted +=
               state->current_state.m_rows_inserted;
-          prepared_stmt_stat->m_rows_updated +=
-              state->current_state.m_rows_updated;
-          prepared_stmt_stat->m_tmp_table_bytes_written +=
+          sub_stmt_stat->m_rows_updated += state->current_state.m_rows_updated;
+          sub_stmt_stat->m_tmp_table_bytes_written +=
               state->current_state.m_tmp_table_bytes_written;
-          prepared_stmt_stat->m_filesort_bytes_written +=
+          sub_stmt_stat->m_filesort_bytes_written +=
               state->current_state.m_filesort_bytes_written;
-          prepared_stmt_stat->m_index_dive_count +=
+          sub_stmt_stat->m_index_dive_count +=
               state->current_state.m_index_dive_count;
-          prepared_stmt_stat->m_index_dive_cpu +=
+          sub_stmt_stat->m_index_dive_cpu +=
               state->current_state.m_index_dive_cpu;
-          prepared_stmt_stat->m_compilation_cpu +=
+          sub_stmt_stat->m_compilation_cpu +=
               state->current_state.m_compilation_cpu;
-          prepared_stmt_stat->m_elapsed_time +=
-              state->current_state.m_elapsed_time;
-          prepared_stmt_stat->m_created_tmp_disk_tables +=
+          sub_stmt_stat->m_elapsed_time += state->current_state.m_elapsed_time;
+          sub_stmt_stat->m_created_tmp_disk_tables +=
               state->current_state.m_created_tmp_disk_tables;
-          prepared_stmt_stat->m_created_tmp_tables +=
+          sub_stmt_stat->m_created_tmp_tables +=
               state->current_state.m_created_tmp_tables;
-          prepared_stmt_stat->m_select_full_join +=
+          sub_stmt_stat->m_select_full_join +=
               state->current_state.m_select_full_join;
-          prepared_stmt_stat->m_select_full_range_join +=
+          sub_stmt_stat->m_select_full_range_join +=
               state->current_state.m_select_full_range_join;
-          prepared_stmt_stat->m_select_range +=
-              state->current_state.m_select_range;
-          prepared_stmt_stat->m_select_range_check +=
+          sub_stmt_stat->m_select_range += state->current_state.m_select_range;
+          sub_stmt_stat->m_select_range_check +=
               state->current_state.m_select_range_check;
-          prepared_stmt_stat->m_select_scan +=
-              state->current_state.m_select_scan;
-          prepared_stmt_stat->m_sort_merge_passes +=
+          sub_stmt_stat->m_select_scan += state->current_state.m_select_scan;
+          sub_stmt_stat->m_sort_merge_passes +=
               state->current_state.m_sort_merge_passes;
-          prepared_stmt_stat->m_sort_range += state->current_state.m_sort_range;
-          prepared_stmt_stat->m_sort_rows += state->current_state.m_sort_rows;
-          prepared_stmt_stat->m_sort_scan += state->current_state.m_sort_scan;
-          prepared_stmt_stat->m_no_index_used +=
+          sub_stmt_stat->m_sort_range += state->current_state.m_sort_range;
+          sub_stmt_stat->m_sort_rows += state->current_state.m_sort_rows;
+          sub_stmt_stat->m_sort_scan += state->current_state.m_sort_scan;
+          sub_stmt_stat->m_no_index_used +=
               state->current_state.m_no_index_used;
-          prepared_stmt_stat->m_no_good_index_used +=
+          sub_stmt_stat->m_no_good_index_used +=
               state->current_state.m_no_good_index_used;
-          prepared_stmt_stat->aggregate_memory_size(stmt_controlled_size,
-                                                    stmt_total_size);
-          if (pfs_prepared_stmt->m_secondary) {
-            prepared_stmt_stat->m_count_secondary++;
+          sub_stmt_stat->aggregate_memory_size(stmt_controlled_size,
+                                               stmt_total_size);
+          if (state->m_secondary) {
+            sub_stmt_stat->m_count_secondary++;
           }
-          prepared_stmt_stat->m_filesort_disk_usage_peak +=
+          sub_stmt_stat->m_filesort_disk_usage_peak +=
               state->current_state.m_filesort_disk_usage_peak;
-          prepared_stmt_stat->m_tmp_table_disk_usage_peak +=
+          sub_stmt_stat->m_tmp_table_disk_usage_peak +=
               state->current_state.m_tmp_table_disk_usage_peak;
         }
       }
-    }
 
-    if (pfs_program != nullptr) {
-      sub_stmt_stat = &pfs_program->m_stmt_stat;
-    }
+      if (pfs_prepared_stmt != nullptr) {
+        if (state->m_in_prepare) {
+          PFS_single_stat *prepared_stmt_stat = nullptr;
+          prepared_stmt_stat = &pfs_prepared_stmt->m_prepare_stat;
+          if (prepared_stmt_stat != nullptr) {
+            if (pfs_flags & STATE_FLAG_TIMED) {
+              prepared_stmt_stat->aggregate_value(wait_time);
+            } else {
+              prepared_stmt_stat->aggregate_counted();
+            }
+          }
+        } else {
+          PFS_statement_stat *prepared_stmt_stat = nullptr;
+          prepared_stmt_stat = &pfs_prepared_stmt->m_execute_stat;
+          if (prepared_stmt_stat != nullptr) {
+            if (pfs_flags & STATE_FLAG_TIMED) {
+              prepared_stmt_stat->aggregate_value(wait_time);
+              prepared_stmt_stat->m_cpu_time += cpu_time;
+            } else {
+              prepared_stmt_stat->aggregate_counted();
+            }
 
-    if (pfs_prepared_stmt != nullptr && !state->m_in_prepare) {
-      prepared_stmt_stat = &pfs_prepared_stmt->m_execute_stat;
+            prepared_stmt_stat->m_lock_time += state->current_state.m_lock_time;
+            prepared_stmt_stat->m_rows_sent += state->current_state.m_rows_sent;
+            prepared_stmt_stat->m_rows_examined +=
+                state->current_state.m_rows_examined;
+            prepared_stmt_stat->m_rows_deleted +=
+                state->current_state.m_rows_deleted;
+            prepared_stmt_stat->m_rows_inserted +=
+                state->current_state.m_rows_inserted;
+            prepared_stmt_stat->m_rows_updated +=
+                state->current_state.m_rows_updated;
+            prepared_stmt_stat->m_tmp_table_bytes_written +=
+                state->current_state.m_tmp_table_bytes_written;
+            prepared_stmt_stat->m_filesort_bytes_written +=
+                state->current_state.m_filesort_bytes_written;
+            prepared_stmt_stat->m_index_dive_count +=
+                state->current_state.m_index_dive_count;
+            prepared_stmt_stat->m_index_dive_cpu +=
+                state->current_state.m_index_dive_cpu;
+            prepared_stmt_stat->m_compilation_cpu +=
+                state->current_state.m_compilation_cpu;
+            prepared_stmt_stat->m_elapsed_time +=
+                state->current_state.m_elapsed_time;
+            prepared_stmt_stat->m_created_tmp_disk_tables +=
+                state->current_state.m_created_tmp_disk_tables;
+            prepared_stmt_stat->m_created_tmp_tables +=
+                state->current_state.m_created_tmp_tables;
+            prepared_stmt_stat->m_select_full_join +=
+                state->current_state.m_select_full_join;
+            prepared_stmt_stat->m_select_full_range_join +=
+                state->current_state.m_select_full_range_join;
+            prepared_stmt_stat->m_select_range +=
+                state->current_state.m_select_range;
+            prepared_stmt_stat->m_select_range_check +=
+                state->current_state.m_select_range_check;
+            prepared_stmt_stat->m_select_scan +=
+                state->current_state.m_select_scan;
+            prepared_stmt_stat->m_sort_merge_passes +=
+                state->current_state.m_sort_merge_passes;
+            prepared_stmt_stat->m_sort_range +=
+                state->current_state.m_sort_range;
+            prepared_stmt_stat->m_sort_rows += state->current_state.m_sort_rows;
+            prepared_stmt_stat->m_sort_scan += state->current_state.m_sort_scan;
+            prepared_stmt_stat->m_no_index_used +=
+                state->current_state.m_no_index_used;
+            prepared_stmt_stat->m_no_good_index_used +=
+                state->current_state.m_no_good_index_used;
+            prepared_stmt_stat->aggregate_memory_size(stmt_controlled_size,
+                                                      stmt_total_size);
+            if (pfs_prepared_stmt->m_secondary) {
+              prepared_stmt_stat->m_count_secondary++;
+            }
+            prepared_stmt_stat->m_filesort_disk_usage_peak +=
+                state->current_state.m_filesort_disk_usage_peak;
+            prepared_stmt_stat->m_tmp_table_disk_usage_peak +=
+                state->current_state.m_tmp_table_disk_usage_peak;
+          }
+        }
+      }
+
+      if (pfs_program != nullptr) {
+        sub_stmt_stat = &pfs_program->m_stmt_stat;
+      }
+
+      if (pfs_prepared_stmt != nullptr && !state->m_in_prepare) {
+        prepared_stmt_stat = &pfs_prepared_stmt->m_execute_stat;
+      }
     }
   }
 
@@ -7746,25 +7848,34 @@ void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
 
   state->m_query_sample_length = 0;
   state->m_query_sample = nullptr;
+
+  if (!state->m_aggregate_count_initiated) {
+    state->m_aggregate_count_initiated = true;
+  }
+
+  if (!statement_completed) {
+    state->prev_state = state->current_state;
+  } else {
+    state->prev_state = {};
+    state->m_aggregate_count_initiated = false;
+    state->m_capture_stats_periodic = false;
+  }
 }
 
-static inline enum_object_type sp_type_to_object_type(uint sp_type) {
-  const enum_sp_type value = to_sp_type(sp_type);
+void pfs_snapshot_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
+  pfs_snapshot_statement_helper(locker, stmt_da, false);
+}
 
-  switch (value) {
-    case enum_sp_type::FUNCTION:
-      return OBJECT_TYPE_FUNCTION;
-    case enum_sp_type::PROCEDURE:
-      return OBJECT_TYPE_PROCEDURE;
-    case enum_sp_type::TRIGGER:
-      return OBJECT_TYPE_TRIGGER;
-    case enum_sp_type::EVENT:
-      return OBJECT_TYPE_EVENT;
-    default:
-      assert(false);
-      /* Dead code */
-      return NO_OBJECT_TYPE;
-  }
+void pfs_end_statement_vc(PSI_statement_locker *locker, void *stmt_da) {
+  DBUG_EXECUTE_IF("skip_end_statement", {
+    PSI_statement_locker_state *state =
+        reinterpret_cast<PSI_statement_locker_state *>(locker);
+    // Mock end statement calls
+    PFS_thread *thread = reinterpret_cast<PFS_thread *>(state->m_thread);
+    thread->m_events_statements_count--;
+    return;
+  });
+  pfs_snapshot_statement_helper(locker, stmt_da, true);
 }
 
 unsigned long long pfs_get_statement_cpu_time_vc(PSI_statement_locker *locker) {
