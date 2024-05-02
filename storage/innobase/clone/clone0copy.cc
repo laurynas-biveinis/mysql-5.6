@@ -501,7 +501,7 @@ int Clone_Snapshot::init_redo_copy(Snapshot_State new_state,
   /* This code is disabled due to clone cross-engine synchronization happenning
   through a performance_schema.LOG_STATUS query, see the synchronize_engines
   call below. */
-#if 0
+#if 1
   /* Block external XA operations. XA prepare commit and rollback operations
   are first logged to binlog and added to global gtid_executed before doing
   operation in SE. Without blocking, we might persist such GTIDs from global
