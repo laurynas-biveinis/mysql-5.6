@@ -533,6 +533,9 @@ extern bool enable_blind_replace;
 extern bool set_read_only_on_shutdown;
 extern bool show_binlogs_encryption;
 
+/* Whether to lock global binlog index during reset rli */
+extern bool opt_reset_rli_lock_index;
+
 /* SHOW STATS var: Name of current timer */
 extern const char *timer_in_use;
 /* Current timer stats */
