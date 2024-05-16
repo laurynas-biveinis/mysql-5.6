@@ -4516,8 +4516,10 @@ static bool prepare_create_fb_vector_field(THD *thd, Create_field *sql_field) {
   if (vector_dimension <= 0) {
     return false;
   }
-  if (sql_field->sql_type != MYSQL_TYPE_JSON) {
-    my_error(ER_WRONG_ARGUMENTS, MYF(0), "fb_vector only supports json type");
+  if (sql_field->sql_type != MYSQL_TYPE_JSON &&
+      sql_field->sql_type != MYSQL_TYPE_BLOB) {
+    my_error(ER_WRONG_ARGUMENTS, MYF(0),
+             "fb_vector only supports json/blob type");
     return true;
   }
   if (sql_field->is_nullable) {
@@ -4954,10 +4956,12 @@ static bool prepare_key_column(THD *thd, HA_CREATE_INFO *create_info,
   }
 
   // fb_vector index only support type `json not null fb_vector_dimension`
+  // or `blob not null fb_vector_dimension`
   if (key_info->is_fb_vector_index()) {
-    if (sql_field->sql_type != MYSQL_TYPE_JSON) {
+    if (sql_field->sql_type != MYSQL_TYPE_JSON &&
+        sql_field->sql_type != MYSQL_TYPE_BLOB) {
       my_error(ER_WRONG_ARGUMENTS, MYF(0),
-               "fb_vector index only support json type");
+               "fb_vector index only support json/blob type");
       return true;
     }
     if (sql_field->m_fb_vector_dimension <= 0) {
@@ -5112,7 +5116,7 @@ static bool prepare_key_column(THD *thd, HA_CREATE_INFO *create_info,
         my_error(ER_BLOB_USED_AS_KEY, MYF(0), column->get_field_name());
         return true;
       }
-      if (!column_length) {
+      if (!column_length && !key_info->is_fb_vector_index()) {
         my_error(ER_BLOB_KEY_WITHOUT_LENGTH, MYF(0), column->get_field_name());
         return true;
       }
