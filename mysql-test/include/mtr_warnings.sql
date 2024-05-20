@@ -383,6 +383,11 @@ INSERT INTO global_suppressions VALUES
 
  ("'mysql_native_password' is deprecated and will be removed in a future release."),
 
+ /*
+   thread_stack adjustment for sanitizer builds
+ */
+ ("option 'thread_stack': unsigned value .* adjusted to .*"),
+
  ("THE_LAST_SUPPRESSION");
 
 
