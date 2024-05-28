@@ -1812,7 +1812,7 @@ bool show_master_status(THD *thd) {
   @retval false success
   @retval true failure
 */
-bool show_binlogs(THD *thd, bool with_gtid) {
+bool show_binlogs(THD *thd, bool with_gtid, bool with_opid) {
   IO_CACHE *index_file;
   LOG_INFO cur;
   File file;
@@ -1836,6 +1836,11 @@ bool show_binlogs(THD *thd, bool with_gtid) {
     field_list.push_back(
         new Item_empty_string("Prev_gtid_set",
                               0));  // max_size seems not to matter
+  if (with_opid) {
+    field_list.push_back(
+        new Item_empty_string("Prev_opid",
+                              0));  // max_size seems not to matter
+  }
 
   mysql_mutex_lock(mysql_bin_log.get_binlog_end_pos_lock());
   DEBUG_SYNC(thd, "show_binlogs_after_lock_log_before_lock_index");
@@ -1854,6 +1859,10 @@ bool show_binlogs(THD *thd, bool with_gtid) {
   while ((length = my_b_gets(index_file, file_name_and_gtid_set_length,
                              FN_REFLEN + 22)) > 1) {
     BinlogInfoRow binlog_info_row;
+
+    if (with_opid) {
+      binlog_info_row.opid = get_opid_from_index(file_name_and_gtid_set_length);
+    }
 
     size_t dir_len;
     int encrypted_header_size = 0;
@@ -1936,6 +1945,10 @@ bool show_binlogs(THD *thd, bool with_gtid) {
       protocol->store_string(binlog_info_row.prev_gtid_set.c_str(),
                              binlog_info_row.prev_gtid_set.length(),
                              &my_charset_bin);
+    }
+    if (with_opid) {
+      protocol->store_string(binlog_info_row.opid.c_str(),
+                             binlog_info_row.opid.length(), &my_charset_bin);
     }
     if (protocol->end_row()) {
       DBUG_PRINT(
