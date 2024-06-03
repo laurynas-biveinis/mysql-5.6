@@ -3158,6 +3158,7 @@ static void clean_up(bool print_message) {
   free_global_write_statistics();
   free_global_sql_findings(false);
   free_global_active_sql();
+  free_index_stats();
 
   free_max_user_conn();
   delete binlog_filter;
