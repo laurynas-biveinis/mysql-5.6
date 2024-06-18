@@ -1062,6 +1062,8 @@ int HashJoinIterator::Read() {
       return 1;
     }
 
+    thd()->check_yield();
+
     switch (m_state) {
       case State::LOADING_NEXT_CHUNK_PAIR:
         if (ReadNextHashJoinChunk()) {
