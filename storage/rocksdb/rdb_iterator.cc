@@ -20,10 +20,13 @@
 #include <cstddef>
 
 /* MySQL includes */
-#include "rdb_utils.h"
 #include "scope_guard.h"
 #include "sql/sql_class.h"
 #include "sql/thr_malloc.h"
+
+// MyRocks includes
+#include "rdb_utils.h"
+#include "sysvars.h"
 
 namespace myrocks {
 
@@ -489,7 +492,7 @@ Rdb_iterator_partial::Rdb_iterator_partial(THD *thd, const Rdb_key_def &kd,
       m_records_it(m_records.end()),
       m_comparator(slice_comparator(m_kd.get_cf().GetComparator())) {
   init_sql_alloc(PSI_NOT_INSTRUMENTED, &m_mem_root, 4096);
-  auto max_mem = get_partial_index_sort_max_mem(thd);
+  const auto max_mem = sysvars::get_partial_index_sort_max_mem(thd);
   if (max_mem) {
     m_mem_root.set_max_capacity(max_mem);
   }
@@ -761,7 +764,8 @@ int Rdb_iterator_partial::materialize_prefix() {
 
   m_pkd.get_infimum_key(m_cur_prefix_key, &tmp);
   Rdb_iterator_base iter_pk(m_thd, nullptr, m_pkd, m_pkd, m_tbl_def);
-  if (rocksdb_partial_index_ignore_killed) {
+  const auto partial_index_ignore_killed = sysvars::partial_index_ignore_killed;
+  if (partial_index_ignore_killed) {
     iter_pk.set_ignore_killed(true);
   }
 
@@ -770,7 +774,7 @@ int Rdb_iterator_partial::materialize_prefix() {
   size_t num_rows = 0;
 
   while (!rc) {
-    if (!rocksdb_partial_index_ignore_killed && thd_killed(m_thd)) {
+    if (!partial_index_ignore_killed && thd_killed(m_thd)) {
       rc = HA_ERR_QUERY_INTERRUPTED;
       goto exit;
     }
@@ -917,7 +921,7 @@ int Rdb_iterator_partial::read_prefix_from_pk() {
 
 exit:
   if (num_rows > m_threshold) {
-    if (rc == 0 || (rocksdb_partial_index_ignore_killed &&
+    if (rc == 0 || (sysvars::partial_index_ignore_killed &&
                     rc == HA_ERR_QUERY_INTERRUPTED)) {
       rc = materialize_prefix();
     }
