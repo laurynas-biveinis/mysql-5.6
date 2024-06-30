@@ -338,10 +338,13 @@
   80036-025:
   - Add CPU_USAGE and DELAY_TOTAL columns to P_S.processlist and P_S.threads.
 
+  80032-026:
+  - Add DB_NAME columns to P_S.memory_summary_by_thread_by_event_name.
+
   The last three digits reprents Facebook specific MySQL Schema changes.
-  Version published is now 80036-025. i.e. 8.0.36 Facebook schema change no. 25.
+  Version published is now 80036-025. i.e. 8.0.36 Facebook schema change no. 26.
 */
 
-static const uint PFS_DD_VERSION = 80036025;
+static const uint PFS_DD_VERSION = 80036026;
 
 #endif /* PFS_DD_VERSION_H */
