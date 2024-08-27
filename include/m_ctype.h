@@ -30,6 +30,7 @@
 
 #include <stddef.h>
 #include <sys/types.h>
+#include <atomic>
 #include <cassert>
 #include <cstdint>
 #include <cstring>
@@ -385,7 +386,7 @@ struct CHARSET_INFO {
   uint number;
   uint primary_number;
   uint binary_number;
-  uint state;
+  std::atomic<uint> state;
   const char *csname;
   const char *m_coll_name;
   const char *comment;
