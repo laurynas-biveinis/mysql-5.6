@@ -10618,10 +10618,12 @@ int MYSQL_BIN_LOG::open_binlog(const char *opt_name) {
       char tmp_binlog_file[FN_REFLEN + 1] = {0};
       my_off_t tmp_binlog_pos = 0;
       error = ha_recover(&xids, nullptr, &engine_binlog_max_gtid,
-                         tmp_binlog_file, &tmp_binlog_pos);
+                         tmp_binlog_file, &tmp_binlog_pos,
+                         &recovered_lwm_opid, &recovered_max_opid);
     } else {
       error = ha_recover(&xids, nullptr, &engine_binlog_max_gtid,
-                         engine_binlog_file, &engine_binlog_pos);
+                         engine_binlog_file, &engine_binlog_pos,
+                         &recovered_lwm_opid, &recovered_max_opid);
     }
     if (error) LogErr(ERROR_LEVEL, ER_BINLOG_CRASH_RECOVERY_ERROR_RETURNED_SE);
     return error;
@@ -10633,7 +10635,8 @@ int MYSQL_BIN_LOG::open_binlog(const char *opt_name) {
   const std::string cur_log_file = log_name + dirname_length(log_name);
   binlog::Binlog_recovery bl_recovery{binlog_file_reader};
   bl_recovery.recover(&engine_binlog_max_gtid, engine_binlog_file,
-                      &engine_binlog_pos, cur_log_file,
+                      &engine_binlog_pos, &recovered_lwm_opid,
+                      &recovered_max_opid, cur_log_file,
                       &this->first_gtid_start_pos);
 
   my_off_t valid_pos = bl_recovery.get_valid_pos();
@@ -12125,7 +12128,8 @@ int ask_server_to_register_with_raft(Raft_Registration_Item item) {
       err = RUN_HOOK_STRICT(
           raft_replication, register_paths,
           (thd, server_uuid, ::server_id, s_wal_dir, s_log_dir,
-           log_bin_basename, glob_hostname_ptr, (uint64_t)mysqld_port));
+           log_bin_basename, glob_hostname_ptr, (uint64_t)mysqld_port,
+           mysql_bin_log.recovered_lwm_opid, mysql_bin_log.recovered_max_opid));
       break;
     }
     default:
