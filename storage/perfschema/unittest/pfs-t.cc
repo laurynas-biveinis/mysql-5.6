@@ -22,6 +22,8 @@
 
 #include "storage/perfschema/unittest/pfs_unit_test_conf.h"
 
+#include <cstdint>
+
 #include <memory.h>
 #include <mysql/psi/psi_file.h>
 #include <string.h>
@@ -2663,13 +2665,13 @@ struct Cpu_stats_test {
 
   Cpu_stats_test(PFS_cpu_sched_stat &stat) : cpu_stat(stat) {}
   void validate_cpu_stats() {
-    ok(cpu_stat.m_delay_start == delay_start, "delay start %ld",
+    ok(cpu_stat.m_delay_start == delay_start, "delay start %" PRId64,
        cpu_stat.m_delay_start);
-    ok(cpu_stat.m_delay_total_ns == delay_total, "delay total %ld",
+    ok(cpu_stat.m_delay_total_ns == delay_total, "delay total %" PRId64,
        cpu_stat.m_delay_total_ns);
-    ok(cpu_stat.m_cpu_start == quantum_start, "cpu start %ld",
+    ok(cpu_stat.m_cpu_start == quantum_start, "cpu start %" PRId64,
        cpu_stat.m_cpu_start);
-    ok(cpu_stat.m_cpu_total_ns == cpu_total, "cpu total %ld",
+    ok(cpu_stat.m_cpu_total_ns == cpu_total, "cpu total %" PRId64,
        cpu_stat.m_cpu_total_ns);
   }
 };
