@@ -5441,6 +5441,11 @@ dberr_t lock_rec_insert_check_and_lock(
 
         trx_mutex_enter(trx);
 
+        if (!lock_rec_get_rec_not_gap(conflicting.wait_for) ||
+            lock_rec_get_gap(conflicting.wait_for)) {
+          fprintf(stderr, "Gap lock preventing lock acquisition!\n");
+        }
+
         err = rec_lock.add_to_waitq(conflicting.wait_for);
 
         trx_mutex_exit(trx);

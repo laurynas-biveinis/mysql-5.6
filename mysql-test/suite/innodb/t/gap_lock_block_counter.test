@@ -1,0 +1,28 @@
+--source include/count_sessions.inc
+
+SET SESSION innodb_lock_wait_timeout = 1;
+
+--echo #
+--echo # Case 1: gap locked by a locking SELECT
+--echo #
+CREATE TABLE t1 (a INT PRIMARY KEY) ENGINE=InnoDB;
+
+INSERT INTO t1 VALUES (0), (5), (15), (20);
+
+--connect con1,localhost,root
+BEGIN;
+SELECT a FROM t1 WHERE a BETWEEN 5 AND 15 FOR UPDATE;
+
+--connection default
+--error ER_LOCK_WAIT_TIMEOUT
+INSERT INTO t1 VALUES (10);
+
+--connection con1
+COMMIT;
+--disconnect con1
+
+--connection default
+
+DROP TABLE t1;
+
+--source include/wait_until_count_sessions.inc
